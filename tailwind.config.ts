@@ -14,7 +14,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Noto Sans KR', 'sans-serif'],
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
       },
       colors: {
@@ -61,6 +61,12 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        status: {
+          success: "hsl(var(--status-success))",
+          warning: "hsl(var(--status-warning))",
+          error: "hsl(var(--status-error))",
+          info: "hsl(var(--status-info))",
+        },
         risk: {
           safe: "hsl(var(--risk-safe))",
           caution: "hsl(var(--risk-caution))",
@@ -71,11 +77,20 @@ export default {
           bg: "hsl(var(--terminal-bg))",
           text: "hsl(var(--terminal-text))",
           accent: "hsl(var(--terminal-accent))",
+          muted: "hsl(var(--terminal-muted))",
         },
         map: {
           bg: "hsl(var(--map-bg))",
           overlay: "hsl(var(--map-overlay))",
           border: "hsl(var(--map-border))",
+        },
+        header: {
+          bg: "hsl(var(--header-bg))",
+          foreground: "hsl(var(--header-foreground))",
+        },
+        panel: {
+          dark: "hsl(var(--panel-dark))",
+          "dark-foreground": "hsl(var(--panel-dark-foreground))",
         },
       },
       borderRadius: {

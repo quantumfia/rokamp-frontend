@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Shield, User, Lock, AlertCircle, Loader2 } from 'lucide-react';
+import { Shield, User, Lock, AlertCircle, Loader2, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -34,109 +34,112 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
   };
 
   return (
-    <div className="w-full max-w-md animate-fade-in-up">
+    <div className="w-full max-w-sm animate-fade-in-up">
       {/* Logo Section */}
       <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-primary/10 mb-4">
-          <Shield className="w-10 h-10 text-primary" />
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-lg bg-primary mb-4">
+          <Shield className="w-7 h-7 text-primary-foreground" />
         </div>
-        <h1 className="text-2xl font-bold text-foreground tracking-tight">
+        <h1 className="text-xl font-semibold text-foreground tracking-wide">
           ROKA-SAPS
         </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          육군 안전사고 예측 시스템
+        <p className="text-xs text-muted-foreground mt-1 tracking-wider">
+          안전사고 예측 시스템
         </p>
       </div>
 
       {/* Login Card */}
-      <div className="bg-card rounded-2xl shadow-xl border border-border p-8">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="militaryId" className="text-sm font-medium">
+      <div className="bg-card rounded-lg shadow-2xl border border-border p-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="militaryId" className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               군번 (ID)
             </Label>
             <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 id="militaryId"
                 type="text"
                 value={militaryId}
                 onChange={(e) => setMilitaryId(e.target.value)}
                 placeholder="군번을 입력하세요"
-                className="pl-10 h-12"
+                className="pl-9 h-10 text-sm bg-muted/50 border-border focus:border-primary focus:ring-1 focus:ring-primary"
                 disabled={isLoading}
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password" className="text-sm font-medium">
+          <div className="space-y-1.5">
+            <Label htmlFor="password" className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               비밀번호
             </Label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="비밀번호를 입력하세요"
-                className="pl-10 h-12"
+                className="pl-9 h-10 text-sm bg-muted/50 border-border focus:border-primary focus:ring-1 focus:ring-primary"
                 disabled={isLoading}
               />
             </div>
           </div>
 
           {error && (
-            <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
-              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <div className="flex items-center gap-2 p-2.5 rounded bg-destructive/10 text-destructive text-xs">
+              <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
           <Button
             type="submit"
-            className="w-full h-12 text-base font-medium"
+            className="w-full h-10 text-sm font-medium bg-primary hover:bg-primary/90 text-primary-foreground"
             disabled={isLoading}
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 인증 중...
               </>
             ) : (
-              '로그인'
+              <>
+                로그인
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </>
             )}
           </Button>
         </form>
 
         {/* Demo credentials hint */}
-        <div className="mt-6 pt-6 border-t border-border">
-          <p className="text-xs text-muted-foreground text-center mb-3">
+        <div className="mt-5 pt-5 border-t border-border">
+          <p className="text-[10px] text-muted-foreground text-center mb-2 uppercase tracking-wider">
             테스트 계정
           </p>
-          <div className="grid grid-cols-3 gap-2 text-xs">
-            <div className="p-2 rounded bg-muted text-center">
+          <div className="grid grid-cols-3 gap-1.5 text-[10px]">
+            <div className="p-2 rounded bg-muted/50 text-center border border-border/50">
               <div className="font-medium text-foreground">육본</div>
-              <div className="text-muted-foreground">HQ001</div>
+              <div className="text-muted-foreground mt-0.5">HQ001</div>
             </div>
-            <div className="p-2 rounded bg-muted text-center">
+            <div className="p-2 rounded bg-muted/50 text-center border border-border/50">
               <div className="font-medium text-foreground">사단</div>
-              <div className="text-muted-foreground">DIV001</div>
+              <div className="text-muted-foreground mt-0.5">DIV001</div>
             </div>
-            <div className="p-2 rounded bg-muted text-center">
+            <div className="p-2 rounded bg-muted/50 text-center border border-border/50">
               <div className="font-medium text-foreground">대대</div>
-              <div className="text-muted-foreground">BN001</div>
+              <div className="text-muted-foreground mt-0.5">BN001</div>
             </div>
           </div>
-          <p className="text-xs text-muted-foreground text-center mt-2">
-            비밀번호: admin123
+          <p className="text-[10px] text-muted-foreground text-center mt-2">
+            비밀번호: <span className="font-mono text-foreground">admin123</span>
           </p>
         </div>
       </div>
 
       {/* Footer */}
-      <p className="text-center text-xs text-muted-foreground mt-6">
+      <p className="text-center text-[10px] text-muted-foreground mt-5 tracking-wide">
         © 2024 대한민국 육군. All rights reserved.
       </p>
     </div>

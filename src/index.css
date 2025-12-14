@@ -2,103 +2,113 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 @layer base {
   :root {
-    /* Military Professional Light Theme */
-    --background: 120 8% 97%;
-    --foreground: 140 40% 8%;
+    /* Palantir/SAP Inspired Light Theme */
+    --background: 0 0% 98%;
+    --foreground: 0 0% 9%;
 
     --card: 0 0% 100%;
-    --card-foreground: 140 40% 8%;
+    --card-foreground: 0 0% 9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 140 40% 8%;
+    --popover-foreground: 0 0% 9%;
 
-    /* Dark Military Forest Green */
-    --primary: 150 50% 18%;
-    --primary-foreground: 120 8% 97%;
+    /* Cyan/Teal Primary - Palantir signature */
+    --primary: 187 85% 43%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 140 15% 92%;
-    --secondary-foreground: 140 40% 8%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 9%;
 
-    --muted: 140 10% 95%;
-    --muted-foreground: 140 10% 40%;
+    --muted: 0 0% 94%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 140 18% 88%;
-    --accent-foreground: 140 40% 8%;
+    --accent: 187 30% 94%;
+    --accent-foreground: 187 85% 30%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 120 8% 97%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 140 15% 85%;
-    --input: 140 15% 85%;
-    --ring: 150 50% 18%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 187 85% 43%;
 
-    --radius: 0.5rem;
+    --radius: 0.375rem;
+
+    /* Status Colors */
+    --status-success: 142 71% 45%;
+    --status-warning: 38 92% 50%;
+    --status-error: 0 72% 51%;
+    --status-info: 187 85% 43%;
 
     /* Risk Level Colors */
-    --risk-safe: 142 76% 36%;
-    --risk-caution: 45 93% 47%;
+    --risk-safe: 142 71% 45%;
+    --risk-caution: 38 92% 50%;
     --risk-warning: 25 95% 53%;
-    --risk-danger: 0 84% 60%;
+    --risk-danger: 0 72% 51%;
 
-    /* Terminal/Boot Colors */
-    --terminal-bg: 150 45% 6%;
-    --terminal-text: 140 70% 55%;
-    --terminal-accent: 45 100% 60%;
+    /* Terminal/Console Colors */
+    --terminal-bg: 220 13% 10%;
+    --terminal-text: 142 71% 55%;
+    --terminal-accent: 187 85% 55%;
+    --terminal-muted: 220 10% 40%;
 
     /* Map Dark Theme */
-    --map-bg: 150 40% 10%;
-    --map-overlay: 150 40% 6%;
-    --map-border: 150 30% 18%;
+    --map-bg: 220 13% 12%;
+    --map-overlay: 220 13% 8%;
+    --map-border: 220 10% 20%;
 
-    /* Sidebar */
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 140 40% 8%;
-    --sidebar-primary: 150 50% 18%;
-    --sidebar-primary-foreground: 120 8% 97%;
-    --sidebar-accent: 140 15% 94%;
-    --sidebar-accent-foreground: 140 40% 8%;
-    --sidebar-border: 140 15% 85%;
-    --sidebar-ring: 150 50% 18%;
+    /* Sidebar - Dark like Palantir */
+    --sidebar-background: 220 13% 10%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 187 85% 50%;
+    --sidebar-primary-foreground: 220 13% 10%;
+    --sidebar-accent: 220 13% 15%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 220 10% 18%;
+    --sidebar-ring: 187 85% 50%;
+    --sidebar-muted: 220 10% 40%;
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(150 50% 18%), hsl(150 45% 28%));
-    --gradient-risk-safe: linear-gradient(135deg, hsl(142 76% 36%), hsl(142 70% 45%));
-    --gradient-risk-danger: linear-gradient(135deg, hsl(0 84% 60%), hsl(0 70% 50%));
-    --gradient-data: linear-gradient(180deg, hsl(150 50% 18% / 0.1), transparent);
+    /* Header Bar */
+    --header-bg: 142 55% 35%;
+    --header-foreground: 0 0% 100%;
+
+    /* Panel Colors */
+    --panel-dark: 220 13% 10%;
+    --panel-dark-foreground: 0 0% 90%;
   }
 
   .dark {
-    --background: 150 40% 5%;
-    --foreground: 120 8% 97%;
-    --card: 150 40% 7%;
-    --card-foreground: 120 8% 97%;
-    --popover: 150 40% 7%;
-    --popover-foreground: 120 8% 97%;
-    --primary: 150 55% 45%;
-    --primary-foreground: 150 40% 8%;
-    --secondary: 150 30% 15%;
-    --secondary-foreground: 120 8% 97%;
-    --muted: 150 30% 15%;
-    --muted-foreground: 140 15% 60%;
-    --accent: 150 30% 15%;
-    --accent-foreground: 120 8% 97%;
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 120 8% 97%;
-    --border: 150 30% 15%;
-    --input: 150 30% 15%;
-    --ring: 150 50% 60%;
-    --sidebar-background: 150 40% 7%;
-    --sidebar-foreground: 120 8% 97%;
-    --sidebar-primary: 150 55% 45%;
-    --sidebar-primary-foreground: 150 40% 8%;
-    --sidebar-accent: 150 30% 12%;
-    --sidebar-accent-foreground: 120 8% 97%;
-    --sidebar-border: 150 30% 15%;
-    --sidebar-ring: 150 50% 60%;
+    --background: 220 13% 10%;
+    --foreground: 0 0% 95%;
+    --card: 220 13% 12%;
+    --card-foreground: 0 0% 95%;
+    --popover: 220 13% 12%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 187 85% 50%;
+    --primary-foreground: 220 13% 10%;
+    --secondary: 220 13% 18%;
+    --secondary-foreground: 0 0% 95%;
+    --muted: 220 13% 15%;
+    --muted-foreground: 220 10% 55%;
+    --accent: 220 13% 18%;
+    --accent-foreground: 0 0% 95%;
+    --destructive: 0 72% 45%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 10% 20%;
+    --input: 220 10% 20%;
+    --ring: 187 85% 50%;
+    --sidebar-background: 220 13% 8%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 187 85% 50%;
+    --sidebar-primary-foreground: 220 13% 10%;
+    --sidebar-accent: 220 13% 12%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 220 10% 15%;
+    --sidebar-ring: 187 85% 50%;
   }
 }
 
@@ -109,7 +119,7 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Noto Sans KR', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   }
 
   .font-mono {
@@ -118,13 +128,30 @@
 }
 
 @layer components {
-  /* Terminal/Boot Screen Styles */
+  /* Terminal/Console Styles - Palantir style */
   .terminal-screen {
-    @apply bg-terminal-bg text-terminal-text font-mono;
+    @apply bg-terminal-bg text-terminal-text font-mono text-sm;
   }
 
   .terminal-cursor {
-    @apply inline-block w-2 h-4 bg-terminal-text animate-blink;
+    @apply inline-block w-2 h-4 bg-terminal-accent animate-blink;
+  }
+
+  /* Status Badges - SAP/Palantir style */
+  .status-running {
+    @apply bg-status-success/15 text-status-success border border-status-success/30 text-xs font-medium px-2 py-0.5 rounded;
+  }
+
+  .status-error {
+    @apply bg-status-error/15 text-status-error border border-status-error/30 text-xs font-medium px-2 py-0.5 rounded;
+  }
+
+  .status-warning {
+    @apply bg-status-warning/15 text-status-warning border border-status-warning/30 text-xs font-medium px-2 py-0.5 rounded;
+  }
+
+  .status-info {
+    @apply bg-status-info/15 text-status-info border border-status-info/30 text-xs font-medium px-2 py-0.5 rounded;
   }
 
   /* Risk Level Badges */
@@ -146,21 +173,52 @@
 
   /* Map Container */
   .map-container {
-    @apply bg-map-bg rounded-lg overflow-hidden;
+    @apply bg-map-bg rounded overflow-hidden border border-map-border;
   }
 
-  /* Floating Panel */
+  /* Floating Panel - Palantir style */
   .floating-panel {
-    @apply bg-card/95 backdrop-blur-md rounded-lg border border-border shadow-lg;
+    @apply backdrop-blur-sm rounded border border-sidebar-border shadow-2xl;
+    background-color: hsl(var(--panel-dark) / 0.98);
+    color: hsl(var(--panel-dark-foreground));
   }
 
-  /* Data Flow Animation Background */
-  .data-flow-bg {
-    background: 
-      radial-gradient(circle at 20% 50%, hsl(150 50% 18% / 0.15) 0%, transparent 50%),
-      radial-gradient(circle at 80% 50%, hsl(150 45% 28% / 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 50% 20%, hsl(45 100% 60% / 0.08) 0%, transparent 40%),
-      hsl(var(--background));
+  /* Dark Panel */
+  .panel-dark {
+    @apply bg-panel-dark text-panel-dark-foreground border-sidebar-border;
+  }
+
+  /* Header Bar - SAP green style */
+  .header-bar {
+    @apply bg-header-bg text-header-foreground;
+  }
+
+  /* Data Grid Rows */
+  .data-row {
+    @apply border-b border-border/50 hover:bg-muted/50 transition-colors;
+  }
+
+  .data-row-selected {
+    @apply bg-primary/10 border-l-2 border-l-primary;
+  }
+
+  /* Sidebar Navigation Item */
+  .nav-item {
+    @apply flex items-center gap-3 px-3 py-2 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent rounded transition-colors text-sm;
+  }
+
+  .nav-item-active {
+    @apply text-sidebar-primary bg-sidebar-accent border-l-2 border-l-sidebar-primary;
+  }
+
+  /* Metric Card */
+  .metric-card {
+    @apply bg-card p-4 rounded border border-border;
+  }
+
+  /* Code Block */
+  .code-block {
+    @apply bg-terminal-bg text-terminal-text font-mono text-xs p-3 rounded border border-sidebar-border overflow-auto;
   }
 }
 

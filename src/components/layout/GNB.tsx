@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Search, Bell, ChevronDown, LogOut, Settings, User, MapPin } from 'lucide-react';
+import { Search, Bell, ChevronDown, LogOut, Settings, User, MapPin, Menu } from 'lucide-react';
 import { Shield } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -85,30 +85,32 @@ export function GNB({ onNotificationClick, onSearchSelect }: GNBProps) {
   };
 
   const getRiskColor = (risk: number) => {
-    if (risk < 25) return 'text-risk-safe';
-    if (risk < 50) return 'text-risk-caution';
-    if (risk < 75) return 'text-risk-warning';
-    return 'text-risk-danger';
+    if (risk < 25) return 'text-status-success';
+    if (risk < 50) return 'text-status-warning';
+    if (risk < 75) return 'text-status-warning';
+    return 'text-status-error';
   };
 
   return (
-    <header className="h-16 bg-card border-b border-border flex items-center justify-between px-4 sticky top-0 z-40">
+    <header className="h-12 bg-sidebar flex items-center justify-between px-4 sticky top-0 z-40 border-b border-sidebar-border">
       {/* Logo */}
       <div className="flex items-center gap-3">
-        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary">
-          <Shield className="w-5 h-5 text-primary-foreground" />
+        <div className="flex items-center justify-center w-8 h-8 rounded bg-primary">
+          <Shield className="w-4 h-4 text-primary-foreground" />
         </div>
         <div className="hidden sm:block">
-          <h1 className="text-lg font-bold text-foreground tracking-tight">ROKA-SAPS</h1>
-          <p className="text-xs text-muted-foreground -mt-0.5">안전사고 예측 시스템</p>
+          <h1 className="text-sm font-semibold text-sidebar-foreground tracking-tight">ROKA-SAPS</h1>
+        </div>
+        <div className="hidden lg:flex items-center gap-1 ml-4">
+          <span className="text-xs text-sidebar-muted px-2 py-1 rounded bg-sidebar-accent">안전사고 예측 시스템</span>
         </div>
       </div>
 
       {/* Search with Autocomplete */}
-      <div ref={searchRef} className="flex-1 max-w-xl mx-4 relative">
+      <div ref={searchRef} className="flex-1 max-w-md mx-4 relative">
         <form onSubmit={handleSearch}>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-sidebar-muted" />
             <Input
               type="text"
               value={searchQuery}
@@ -117,47 +119,42 @@ export function GNB({ onNotificationClick, onSearchSelect }: GNBProps) {
                 setShowResults(true);
               }}
               onFocus={() => setShowResults(true)}
-              placeholder="부대명 검색 (예: 1사단, 7사단 위험도)"
-              className="pl-10 h-10 bg-muted/50 border-transparent focus:border-primary"
+              placeholder="부대명 검색..."
+              className="pl-9 h-8 text-sm bg-sidebar-accent border-sidebar-border text-sidebar-foreground placeholder:text-sidebar-muted focus:border-primary focus:ring-1 focus:ring-primary"
             />
           </div>
         </form>
 
         {/* Search Results Dropdown */}
         {showResults && searchResults.length > 0 && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg overflow-hidden z-50">
+          <div className="absolute top-full left-0 right-0 mt-1 bg-sidebar border border-sidebar-border rounded shadow-xl overflow-hidden z-50">
             {searchResults.map((unit) => (
               <button
                 key={unit.id}
                 onClick={() => handleSelectUnit(unit)}
-                className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors text-left"
+                className="w-full flex items-center justify-between px-3 py-2 hover:bg-sidebar-accent transition-colors text-left"
               >
-                <div className="flex items-center gap-3">
-                  <MapPin className="w-4 h-4 text-muted-foreground" />
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-3 h-3 text-sidebar-muted" />
                   <div>
-                    <p className="text-sm font-medium">{unit.name}</p>
-                    <p className="text-xs text-muted-foreground">{unit.code}</p>
+                    <p className="text-xs font-medium text-sidebar-foreground">{unit.name}</p>
+                    <p className="text-[10px] text-sidebar-muted">{unit.code}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground">위험도</span>
-                  <span className={cn('text-sm font-semibold tabular-nums', getRiskColor(unit.risk))}>
+                <div className="flex items-center gap-1">
+                  <span className="text-[10px] text-sidebar-muted">위험도</span>
+                  <span className={cn('text-xs font-semibold tabular-nums', getRiskColor(unit.risk))}>
                     {unit.risk}%
                   </span>
                 </div>
               </button>
             ))}
-            <div className="px-4 py-2 bg-muted/30 border-t border-border">
-              <p className="text-xs text-muted-foreground">
-                Enter 키를 누르면 첫 번째 결과로 이동합니다
-              </p>
-            </div>
           </div>
         )}
 
         {showResults && searchQuery.trim() && searchResults.length === 0 && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg p-4 z-50">
-            <p className="text-sm text-muted-foreground text-center">
+          <div className="absolute top-full left-0 right-0 mt-1 bg-sidebar border border-sidebar-border rounded shadow-xl p-3 z-50">
+            <p className="text-xs text-sidebar-muted text-center">
               "{searchQuery}"에 해당하는 부대가 없습니다
             </p>
           </div>
@@ -165,49 +162,51 @@ export function GNB({ onNotificationClick, onSearchSelect }: GNBProps) {
       </div>
 
       {/* Right Section */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         {/* Notifications */}
         <Button
           variant="ghost"
           size="icon"
-          className="relative"
+          className="relative h-8 w-8 text-sidebar-foreground hover:bg-sidebar-accent"
           onClick={onNotificationClick}
         >
-          <Bell className="w-5 h-5" />
+          <Bell className="w-4 h-4" />
           {hasNotifications && (
-            <span className="absolute top-2 right-2 w-2 h-2 bg-risk-danger rounded-full" />
+            <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-status-error rounded-full" />
           )}
         </Button>
 
         {/* User Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="gap-2 h-10 px-3">
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <User className="w-4 h-4 text-primary" />
+            <Button variant="ghost" className="gap-2 h-8 px-2 text-sidebar-foreground hover:bg-sidebar-accent">
+              <div className="w-6 h-6 rounded bg-primary/20 flex items-center justify-center">
+                <User className="w-3 h-3 text-primary" />
               </div>
               <div className="hidden md:block text-left">
-                <p className="text-sm font-medium leading-none">{user?.name}</p>
-                <p className="text-xs text-muted-foreground">{user?.rank} · {user?.unit}</p>
+                <p className="text-xs font-medium leading-none text-sidebar-foreground">{user?.name}</p>
               </div>
-              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+              <ChevronDown className="w-3 h-3 text-sidebar-muted" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuContent align="end" className="w-56 bg-sidebar border-sidebar-border">
             <div className="p-2">
-              <p className="text-sm font-medium">{user?.name}</p>
-              <p className="text-xs text-muted-foreground">{user?.militaryId}</p>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-sm font-medium text-sidebar-foreground">{user?.name}</p>
+              <p className="text-xs text-sidebar-muted">{user?.militaryId}</p>
+              <p className="text-xs text-sidebar-muted mt-1">
+                {user?.rank} · {user?.unit}
+              </p>
+              <p className="text-[10px] text-primary mt-1">
                 권한: {user?.role && ROLE_LABELS[user.role]}
               </p>
             </div>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuSeparator className="bg-sidebar-border" />
+            <DropdownMenuItem className="text-sidebar-foreground hover:bg-sidebar-accent">
               <Settings className="w-4 h-4 mr-2" />
               설정
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={logout} className="text-destructive">
+            <DropdownMenuSeparator className="bg-sidebar-border" />
+            <DropdownMenuItem onClick={logout} className="text-status-error hover:bg-sidebar-accent">
               <LogOut className="w-4 h-4 mr-2" />
               로그아웃
             </DropdownMenuItem>

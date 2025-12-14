@@ -17,7 +17,6 @@ export function LoginBackground() {
       vx: number;
       vy: number;
       size: number;
-      connections: number[];
     }> = [];
 
     const resize = () => {
@@ -28,27 +27,44 @@ export function LoginBackground() {
 
     const initParticles = () => {
       particles = [];
-      const particleCount = Math.floor((canvas.width * canvas.height) / 15000);
+      const particleCount = Math.floor((canvas.width * canvas.height) / 20000);
       
       for (let i = 0; i < particleCount; i++) {
         particles.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          vx: (Math.random() - 0.5) * 0.5,
-          vy: (Math.random() - 0.5) * 0.5,
-          size: Math.random() * 2 + 1,
-          connections: [],
+          vx: (Math.random() - 0.5) * 0.3,
+          vy: (Math.random() - 0.5) * 0.3,
+          size: Math.random() * 1.5 + 0.5,
         });
       }
     };
 
     const draw = () => {
-      ctx.fillStyle = 'hsl(210, 20%, 98%)';
+      // Dark background - Palantir style
+      ctx.fillStyle = 'hsl(220, 13%, 10%)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+      // Draw grid lines
+      ctx.strokeStyle = 'hsla(220, 10%, 20%, 0.3)';
+      ctx.lineWidth = 0.5;
+      
+      const gridSize = 60;
+      for (let x = 0; x < canvas.width; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < canvas.height; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+
       // Draw connections
-      ctx.strokeStyle = 'hsla(220, 60%, 25%, 0.1)';
-      ctx.lineWidth = 1;
+      ctx.lineWidth = 0.5;
 
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
@@ -56,23 +72,21 @@ export function LoginBackground() {
           const dy = particles[i].y - particles[j].y;
           const distance = Math.sqrt(dx * dx + dy * dy);
 
-          if (distance < 150) {
+          if (distance < 120) {
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.globalAlpha = 1 - distance / 150;
+            ctx.strokeStyle = `hsla(187, 85%, 43%, ${0.15 * (1 - distance / 120)})`;
             ctx.stroke();
           }
         }
       }
 
-      ctx.globalAlpha = 1;
-
       // Draw particles
       for (const particle of particles) {
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-        ctx.fillStyle = 'hsl(220, 60%, 25%)';
+        ctx.fillStyle = 'hsla(187, 85%, 50%, 0.6)';
         ctx.fill();
 
         // Update position
@@ -98,9 +112,18 @@ export function LoginBackground() {
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 -z-10"
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        className="fixed inset-0 -z-10"
+      />
+      {/* Vignette overlay */}
+      <div 
+        className="fixed inset-0 -z-10 pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse at center, transparent 0%, hsla(220, 13%, 5%, 0.4) 100%)'
+        }}
+      />
+    </>
   );
 }

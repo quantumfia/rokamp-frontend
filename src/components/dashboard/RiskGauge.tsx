@@ -8,21 +8,21 @@ interface RiskGaugeProps {
 
 export function RiskGauge({ value, label, size = 'md' }: RiskGaugeProps) {
   const getRiskLevel = (val: number) => {
-    if (val < 25) return { level: '안전', color: 'text-risk-safe', bg: 'stroke-risk-safe' };
-    if (val < 50) return { level: '관심', color: 'text-risk-caution', bg: 'stroke-risk-caution' };
-    if (val < 75) return { level: '주의', color: 'text-risk-warning', bg: 'stroke-risk-warning' };
-    return { level: '경고', color: 'text-risk-danger', bg: 'stroke-risk-danger' };
+    if (val < 25) return { level: '안전', color: 'text-status-success', stroke: '#22c55e' };
+    if (val < 50) return { level: '관심', color: 'text-status-warning', stroke: '#f59e0b' };
+    if (val < 75) return { level: '주의', color: 'text-status-warning', stroke: '#f59e0b' };
+    return { level: '경고', color: 'text-status-error', stroke: '#ef4444' };
   };
 
   const risk = getRiskLevel(value);
-  const circumference = 2 * Math.PI * 45;
+  const circumference = 2 * Math.PI * 42;
   const strokeDasharray = circumference;
   const strokeDashoffset = circumference - (value / 100) * circumference;
 
   const sizeConfig = {
-    sm: { wrapper: 'w-20 h-20', text: 'text-lg', label: 'text-xs' },
-    md: { wrapper: 'w-28 h-28', text: 'text-2xl', label: 'text-sm' },
-    lg: { wrapper: 'w-36 h-36', text: 'text-3xl', label: 'text-base' },
+    sm: { wrapper: 'w-16 h-16', text: 'text-sm', label: 'text-[10px]', strokeWidth: 4 },
+    md: { wrapper: 'w-24 h-24', text: 'text-xl', label: 'text-xs', strokeWidth: 5 },
+    lg: { wrapper: 'w-28 h-28', text: 'text-2xl', label: 'text-xs', strokeWidth: 6 },
   };
 
   const config = sizeConfig[size];
@@ -35,20 +35,21 @@ export function RiskGauge({ value, label, size = 'md' }: RiskGaugeProps) {
           <circle
             cx="50"
             cy="50"
-            r="45"
+            r="42"
             fill="none"
-            strokeWidth="8"
-            className="stroke-muted"
+            strokeWidth={config.strokeWidth}
+            stroke="hsl(220, 10%, 20%)"
           />
           {/* Progress circle */}
           <circle
             cx="50"
             cy="50"
-            r="45"
+            r="42"
             fill="none"
-            strokeWidth="8"
+            strokeWidth={config.strokeWidth}
             strokeLinecap="round"
-            className={cn('transition-all duration-1000', risk.bg)}
+            stroke={risk.stroke}
+            className="transition-all duration-1000"
             style={{
               strokeDasharray,
               strokeDashoffset,
@@ -57,7 +58,7 @@ export function RiskGauge({ value, label, size = 'md' }: RiskGaugeProps) {
         </svg>
         {/* Center text */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className={cn('font-bold', config.text, risk.color)}>
+          <span className={cn('font-bold tabular-nums', config.text, risk.color)}>
             {value}%
           </span>
           <span className={cn('font-medium', risk.color, config.label)}>
@@ -65,7 +66,7 @@ export function RiskGauge({ value, label, size = 'md' }: RiskGaugeProps) {
           </span>
         </div>
       </div>
-      <p className="mt-2 text-sm text-muted-foreground font-medium">{label}</p>
+      <p className="mt-2 text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{label}</p>
     </div>
   );
 }
