@@ -1,31 +1,14 @@
 import { useState } from 'react';
-import { Upload, FileText, Newspaper, Calendar, CheckCircle, Clock, AlertCircle, Trash2 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Upload, Trash2 } from 'lucide-react';
 
-// 상태 배지 컴포넌트
-function StatusBadge({ status }: { status: 'completed' | 'processing' | 'failed' }) {
-  const config = {
-    completed: { icon: CheckCircle, label: '완료', className: 'text-risk-safe' },
-    processing: { icon: Clock, label: '처리중', className: 'text-risk-caution' },
-    failed: { icon: AlertCircle, label: '실패', className: 'text-risk-danger' },
+// 상태 라벨
+function StatusLabel({ status }: { status: 'completed' | 'processing' | 'failed' }) {
+  const labels = {
+    completed: '완료',
+    processing: '처리중',
+    failed: '실패',
   };
-  const { icon: Icon, label, className } = config[status];
-  return (
-    <span className={`flex items-center gap-1.5 text-xs font-medium ${className}`}>
-      <Icon className="w-3.5 h-3.5" />
-      {label}
-    </span>
-  );
+  return <span className="text-sm text-muted-foreground">{labels[status]}</span>;
 }
 
 // 문서 데이터
@@ -54,30 +37,17 @@ const trainingData = [
 ];
 
 // 간소화된 업로드 컴포넌트
-function CompactUploader({ 
-  icon: Icon, 
-  label, 
-  accept, 
-  hint 
-}: { 
-  icon: React.ElementType; 
-  label: string; 
-  accept: string; 
-  hint: string;
-}) {
+function CompactUploader({ label, hint }: { label: string; hint: string }) {
   return (
-    <div className="flex items-center gap-4 p-4 border border-dashed border-border rounded-lg hover:border-primary/50 transition-colors bg-muted/20">
-      <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
-        <Icon className="w-5 h-5 text-primary" />
-      </div>
-      <div className="flex-1 min-w-0">
+    <div className="flex items-center justify-between py-3 border-b border-border">
+      <div>
         <p className="text-sm font-medium text-foreground">{label}</p>
-        <p className="text-xs text-muted-foreground">{hint}</p>
+        <p className="text-xs text-muted-foreground mt-0.5">{hint}</p>
       </div>
-      <Button size="sm" variant="outline">
-        <Upload className="w-4 h-4 mr-1.5" />
+      <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs border border-border rounded hover:bg-muted/50 transition-colors">
+        <Upload className="w-3.5 h-3.5" />
         업로드
-      </Button>
+      </button>
     </div>
   );
 }
@@ -87,198 +57,183 @@ export default function DataManagementPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">데이터 관리</h1>
-          <p className="text-muted-foreground">학습 데이터 및 훈련 정보 관리</p>
-        </div>
+      {/* 헤더 */}
+      <div className="border-b border-border pb-4">
+        <h1 className="text-lg font-semibold text-foreground">데이터 관리</h1>
+        <p className="text-sm text-muted-foreground mt-1">학습 데이터 및 훈련 정보 관리</p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full max-w-lg grid-cols-3">
-          <TabsTrigger value="documents">
-            <FileText className="w-4 h-4 mr-2" />
-            원문 관리
-          </TabsTrigger>
-          <TabsTrigger value="news">
-            <Newspaper className="w-4 h-4 mr-2" />
-            뉴스 데이터
-          </TabsTrigger>
-          <TabsTrigger value="training">
-            <Calendar className="w-4 h-4 mr-2" />
-            훈련 정보
-          </TabsTrigger>
-        </TabsList>
+      {/* 탭 네비게이션 */}
+      <div className="flex gap-6 border-b border-border">
+        {[
+          { id: 'documents', label: '원문 관리' },
+          { id: 'news', label: '뉴스 데이터' },
+          { id: 'training', label: '훈련 정보' },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`pb-3 text-sm font-medium transition-colors ${
+              activeTab === tab.id
+                ? 'text-foreground border-b-2 border-foreground'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
-        {/* 원문 관리 탭 */}
-        <TabsContent value="documents" className="mt-6 space-y-4">
+      {/* 원문 관리 탭 */}
+      {activeTab === 'documents' && (
+        <div className="space-y-6">
           <CompactUploader
-            icon={FileText}
             label="규정/매뉴얼 문서 업로드"
-            accept="PDF, HWP"
             hint="PDF, HWP 형식 (최대 50MB)"
           />
 
-          <Card>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base">학습 현황</CardTitle>
-                <span className="text-xs text-muted-foreground">
-                  총 {documentData.length}개 문서 · {documentData.filter(d => d.status === 'completed').reduce((sum, d) => sum + d.chunks, 0)}개 청크
-                </span>
-              </div>
-            </CardHeader>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[40%]">문서명</TableHead>
-                    <TableHead>형식</TableHead>
-                    <TableHead>크기</TableHead>
-                    <TableHead>업로드 일시</TableHead>
-                    <TableHead className="text-center">청크 수</TableHead>
-                    <TableHead>상태</TableHead>
-                    <TableHead className="w-10"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {documentData.map((doc) => (
-                    <TableRow key={doc.id}>
-                      <TableCell className="font-medium">{doc.name}</TableCell>
-                      <TableCell className="text-muted-foreground">{doc.type}</TableCell>
-                      <TableCell className="text-muted-foreground">{doc.size}</TableCell>
-                      <TableCell className="text-muted-foreground">{doc.uploadedAt}</TableCell>
-                      <TableCell className="text-center">
-                        {doc.status === 'completed' ? doc.chunks : '-'}
-                      </TableCell>
-                      <TableCell>
-                        <StatusBadge status={doc.status} />
-                      </TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive">
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-medium text-foreground">학습 현황</h2>
+              <span className="text-xs text-muted-foreground">
+                총 {documentData.length}개 문서 · {documentData.filter(d => d.status === 'completed').reduce((sum, d) => sum + d.chunks, 0)}개 청크
+              </span>
+            </div>
 
-        {/* 뉴스 데이터 탭 */}
-        <TabsContent value="news" className="mt-6 space-y-4">
+            {/* 테이블 헤더 */}
+            <div className="grid grid-cols-[1fr_60px_60px_140px_80px_60px_40px] gap-4 py-2 text-xs text-muted-foreground border-b border-border">
+              <div>문서명</div>
+              <div>형식</div>
+              <div>크기</div>
+              <div>업로드 일시</div>
+              <div className="text-center">청크 수</div>
+              <div>상태</div>
+              <div></div>
+            </div>
+
+            {/* 테이블 내용 */}
+            <div className="divide-y divide-border">
+              {documentData.map((doc) => (
+                <div key={doc.id} className="grid grid-cols-[1fr_60px_60px_140px_80px_60px_40px] gap-4 py-3 items-center text-sm">
+                  <div className="font-medium truncate">{doc.name}</div>
+                  <div className="text-muted-foreground">{doc.type}</div>
+                  <div className="text-muted-foreground">{doc.size}</div>
+                  <div className="text-muted-foreground tabular-nums">{doc.uploadedAt}</div>
+                  <div className="text-center text-muted-foreground">
+                    {doc.status === 'completed' ? doc.chunks : '-'}
+                  </div>
+                  <div><StatusLabel status={doc.status} /></div>
+                  <div>
+                    <button className="p-1 hover:bg-muted rounded transition-colors">
+                      <Trash2 className="w-4 h-4 text-muted-foreground" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 뉴스 데이터 탭 */}
+      {activeTab === 'news' && (
+        <div className="space-y-6">
           <CompactUploader
-            icon={Newspaper}
             label="뉴스 데이터 업로드"
-            accept="JSON, PDF"
             hint="JSON 또는 PDF 형식"
           />
 
-          <Card>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base">학습된 뉴스 목록</CardTitle>
-                <span className="text-xs text-muted-foreground">
-                  총 {newsData.length}개 기사 · {newsData.filter(n => n.status === 'completed').reduce((sum, n) => sum + n.embeddings, 0)}개 임베딩
-                </span>
-              </div>
-            </CardHeader>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[45%]">제목</TableHead>
-                    <TableHead>출처</TableHead>
-                    <TableHead>날짜</TableHead>
-                    <TableHead className="text-center">임베딩 수</TableHead>
-                    <TableHead>상태</TableHead>
-                    <TableHead className="w-10"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {newsData.map((news) => (
-                    <TableRow key={news.id}>
-                      <TableCell className="font-medium">{news.title}</TableCell>
-                      <TableCell className="text-muted-foreground">{news.source}</TableCell>
-                      <TableCell className="text-muted-foreground">{news.date}</TableCell>
-                      <TableCell className="text-center">
-                        {news.status === 'completed' ? news.embeddings : '-'}
-                      </TableCell>
-                      <TableCell>
-                        <StatusBadge status={news.status} />
-                      </TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive">
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-medium text-foreground">학습된 뉴스 목록</h2>
+              <span className="text-xs text-muted-foreground">
+                총 {newsData.length}개 기사 · {newsData.filter(n => n.status === 'completed').reduce((sum, n) => sum + n.embeddings, 0)}개 임베딩
+              </span>
+            </div>
 
-        {/* 훈련 정보 탭 */}
-        <TabsContent value="training" className="mt-6 space-y-4">
+            {/* 테이블 헤더 */}
+            <div className="grid grid-cols-[1fr_100px_100px_80px_60px_40px] gap-4 py-2 text-xs text-muted-foreground border-b border-border">
+              <div>제목</div>
+              <div>출처</div>
+              <div>날짜</div>
+              <div className="text-center">임베딩 수</div>
+              <div>상태</div>
+              <div></div>
+            </div>
+
+            {/* 테이블 내용 */}
+            <div className="divide-y divide-border">
+              {newsData.map((news) => (
+                <div key={news.id} className="grid grid-cols-[1fr_100px_100px_80px_60px_40px] gap-4 py-3 items-center text-sm">
+                  <div className="font-medium truncate">{news.title}</div>
+                  <div className="text-muted-foreground">{news.source}</div>
+                  <div className="text-muted-foreground tabular-nums">{news.date}</div>
+                  <div className="text-center text-muted-foreground">
+                    {news.status === 'completed' ? news.embeddings : '-'}
+                  </div>
+                  <div><StatusLabel status={news.status} /></div>
+                  <div>
+                    <button className="p-1 hover:bg-muted rounded transition-colors">
+                      <Trash2 className="w-4 h-4 text-muted-foreground" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 훈련 정보 탭 */}
+      {activeTab === 'training' && (
+        <div className="space-y-6">
           <CompactUploader
-            icon={Calendar}
             label="훈련 계획 업로드"
-            accept="XLSX, XLS"
             hint="Excel 형식 (최대 10MB)"
           />
 
-          <Card>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base">업로드된 훈련 계획</CardTitle>
-                <span className="text-xs text-muted-foreground">
-                  총 {trainingData.length}개 파일 · {trainingData.filter(t => t.status === 'completed').reduce((sum, t) => sum + t.records, 0)}개 레코드
-                </span>
-              </div>
-            </CardHeader>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>부대</TableHead>
-                    <TableHead>기간</TableHead>
-                    <TableHead>유형</TableHead>
-                    <TableHead>업로드 일자</TableHead>
-                    <TableHead className="text-center">레코드 수</TableHead>
-                    <TableHead>상태</TableHead>
-                    <TableHead className="w-10"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {trainingData.map((training) => (
-                    <TableRow key={training.id}>
-                      <TableCell className="font-medium">{training.unit}</TableCell>
-                      <TableCell className="text-muted-foreground">{training.period}</TableCell>
-                      <TableCell className="text-muted-foreground">{training.type}</TableCell>
-                      <TableCell className="text-muted-foreground">{training.uploadedAt}</TableCell>
-                      <TableCell className="text-center">
-                        {training.status === 'completed' ? training.records : '-'}
-                      </TableCell>
-                      <TableCell>
-                        <StatusBadge status={training.status} />
-                      </TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive">
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-medium text-foreground">업로드된 훈련 계획</h2>
+              <span className="text-xs text-muted-foreground">
+                총 {trainingData.length}개 파일 · {trainingData.filter(t => t.status === 'completed').reduce((sum, t) => sum + t.records, 0)}개 레코드
+              </span>
+            </div>
+
+            {/* 테이블 헤더 */}
+            <div className="grid grid-cols-[140px_140px_80px_100px_80px_60px_40px] gap-4 py-2 text-xs text-muted-foreground border-b border-border">
+              <div>부대</div>
+              <div>기간</div>
+              <div>유형</div>
+              <div>업로드 일자</div>
+              <div className="text-center">레코드 수</div>
+              <div>상태</div>
+              <div></div>
+            </div>
+
+            {/* 테이블 내용 */}
+            <div className="divide-y divide-border">
+              {trainingData.map((training) => (
+                <div key={training.id} className="grid grid-cols-[140px_140px_80px_100px_80px_60px_40px] gap-4 py-3 items-center text-sm">
+                  <div className="font-medium truncate">{training.unit}</div>
+                  <div className="text-muted-foreground">{training.period}</div>
+                  <div className="text-muted-foreground">{training.type}</div>
+                  <div className="text-muted-foreground tabular-nums">{training.uploadedAt}</div>
+                  <div className="text-center text-muted-foreground">
+                    {training.status === 'completed' ? training.records : '-'}
+                  </div>
+                  <div><StatusLabel status={training.status} /></div>
+                  <div>
+                    <button className="p-1 hover:bg-muted rounded transition-colors">
+                      <Trash2 className="w-4 h-4 text-muted-foreground" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
