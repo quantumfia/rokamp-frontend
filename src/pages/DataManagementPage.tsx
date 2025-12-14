@@ -36,17 +36,17 @@ const trainingData = [
   { id: 4, unit: '제3보병사단', period: '2024년 12월 2주차', type: '주간계획', uploadedAt: '2024-12-14', status: 'processing' as const, records: 0 },
 ];
 
-// 간소화된 업로드 컴포넌트
+// 업로드 컴포넌트
 function CompactUploader({ label, hint }: { label: string; hint: string }) {
   return (
-    <div className="flex items-center justify-between py-3 border-b border-border">
+    <div className="flex items-center justify-between py-4 px-4 bg-muted/30 border border-dashed border-border rounded-lg">
       <div>
         <p className="text-sm font-medium text-foreground">{label}</p>
         <p className="text-xs text-muted-foreground mt-0.5">{hint}</p>
       </div>
-      <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs border border-border rounded hover:bg-muted/50 transition-colors">
-        <Upload className="w-3.5 h-3.5" />
-        업로드
+      <button className="flex items-center gap-2 px-4 py-2 text-sm border border-border bg-background rounded hover:bg-muted/50 transition-colors">
+        <Upload className="w-4 h-4" />
+        파일 업로드
       </button>
     </div>
   );
@@ -201,7 +201,7 @@ export default function DataManagementPage() {
             </div>
 
             {/* 테이블 헤더 */}
-            <div className="grid grid-cols-[140px_140px_80px_100px_80px_60px_40px] gap-4 py-2 text-xs text-muted-foreground border-b border-border">
+            <div className="grid grid-cols-[1fr_160px_80px_120px_100px_60px_40px] gap-4 py-2 text-xs text-muted-foreground border-b border-border">
               <div>부대</div>
               <div>기간</div>
               <div>유형</div>
@@ -214,7 +214,7 @@ export default function DataManagementPage() {
             {/* 테이블 내용 */}
             <div className="divide-y divide-border">
               {trainingData.map((training) => (
-                <div key={training.id} className="grid grid-cols-[140px_140px_80px_100px_80px_60px_40px] gap-4 py-3 items-center text-sm">
+                <div key={training.id} className="grid grid-cols-[1fr_160px_80px_120px_100px_60px_40px] gap-4 py-3 items-center text-sm">
                   <div className="font-medium truncate">{training.unit}</div>
                   <div className="text-muted-foreground">{training.period}</div>
                   <div className="text-muted-foreground">{training.type}</div>
