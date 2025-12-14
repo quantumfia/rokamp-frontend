@@ -132,8 +132,8 @@ export default function UserManagementPage() {
 
       {/* 검색 및 필터 */}
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-medium text-foreground">사용자 목록</h2>
         <div className="flex items-center gap-4">
+          <h2 className="text-sm font-medium text-foreground">사용자 목록</h2>
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground">부대:</span>
             <UnitCascadeSelect
@@ -143,13 +143,13 @@ export default function UserManagementPage() {
               showFullPath={false}
             />
           </div>
-          <input
-            placeholder="이름, 군번, 부대 검색..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-64 bg-transparent border border-border rounded px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
-          />
         </div>
+        <input
+          placeholder="이름, 군번, 부대 검색..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-64 bg-transparent border border-border rounded px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
+        />
       </div>
 
       {/* 테이블 */}
