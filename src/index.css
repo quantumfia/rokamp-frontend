@@ -1,0 +1,247 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    /* Military Professional Light Theme */
+    --background: 120 8% 97%;
+    --foreground: 140 40% 8%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 140 40% 8%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 140 40% 8%;
+
+    /* Dark Military Forest Green */
+    --primary: 150 50% 18%;
+    --primary-foreground: 120 8% 97%;
+
+    --secondary: 140 15% 92%;
+    --secondary-foreground: 140 40% 8%;
+
+    --muted: 140 10% 95%;
+    --muted-foreground: 140 10% 40%;
+
+    --accent: 140 18% 88%;
+    --accent-foreground: 140 40% 8%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 120 8% 97%;
+
+    --border: 140 15% 85%;
+    --input: 140 15% 85%;
+    --ring: 150 50% 18%;
+
+    --radius: 0.5rem;
+
+    /* Risk Level Colors */
+    --risk-safe: 142 76% 36%;
+    --risk-caution: 45 93% 47%;
+    --risk-warning: 25 95% 53%;
+    --risk-danger: 0 84% 60%;
+
+    /* Terminal/Boot Colors */
+    --terminal-bg: 150 45% 6%;
+    --terminal-text: 140 70% 55%;
+    --terminal-accent: 45 100% 60%;
+
+    /* Map Dark Theme */
+    --map-bg: 150 40% 10%;
+    --map-overlay: 150 40% 6%;
+    --map-border: 150 30% 18%;
+
+    /* Sidebar */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 140 40% 8%;
+    --sidebar-primary: 150 50% 18%;
+    --sidebar-primary-foreground: 120 8% 97%;
+    --sidebar-accent: 140 15% 94%;
+    --sidebar-accent-foreground: 140 40% 8%;
+    --sidebar-border: 140 15% 85%;
+    --sidebar-ring: 150 50% 18%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(150 50% 18%), hsl(150 45% 28%));
+    --gradient-risk-safe: linear-gradient(135deg, hsl(142 76% 36%), hsl(142 70% 45%));
+    --gradient-risk-danger: linear-gradient(135deg, hsl(0 84% 60%), hsl(0 70% 50%));
+    --gradient-data: linear-gradient(180deg, hsl(150 50% 18% / 0.1), transparent);
+  }
+
+  .dark {
+    --background: 150 40% 5%;
+    --foreground: 120 8% 97%;
+    --card: 150 40% 7%;
+    --card-foreground: 120 8% 97%;
+    --popover: 150 40% 7%;
+    --popover-foreground: 120 8% 97%;
+    --primary: 150 55% 45%;
+    --primary-foreground: 150 40% 8%;
+    --secondary: 150 30% 15%;
+    --secondary-foreground: 120 8% 97%;
+    --muted: 150 30% 15%;
+    --muted-foreground: 140 15% 60%;
+    --accent: 150 30% 15%;
+    --accent-foreground: 120 8% 97%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 120 8% 97%;
+    --border: 150 30% 15%;
+    --input: 150 30% 15%;
+    --ring: 150 50% 60%;
+    --sidebar-background: 150 40% 7%;
+    --sidebar-foreground: 120 8% 97%;
+    --sidebar-primary: 150 55% 45%;
+    --sidebar-primary-foreground: 150 40% 8%;
+    --sidebar-accent: 150 30% 12%;
+    --sidebar-accent-foreground: 120 8% 97%;
+    --sidebar-border: 150 30% 15%;
+    --sidebar-ring: 150 50% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+@layer components {
+  /* Terminal/Boot Screen Styles */
+  .terminal-screen {
+    @apply bg-terminal-bg text-terminal-text font-mono;
+  }
+
+  .terminal-cursor {
+    @apply inline-block w-2 h-4 bg-terminal-text animate-blink;
+  }
+
+  /* Risk Level Badges */
+  .risk-safe {
+    @apply bg-risk-safe/10 text-risk-safe border-risk-safe/30;
+  }
+
+  .risk-caution {
+    @apply bg-risk-caution/10 text-risk-caution border-risk-caution/30;
+  }
+
+  .risk-warning {
+    @apply bg-risk-warning/10 text-risk-warning border-risk-warning/30;
+  }
+
+  .risk-danger {
+    @apply bg-risk-danger/10 text-risk-danger border-risk-danger/30;
+  }
+
+  /* Map Container */
+  .map-container {
+    @apply bg-map-bg rounded-lg overflow-hidden;
+  }
+
+  /* Floating Panel */
+  .floating-panel {
+    @apply bg-card/95 backdrop-blur-md rounded-lg border border-border shadow-lg;
+  }
+
+  /* Data Flow Animation Background */
+  .data-flow-bg {
+    background: 
+      radial-gradient(circle at 20% 50%, hsl(150 50% 18% / 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 80% 50%, hsl(150 45% 28% / 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 50% 20%, hsl(45 100% 60% / 0.08) 0%, transparent 40%),
+      hsl(var(--background));
+  }
+}
+
+@layer utilities {
+  /* Animations */
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+
+  @keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+  }
+
+  @keyframes boot-line {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 10px hsl(142 70% 55% / 0.3); }
+    50% { box-shadow: 0 0 20px hsl(142 70% 55% / 0.6); }
+  }
+
+  @keyframes slide-in-right {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  @keyframes slide-in-left {
+    from { transform: translateX(-100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes data-stream {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  @keyframes ticker {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+  }
+
+  .animate-blink {
+    animation: blink 1s step-end infinite;
+  }
+
+  .animate-boot-line {
+    animation: boot-line 0.3s ease-out forwards;
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  .animate-slide-in-right {
+    animation: slide-in-right 0.3s ease-out forwards;
+  }
+
+  .animate-slide-in-left {
+    animation: slide-in-left 0.3s ease-out forwards;
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.5s ease-out forwards;
+  }
+
+  .animate-data-stream {
+    background-size: 200% 200%;
+    animation: data-stream 8s ease infinite;
+  }
+
+  .animate-ticker {
+    animation: ticker 30s linear infinite;
+  }
+}
