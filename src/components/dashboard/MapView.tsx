@@ -34,24 +34,24 @@ export function MapView({ className, onMarkerClick }: MapViewProps) {
     };
 
     const getRiskColor = (risk: number) => {
-      if (risk < 25) return 'hsl(142, 76%, 36%)';
-      if (risk < 50) return 'hsl(45, 93%, 47%)';
-      if (risk < 75) return 'hsl(25, 95%, 53%)';
-      return 'hsl(0, 84%, 60%)';
+      if (risk < 25) return '#22c55e';
+      if (risk < 50) return '#f59e0b';
+      if (risk < 75) return '#f59e0b';
+      return '#ef4444';
     };
 
     const draw = () => {
       const width = canvas.offsetWidth;
       const height = canvas.offsetHeight;
 
-      // Dark map background
-      ctx.fillStyle = 'hsl(150, 40%, 10%)';
+      // Dark map background - Palantir style
+      ctx.fillStyle = 'hsl(220, 13%, 12%)';
       ctx.fillRect(0, 0, width, height);
 
       // Grid lines
-      ctx.strokeStyle = 'hsl(150, 30%, 18%)';
-      ctx.lineWidth = 1;
-      const gridSize = 50;
+      ctx.strokeStyle = 'hsl(220, 10%, 18%)';
+      ctx.lineWidth = 0.5;
+      const gridSize = 40;
 
       for (let x = 0; x <= width; x += gridSize) {
         ctx.beginPath();
@@ -69,13 +69,13 @@ export function MapView({ className, onMarkerClick }: MapViewProps) {
 
       // Simulated Korea outline
       ctx.beginPath();
-      ctx.strokeStyle = 'hsl(150, 45%, 35%)';
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = 'hsl(187, 85%, 35%)';
+      ctx.lineWidth = 1.5;
       
       // Simplified peninsula shape
       const centerX = width * 0.5;
       const centerY = height * 0.5;
-      const scale = Math.min(width, height) * 0.35;
+      const scale = Math.min(width, height) * 0.38;
 
       ctx.moveTo(centerX - scale * 0.3, centerY - scale * 0.8);
       ctx.quadraticCurveTo(centerX + scale * 0.5, centerY - scale * 0.6, centerX + scale * 0.4, centerY);
@@ -88,11 +88,11 @@ export function MapView({ className, onMarkerClick }: MapViewProps) {
       UNITS.forEach((unit, index) => {
         const x = centerX + (index % 3 - 1) * scale * 0.5;
         const y = centerY + (Math.floor(index / 3) - 1) * scale * 0.4;
-        const radius = 40 + unit.risk * 0.5;
+        const radius = 35 + unit.risk * 0.4;
 
         const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
         const color = getRiskColor(unit.risk);
-        gradient.addColorStop(0, color.replace(')', ', 0.4)').replace('hsl', 'hsla'));
+        gradient.addColorStop(0, color + '40');
         gradient.addColorStop(1, 'transparent');
 
         ctx.fillStyle = gradient;
@@ -108,27 +108,33 @@ export function MapView({ className, onMarkerClick }: MapViewProps) {
 
         // Marker glow
         ctx.shadowColor = getRiskColor(unit.risk);
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = 8;
 
-        // Marker circle
-        ctx.fillStyle = getRiskColor(unit.risk);
+        // Outer ring
+        ctx.strokeStyle = getRiskColor(unit.risk);
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.arc(x, y, 8, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.arc(x, y, 10, 0, Math.PI * 2);
+        ctx.stroke();
 
         // Inner dot
-        ctx.fillStyle = 'white';
+        ctx.fillStyle = getRiskColor(unit.risk);
         ctx.beginPath();
-        ctx.arc(x, y, 3, 0, Math.PI * 2);
+        ctx.arc(x, y, 4, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.shadowBlur = 0;
 
+        // Label background
+        const labelWidth = ctx.measureText(unit.name).width + 8;
+        ctx.fillStyle = 'hsla(220, 13%, 10%, 0.9)';
+        ctx.fillRect(x - labelWidth / 2, y + 14, labelWidth, 16);
+
         // Label
-        ctx.fillStyle = 'hsl(210, 40%, 98%)';
-        ctx.font = '11px "Noto Sans KR", sans-serif';
+        ctx.fillStyle = 'hsl(0, 0%, 90%)';
+        ctx.font = '10px Inter, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(unit.name, x, y + 20);
+        ctx.fillText(unit.name, x, y + 25);
       });
     };
 
@@ -144,7 +150,7 @@ export function MapView({ className, onMarkerClick }: MapViewProps) {
       const height = canvas.offsetHeight;
       const centerX = width * 0.5;
       const centerY = height * 0.5;
-      const scale = Math.min(width, height) * 0.35;
+      const scale = Math.min(width, height) * 0.38;
 
       UNITS.forEach((unit, index) => {
         const ux = centerX + (index % 3 - 1) * scale * 0.5;
@@ -166,40 +172,42 @@ export function MapView({ className, onMarkerClick }: MapViewProps) {
   }, [onMarkerClick]);
 
   return (
-    <div className={cn('relative rounded-xl overflow-hidden', className)}>
+    <div className={cn('relative overflow-hidden', className)}>
       <canvas
         ref={canvasRef}
         className="w-full h-full cursor-pointer"
       />
       
       {/* Map Legend */}
-      <div className="absolute bottom-4 left-4 floating-panel p-3">
-        <p className="text-xs font-medium text-foreground mb-2">위험도</p>
-        <div className="flex items-center gap-3 text-xs">
+      <div className="absolute bottom-3 left-3 floating-panel p-2.5">
+        <p className="text-[10px] font-medium text-panel-dark-foreground mb-1.5 uppercase tracking-wider">위험도</p>
+        <div className="flex items-center gap-2 text-[10px]">
           <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded-full bg-risk-safe" />
-            <span className="text-muted-foreground">안전</span>
+            <div className="w-2 h-2 rounded-full bg-status-success" />
+            <span className="text-panel-dark-foreground/70">안전</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded-full bg-risk-caution" />
-            <span className="text-muted-foreground">관심</span>
+            <div className="w-2 h-2 rounded-full bg-status-warning" />
+            <span className="text-panel-dark-foreground/70">주의</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded-full bg-risk-warning" />
-            <span className="text-muted-foreground">주의</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded-full bg-risk-danger" />
-            <span className="text-muted-foreground">경고</span>
+            <div className="w-2 h-2 rounded-full bg-status-error" />
+            <span className="text-panel-dark-foreground/70">경고</span>
           </div>
         </div>
       </div>
 
       {/* Coordinates */}
-      <div className="absolute top-4 right-4 floating-panel px-3 py-2">
-        <p className="text-xs font-mono text-muted-foreground">
-          37.5665° N, 126.9780° E
+      <div className="absolute bottom-3 right-3 floating-panel px-2 py-1.5">
+        <p className="text-[10px] font-mono text-panel-dark-foreground/70">
+          37.5665°N, 126.9780°E
         </p>
+      </div>
+
+      {/* Map controls placeholder */}
+      <div className="absolute top-3 right-3 flex flex-col gap-1">
+        <button className="w-7 h-7 bg-panel-dark/90 border border-sidebar-border rounded text-panel-dark-foreground/70 hover:text-panel-dark-foreground text-xs font-medium">+</button>
+        <button className="w-7 h-7 bg-panel-dark/90 border border-sidebar-border rounded text-panel-dark-foreground/70 hover:text-panel-dark-foreground text-xs font-medium">−</button>
       </div>
     </div>
   );

@@ -10,10 +10,12 @@ import {
   Users,
   ChevronLeft,
   ChevronRight,
+  Layers,
+  Activity,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface MenuItem {
   id: string;
@@ -84,57 +86,70 @@ export function LNB() {
   return (
     <aside
       className={cn(
-        'h-[calc(100vh-4rem)] bg-card border-r border-border flex flex-col transition-all duration-300 sticky top-16 flex-shrink-0',
-        isExpanded ? 'w-56' : 'w-16'
+        'h-[calc(100vh-3rem)] bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-200 sticky top-12 flex-shrink-0',
+        isExpanded ? 'w-48' : 'w-12'
       )}
       onMouseEnter={() => setIsExpanded(true)}
       onMouseLeave={() => setIsExpanded(false)}
     >
       {/* Menu Items */}
-      <nav className="flex-1 py-4 space-y-1 px-2">
+      <nav className="flex-1 py-2 space-y-0.5 px-1.5">
         {filteredMenuItems.map((item) => {
           const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
           const Icon = item.icon;
 
-          return (
+          const linkContent = (
             <NavLink
               key={item.id}
               to={item.path}
               className={cn(
-                'flex items-center gap-3 h-11 px-3 rounded-lg transition-all duration-200 group',
+                'flex items-center gap-2.5 h-9 px-2.5 rounded transition-all duration-150 group relative',
                 isActive
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  ? 'bg-sidebar-accent text-sidebar-primary'
+                  : 'text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent'
               )}
             >
-              <Icon className="w-5 h-5 flex-shrink-0" />
+              {isActive && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-sidebar-primary rounded-r" />
+              )}
+              <Icon className="w-4 h-4 flex-shrink-0" />
               <span
                 className={cn(
-                  'text-sm font-medium whitespace-nowrap transition-opacity duration-200',
-                  isExpanded ? 'opacity-100' : 'opacity-0'
+                  'text-xs font-medium whitespace-nowrap transition-opacity duration-150',
+                  isExpanded ? 'opacity-100' : 'opacity-0 w-0'
                 )}
               >
                 {item.label}
               </span>
             </NavLink>
           );
+
+          if (!isExpanded) {
+            return (
+              <Tooltip key={item.id} delayDuration={0}>
+                <TooltipTrigger asChild>
+                  {linkContent}
+                </TooltipTrigger>
+                <TooltipContent side="right" className="bg-sidebar border-sidebar-border text-sidebar-foreground">
+                  <p className="text-xs">{item.label}</p>
+                </TooltipContent>
+              </Tooltip>
+            );
+          }
+
+          return linkContent;
         })}
       </nav>
 
-      {/* Expand/Collapse Button */}
-      <div className="p-2 border-t border-border">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="w-full h-10"
-          onClick={() => setIsExpanded(!isExpanded)}
-        >
-          {isExpanded ? (
-            <ChevronLeft className="w-5 h-5" />
-          ) : (
-            <ChevronRight className="w-5 h-5" />
-          )}
-        </Button>
+      {/* Footer Info */}
+      <div className="p-2 border-t border-sidebar-border">
+        <div className={cn(
+          'flex items-center gap-2 text-sidebar-muted transition-opacity duration-150',
+          isExpanded ? 'opacity-100' : 'opacity-0'
+        )}>
+          <Activity className="w-3 h-3 text-status-success" />
+          <span className="text-[10px]">시스템 정상</span>
+        </div>
       </div>
     </aside>
   );

@@ -1,4 +1,4 @@
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Radio } from 'lucide-react';
 
 interface TickerItem {
   id: string;
@@ -18,33 +18,33 @@ export function TickerBar() {
   const getTypeStyle = (type: string) => {
     switch (type) {
       case 'alert':
-        return 'text-risk-danger';
+        return 'text-status-error';
       case 'warning':
-        return 'text-risk-warning';
+        return 'text-status-warning';
       default:
         return 'text-muted-foreground';
     }
   };
 
   return (
-    <div className="h-10 bg-card border border-border rounded-lg flex items-center overflow-hidden">
-      <div className="flex-shrink-0 px-4 flex items-center gap-2 border-r border-border h-full">
-        <AlertCircle className="w-4 h-4 text-primary" />
-        <span className="text-sm font-medium text-foreground">실시간 현황</span>
+    <div className="h-8 bg-muted/30 flex items-center overflow-hidden">
+      <div className="flex-shrink-0 px-3 flex items-center gap-1.5 border-r border-border h-full bg-primary/10">
+        <Radio className="w-3 h-3 text-primary animate-pulse" />
+        <span className="text-[10px] font-medium text-primary uppercase tracking-wider">Live</span>
       </div>
       
       <div className="flex-1 overflow-hidden">
-        <div className="animate-ticker flex items-center gap-8 whitespace-nowrap">
+        <div className="animate-ticker flex items-center gap-8 whitespace-nowrap px-4">
           {MOCK_TICKER_ITEMS.map((item) => (
-            <div key={item.id} className="flex items-center gap-2 text-sm">
-              <span className="text-muted-foreground">[{item.time}]</span>
+            <div key={item.id} className="flex items-center gap-2 text-xs">
+              <span className="text-muted-foreground font-mono">[{item.time}]</span>
               <span className={getTypeStyle(item.type)}>{item.message}</span>
             </div>
           ))}
           {/* Duplicate for seamless loop */}
           {MOCK_TICKER_ITEMS.map((item) => (
-            <div key={`dup-${item.id}`} className="flex items-center gap-2 text-sm">
-              <span className="text-muted-foreground">[{item.time}]</span>
+            <div key={`dup-${item.id}`} className="flex items-center gap-2 text-xs">
+              <span className="text-muted-foreground font-mono">[{item.time}]</span>
               <span className={getTypeStyle(item.type)}>{item.message}</span>
             </div>
           ))}
