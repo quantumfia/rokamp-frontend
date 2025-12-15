@@ -123,14 +123,14 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
           <div 
             className="absolute -inset-20 rounded-full blur-3xl"
             style={{
-              background: 'radial-gradient(circle, hsl(187, 85%, 43%, 0.3) 0%, transparent 70%)',
+              background: 'radial-gradient(circle, hsl(210, 75%, 50%, 0.3) 0%, transparent 70%)',
               animation: 'logo-glow 3s ease-in-out infinite',
             }}
           />
           <div 
             className={`relative transition-all duration-700 ${showLoginForm ? 'scale-75' : 'scale-100'}`}
             style={{
-              filter: 'drop-shadow(0 0 40px hsl(187, 85%, 43%, 0.5))',
+              filter: 'drop-shadow(0 0 40px hsl(210, 75%, 50%, 0.5))',
             }}
           >
             <img src={armyLogo} alt="육군본부" className="w-24 h-24" />
@@ -141,7 +141,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
         <h1 
           className={`text-4xl md:text-5xl font-bold text-white tracking-[0.4em] mb-3 font-mono transition-all duration-500 ${showLoginForm ? 'text-3xl' : ''}`}
           style={{
-            textShadow: '0 0 40px hsl(187, 85%, 43%, 0.5)',
+            textShadow: '0 0 40px hsl(210, 75%, 50%, 0.5)',
           }}
         >
           ROKA-MP
@@ -150,7 +150,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
         <p 
           className="text-primary text-sm tracking-[0.3em] uppercase mb-2"
           style={{
-            textShadow: '0 0 20px hsl(187, 85%, 43%, 0.8)',
+            textShadow: '0 0 20px hsl(210, 75%, 50%, 0.8)',
           }}
         >
           Safety Accident Prediction System
@@ -167,7 +167,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
                 className="h-full bg-gradient-to-r from-primary/50 via-primary to-primary/50 rounded-full transition-all duration-100"
                 style={{ 
                   width: `${loadingProgress}%`,
-                  boxShadow: '0 0 20px hsl(187, 85%, 43%, 0.8)',
+                  boxShadow: '0 0 20px hsl(210, 75%, 50%, 0.8)',
                 }}
               />
             </div>
@@ -202,7 +202,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
                   onChange={(e) => setMilitaryId(e.target.value)}
                   className="h-12 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-primary/50 focus:ring-primary/20 transition-all"
                   style={{
-                    boxShadow: militaryId ? '0 0 20px hsl(187, 85%, 43%, 0.1)' : 'none',
+                    boxShadow: militaryId ? '0 0 20px hsl(210, 75%, 50%, 0.1)' : 'none',
                   }}
                 />
               </div>
@@ -214,7 +214,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
                   onChange={(e) => setPassword(e.target.value)}
                   className="h-12 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-primary/50 focus:ring-primary/20 transition-all"
                   style={{
-                    boxShadow: password ? '0 0 20px hsl(187, 85%, 43%, 0.1)' : 'none',
+                    boxShadow: password ? '0 0 20px hsl(210, 75%, 50%, 0.1)' : 'none',
                   }}
                 />
               </div>
@@ -229,7 +229,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
               disabled={isLoading}
               className="w-full h-12 bg-gradient-to-r from-primary/80 to-primary text-primary-foreground font-medium tracking-wider uppercase text-sm hover:from-primary hover:to-primary/90 transition-all"
               style={{
-                boxShadow: '0 0 30px hsl(187, 85%, 43%, 0.3)',
+                boxShadow: '0 0 30px hsl(210, 75%, 50%, 0.3)',
               }}
             >
               {isLoading ? (
