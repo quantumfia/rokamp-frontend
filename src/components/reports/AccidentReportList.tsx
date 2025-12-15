@@ -726,16 +726,8 @@ export function AccidentReportList() {
         {/* 보고서 정보 */}
         <div className="space-y-6">
           <div>
-            <div className="flex items-center gap-3 mb-2">
-              <span className={`px-2 py-0.5 rounded text-xs ${getSeverityStyle(selectedReport.severity)}`}>
-                {getSeverityLabel(selectedReport.severity)}
-              </span>
-              <span className={`px-2 py-0.5 rounded text-xs ${getStatusStyle(selectedReport.status)}`}>
-                {getStatusLabel(selectedReport.status)}
-              </span>
-            </div>
             <h2 className="text-xl font-semibold text-foreground">{selectedReport.title}</h2>
-            <p className="text-sm text-muted-foreground mt-1">{selectedReport.id}</p>
+            <p className="text-sm text-muted-foreground mt-1">{selectedReport.id} · {getStatusLabel(selectedReport.status)}</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4 py-4 border-y border-border">
@@ -831,68 +823,62 @@ export function AccidentReportList() {
         </DropdownMenu>
       </div>
 
-      {/* 테이블 */}
-      <div className="border border-border rounded overflow-hidden">
-        <table className="w-full">
-          <thead>
-            <tr className="bg-muted/30 border-b border-border">
-              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">문서번호</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">제목</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">부대</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">유형</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">발생일</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">심각도</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">상태</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">작업</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredReports.map((report) => (
-              <tr 
-                key={report.id} 
-                className="border-b border-border hover:bg-muted/20 transition-colors cursor-pointer"
-                onClick={() => setSelectedReport(report)}
-              >
-                <td className="px-4 py-3 text-sm font-mono">{report.id}</td>
-                <td className="px-4 py-3 text-sm">{report.title}</td>
-                <td className="px-4 py-3 text-sm text-muted-foreground">{report.unit.split(' > ').pop()}</td>
-                <td className="px-4 py-3 text-sm">{report.categoryDetail}</td>
-                <td className="px-4 py-3 text-sm text-muted-foreground">{report.date}</td>
-                <td className="px-4 py-3">
-                  <span className={`px-2 py-0.5 rounded text-xs ${getSeverityStyle(report.severity)}`}>
-                    {getSeverityLabel(report.severity)}
-                  </span>
-                </td>
-                <td className="px-4 py-3">
-                  <span className={`px-2 py-0.5 rounded text-xs ${getStatusStyle(report.status)}`}>
-                    {getStatusLabel(report.status)}
-                  </span>
-                </td>
-                <td className="px-4 py-3">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedReport(report);
-                    }}
-                    className="p-1.5 hover:bg-muted rounded transition-colors"
-                  >
-                    <Eye className="w-4 h-4" />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* 테이블 - 통계보고서와 동일한 스타일 */}
+      <div>
+        {/* Header */}
+        <div className="grid grid-cols-[100px_1fr_120px_100px_100px_80px_50px] gap-4 py-3 text-xs text-muted-foreground border-y border-border">
+          <div>문서번호</div>
+          <div>제목</div>
+          <div>부대</div>
+          <div>유형</div>
+          <div>발생일</div>
+          <div>상태</div>
+          <div></div>
+        </div>
 
-        {filteredReports.length === 0 && (
-          <div className="py-12 text-center text-muted-foreground">
-            <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
-            <p>검색 결과가 없습니다.</p>
-          </div>
-        )}
+        {/* Rows */}
+        <div className="divide-y divide-border">
+          {filteredReports.map((report) => (
+            <div 
+              key={report.id} 
+              onClick={() => setSelectedReport(report)}
+              className="grid grid-cols-[100px_1fr_120px_100px_100px_80px_50px] gap-4 py-3 items-center hover:bg-muted/30 transition-colors cursor-pointer"
+            >
+              <div className="text-sm text-muted-foreground font-mono">
+                {report.id.replace('ACC-2024-', '')}
+              </div>
+              <div className="text-sm font-medium truncate">{report.title}</div>
+              <div className="text-sm text-muted-foreground truncate">
+                {report.unit.split(' > ').pop()}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {report.categoryDetail}
+              </div>
+              <div className="text-sm text-muted-foreground tabular-nums">
+                {report.date}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {getStatusLabel(report.status)}
+              </div>
+              <div>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); setSelectedReport(report); }}
+                  className="p-1.5 hover:bg-muted rounded transition-colors"
+                  title="상세보기"
+                >
+                  <Download className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
-      <p className="text-xs text-muted-foreground">총 {filteredReports.length}건의 보고서</p>
+      {filteredReports.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-sm text-muted-foreground">조건에 맞는 보고서가 없습니다.</p>
+        </div>
+      )}
     </div>
   );
 }
