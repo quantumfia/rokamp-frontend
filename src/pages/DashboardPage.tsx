@@ -9,12 +9,27 @@ import { TrendCharts } from '@/components/dashboard/TrendCharts';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSearchContext } from '@/components/layout/MainLayout';
 import { MapPin } from 'lucide-react';
+import {
+  RiskSummarySkeleton,
+  UnitDetailSkeleton,
+  TrendChartsSkeleton,
+  StatusHeaderSkeleton,
+  TickerBarSkeleton,
+  MapSkeleton,
+} from '@/components/skeletons';
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const searchContext = useSearchContext();
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // 초기 로딩 시뮬레이션
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   // GNB 검색에서 부대 선택 시 처리
   useEffect(() => {
@@ -37,13 +52,13 @@ export default function DashboardPage() {
     <div className="h-full flex flex-col">
       {/* Top Status Bar */}
       <div className="shrink-0 border-b border-border bg-card/50">
-        <StatusHeader />
+        {isLoading ? <StatusHeaderSkeleton /> : <StatusHeader />}
       </div>
 
       {/* Ticker Bar */}
       {showTicker && (
         <div className="shrink-0 border-b border-border">
-          <TickerBar />
+          {isLoading ? <TickerBarSkeleton /> : <TickerBar />}
         </div>
       )}
 
@@ -51,15 +66,19 @@ export default function DashboardPage() {
       <div className="flex-1 flex overflow-hidden">
         {/* Left Panel - Risk Summary */}
         <div className="w-72 shrink-0 border-r border-border bg-card overflow-y-auto">
-          <RiskSummaryPanel onUnitClick={handleMarkerClick} />
+          {isLoading ? <RiskSummarySkeleton /> : <RiskSummaryPanel onUnitClick={handleMarkerClick} />}
         </div>
 
         {/* Center - Map */}
         <div className="flex-1 relative bg-map-bg">
-          <MapView
-            className="absolute inset-0"
-            onMarkerClick={handleMarkerClick}
-          />
+          {isLoading ? (
+            <MapSkeleton />
+          ) : (
+            <MapView
+              className="absolute inset-0"
+              onMarkerClick={handleMarkerClick}
+            />
+          )}
           
           {/* Map overlay header - 권한별 타이틀 표시 */}
           <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
@@ -76,7 +95,9 @@ export default function DashboardPage() {
 
         {/* Right Panel - Unit Detail */}
         <div className="w-80 shrink-0 border-l border-border bg-card overflow-y-auto">
-          {selectedUnitId ? (
+          {isLoading ? (
+            <UnitDetailSkeleton />
+          ) : selectedUnitId ? (
             <UnitDetailPanel
               unitId={selectedUnitId}
               onClose={() => setSelectedUnitId(null)}
@@ -97,7 +118,7 @@ export default function DashboardPage() {
 
       {/* Bottom - Trend Charts */}
       <div className="shrink-0 border-t border-border bg-card">
-        <TrendCharts />
+        {isLoading ? <TrendChartsSkeleton /> : <TrendCharts />}
       </div>
     </div>
   );

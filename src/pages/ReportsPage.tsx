@@ -1,8 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ReportGeneratorForm, ReportFormData } from '@/components/reports/ReportGeneratorForm';
 import { ReportPreview } from '@/components/reports/ReportPreview';
 import { StatisticsReportList } from '@/components/reports/StatisticsReportList';
 import { useAuth } from '@/contexts/AuthContext';
+import { 
+  ReportFormSkeleton, 
+  ReportPreviewSkeleton, 
+  StatisticsReportListSkeleton 
+} from '@/components/skeletons';
 
 // Mock AI 생성 함수 (추후 실제 AI 연동)
 const generateMockReport = (data: ReportFormData): string => {
@@ -55,6 +60,13 @@ export default function ReportsPage() {
   const [activeTab, setActiveTab] = useState('generator');
   const [generatedContent, setGeneratedContent] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // 초기 로딩 시뮬레이션
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Super Admin 권한: 모든 기능 표시
   const isHQ = true;
@@ -103,20 +115,29 @@ export default function ReportsPage() {
       {/* 사고 보고서 생성 탭 */}
       {isHQ && activeTab === 'generator' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ReportGeneratorForm 
-            onGenerate={handleGenerate}
-            isGenerating={isGenerating}
-          />
-          <ReportPreview 
-            content={generatedContent}
-            onContentChange={setGeneratedContent}
-          />
+          {isLoading ? (
+            <>
+              <ReportFormSkeleton />
+              <ReportPreviewSkeleton />
+            </>
+          ) : (
+            <>
+              <ReportGeneratorForm 
+                onGenerate={handleGenerate}
+                isGenerating={isGenerating}
+              />
+              <ReportPreview 
+                content={generatedContent}
+                onContentChange={setGeneratedContent}
+              />
+            </>
+          )}
         </div>
       )}
 
       {/* 통계 보고서 조회 탭 */}
       {activeTab === 'statistics' && (
-        <StatisticsReportList />
+        isLoading ? <StatisticsReportListSkeleton /> : <StatisticsReportList />
       )}
     </div>
   );
