@@ -1,6 +1,15 @@
-import { useState } from 'react';
-import { Download, ArrowLeft, Eye } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Download, ArrowLeft, Eye, ChevronDown } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { FileText } from 'lucide-react';
 
 interface StatReport {
   id: string;
@@ -128,6 +137,7 @@ export function StatisticsReportList() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedReport, setSelectedReport] = useState<StatReport | null>(null);
   const [showPreview, setShowPreview] = useState(false);
+  const previewRef = useRef<HTMLDivElement>(null);
 
   const filteredReports = MOCK_STAT_REPORTS.filter((report) => {
     const matchesType = filterType === 'all' || report.type === filterType;
@@ -135,11 +145,80 @@ export function StatisticsReportList() {
     return matchesType && matchesSearch;
   });
 
-  const handleDownload = (report: StatReport, e?: React.MouseEvent) => {
-    e?.stopPropagation();
+  const handleDownloadPDF = async (report: StatReport) => {
+    if (!previewRef.current) {
+      toast({
+        title: '미리보기 필요',
+        description: '먼저 미리보기를 열어주세요.',
+      });
+      return;
+    }
+    
+    try {
+      const canvas = await html2canvas(previewRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 10;
+      
+      const imgWidth = pageWidth - margin * 2;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      let heightLeft = imgHeight;
+      let position = margin;
+
+      pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+      heightLeft -= (pageHeight - margin * 2);
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight + margin;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+        heightLeft -= (pageHeight - margin * 2);
+      }
+
+      pdf.save(`${report.title}.pdf`);
+      
+      toast({
+        title: 'PDF 다운로드 완료',
+        description: '통계 보고서가 PDF 형식으로 다운로드되었습니다.',
+      });
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      toast({
+        title: 'PDF 생성 실패',
+        description: 'PDF 파일 생성 중 오류가 발생했습니다.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleDownloadHWP = (report: StatReport) => {
+    const content = `${report.title}\n\n부대: ${report.unit}\n기간: ${report.period}\n\n1. 요약\n${report.summary}\n\n2. 주요 통계\n총 사고 건수: ${report.stats?.totalAccidents}건\n처리 완료: ${report.stats?.resolved}건\n처리 중: ${report.stats?.pending}건\n전기 대비 증감: ${report.stats?.changeRate}%\n\n3. 권고사항\n${report.recommendations?.map((r, i) => `${i + 1}. ${r}`).join('\n')}`;
+    
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${report.title}.hwp`;
+    a.click();
+    URL.revokeObjectURL(url);
     toast({
-      title: '다운로드 시작',
-      description: `${report.title} 파일을 다운로드합니다.`,
+      title: 'HWP 다운로드',
+      description: '보고서가 HWP 형식으로 다운로드되었습니다. (텍스트 기반)',
     });
   };
 
@@ -167,24 +246,37 @@ export function StatisticsReportList() {
             <ArrowLeft className="w-4 h-4" />
             상세로 돌아가기
           </button>
-          <button 
-            onClick={() => handleDownload(selectedReport)}
-            className="flex items-center gap-2 px-4 py-2 bg-foreground text-background rounded text-sm hover:opacity-80 transition-opacity"
-          >
-            <Download className="w-4 h-4" />
-            다운로드
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-2 px-4 py-2 bg-foreground text-background rounded text-sm hover:opacity-80 transition-opacity">
+                <Download className="w-4 h-4" />
+                다운로드
+                <ChevronDown className="w-3 h-3" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handleDownloadPDF(selectedReport)}>
+                <FileText className="w-4 h-4 mr-2" />
+                PDF 형식 (.pdf)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleDownloadHWP(selectedReport)}>
+                <FileText className="w-4 h-4 mr-2" />
+                한글 형식 (.hwp)
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* PDF 스타일 미리보기 */}
         <div className="flex justify-center">
           <div 
+            ref={previewRef}
             className="bg-white text-black shadow-2xl relative"
             style={{ 
               width: '210mm', 
               minHeight: '297mm', 
               padding: '20mm',
-              fontFamily: 'serif'
+              fontFamily: "'Noto Sans KR', 'Malgun Gothic', serif"
             }}
           >
             {/* 문서 헤더 */}
@@ -321,13 +413,25 @@ export function StatisticsReportList() {
               <Eye className="w-4 h-4" />
               미리보기
             </button>
-            <button 
-              onClick={() => handleDownload(selectedReport)}
-              className="flex items-center gap-2 px-4 py-2 bg-foreground text-background rounded text-sm hover:opacity-80 transition-opacity"
-            >
-              <Download className="w-4 h-4" />
-              다운로드
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 px-4 py-2 bg-foreground text-background rounded text-sm hover:opacity-80 transition-opacity">
+                  <Download className="w-4 h-4" />
+                  다운로드
+                  <ChevronDown className="w-3 h-3" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => { setShowPreview(true); setTimeout(() => handleDownloadPDF(selectedReport), 500); }}>
+                  <FileText className="w-4 h-4 mr-2" />
+                  PDF 형식 (.pdf)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleDownloadHWP(selectedReport)}>
+                  <FileText className="w-4 h-4 mr-2" />
+                  한글 형식 (.hwp)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
@@ -497,8 +601,9 @@ export function StatisticsReportList() {
               </div>
               <div>
                 <button 
-                  onClick={(e) => handleDownload(report, e)}
+                  onClick={(e) => { e.stopPropagation(); handleDownloadHWP(report); }}
                   className="p-1.5 hover:bg-muted rounded transition-colors"
+                  title="다운로드"
                 >
                   <Download className="w-4 h-4 text-muted-foreground" />
                 </button>
