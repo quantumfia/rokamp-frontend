@@ -17,6 +17,7 @@ import { ko } from 'date-fns/locale';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
+import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
 interface StatReport {
   id: string;
@@ -139,6 +140,37 @@ const MOCK_STAT_REPORTS: StatReport[] = [
     recommendations: ['동절기 대비 안전교육 사전 실시', '노후 시설물 점검 강화']
   },
 ];
+
+// 차트 색상
+const CHART_COLORS = ['#06b6d4', '#22c55e', '#f59e0b', '#ef4444'];
+
+// 기간별 추세 데이터 생성
+const generateTrendData = (type: 'weekly' | 'monthly' | 'quarterly' | 'custom') => {
+  if (type === 'weekly') {
+    return [
+      { name: '월', 차량사고: 1, 훈련사고: 2, 시설안전: 0, 개인부주의: 1 },
+      { name: '화', 차량사고: 0, 훈련사고: 1, 시설안전: 1, 개인부주의: 0 },
+      { name: '수', 차량사고: 1, 훈련사고: 0, 시설안전: 0, 개인부주의: 1 },
+      { name: '목', 차량사고: 0, 훈련사고: 2, 시설안전: 1, 개인부주의: 0 },
+      { name: '금', 차량사고: 0, 훈련사고: 1, 시설안전: 0, 개인부주의: 0 },
+      { name: '토', 차량사고: 0, 훈련사고: 0, 시설안전: 0, 개인부주의: 0 },
+      { name: '일', 차량사고: 0, 훈련사고: 0, 시설안전: 0, 개인부주의: 0 },
+    ];
+  } else if (type === 'monthly') {
+    return [
+      { name: '1주', 차량사고: 3, 훈련사고: 5, 시설안전: 2, 개인부주의: 1 },
+      { name: '2주', 차량사고: 2, 훈련사고: 3, 시설안전: 1, 개인부주의: 2 },
+      { name: '3주', 차량사고: 2, 훈련사고: 4, 시설안전: 2, 개인부주의: 3 },
+      { name: '4주', 차량사고: 1, 훈련사고: 2, 시설안전: 2, 개인부주의: 1 },
+    ];
+  } else {
+    return [
+      { name: '1월', 차량사고: 8, 훈련사고: 12, 시설안전: 5, 개인부주의: 4 },
+      { name: '2월', 차량사고: 6, 훈련사고: 10, 시설안전: 6, 개인부주의: 5 },
+      { name: '3월', 차량사고: 7, 훈련사고: 14, 시설안전: 4, 개인부주의: 3 },
+    ];
+  }
+};
 
 export function StatisticsReportList() {
   const [filterType, setFilterType] = useState<string>('all');
@@ -595,6 +627,59 @@ export function StatisticsReportList() {
             {selectedReport.details && (
               <div className="mb-6">
                 <h3 className="font-bold mb-3 border-b-2 border-black pb-1">4. 사고 유형별 분석</h3>
+                
+                {/* 차트 영역 */}
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  {/* 파이차트 - 유형별 분포 */}
+                  <div className="border border-gray-300 rounded p-3">
+                    <p className="text-xs font-medium text-gray-600 mb-2 text-center">유형별 분포</p>
+                    <div className="h-32">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={selectedReport.details.map((d, i) => ({
+                              name: d.category,
+                              value: d.count,
+                            }))}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={25}
+                            outerRadius={50}
+                            paddingAngle={2}
+                            dataKey="value"
+                          >
+                            {selectedReport.details.map((_, idx) => (
+                              <Cell key={idx} fill={CHART_COLORS[idx % CHART_COLORS.length]} />
+                            ))}
+                          </Pie>
+                          <Tooltip />
+                          <Legend wrapperStyle={{ fontSize: '10px' }} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* 라인차트 - 기간별 추세 */}
+                  <div className="border border-gray-300 rounded p-3">
+                    <p className="text-xs font-medium text-gray-600 mb-2 text-center">기간별 유형 추세</p>
+                    <div className="h-32">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={generateTrendData(selectedReport.type)}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                          <XAxis dataKey="name" tick={{ fontSize: 9 }} />
+                          <YAxis tick={{ fontSize: 9 }} />
+                          <Tooltip contentStyle={{ fontSize: '10px' }} />
+                          <Line type="monotone" dataKey="차량사고" stroke={CHART_COLORS[0]} strokeWidth={1.5} dot={{ r: 2 }} />
+                          <Line type="monotone" dataKey="훈련사고" stroke={CHART_COLORS[1]} strokeWidth={1.5} dot={{ r: 2 }} />
+                          <Line type="monotone" dataKey="시설안전" stroke={CHART_COLORS[2]} strokeWidth={1.5} dot={{ r: 2 }} />
+                          <Line type="monotone" dataKey="개인부주의" stroke={CHART_COLORS[3]} strokeWidth={1.5} dot={{ r: 2 }} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 테이블 */}
                 <table className="w-full border-collapse text-sm">
                   <thead>
                     <tr>
@@ -612,7 +697,10 @@ export function StatisticsReportList() {
                       return (
                         <tr key={idx}>
                           <td className="border border-black p-2 text-center">{idx + 1}</td>
-                          <td className="border border-black p-2">{detail.category}</td>
+                          <td className="border border-black p-2">
+                            <span className="inline-block w-2 h-2 rounded-sm mr-2" style={{ backgroundColor: CHART_COLORS[idx % CHART_COLORS.length] }} />
+                            {detail.category}
+                          </td>
                           <td className="border border-black p-2 text-center">{detail.count}건</td>
                           <td className="border border-black p-2 text-center">{percentage}%</td>
                           <td className="border border-black p-2 text-center">
@@ -793,6 +881,82 @@ export function StatisticsReportList() {
           {selectedReport.details && (
             <div className="p-6 border-b border-border">
               <h2 className="text-sm font-semibold mb-4">4. 사고 유형별 분석</h2>
+              
+              {/* 차트 영역 */}
+              <div className="grid grid-cols-2 gap-6 mb-6">
+                {/* 파이차트 - 유형별 분포 */}
+                <div className="border border-border rounded-lg p-4">
+                  <h3 className="text-xs font-medium text-muted-foreground mb-3">유형별 분포</h3>
+                  <div className="h-48">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={selectedReport.details.map((d, i) => ({
+                            name: d.category,
+                            value: d.count,
+                            color: CHART_COLORS[i % CHART_COLORS.length]
+                          }))}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={40}
+                          outerRadius={70}
+                          paddingAngle={2}
+                          dataKey="value"
+                          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                          labelLine={false}
+                        >
+                          {selectedReport.details.map((_, idx) => (
+                            <Cell key={idx} fill={CHART_COLORS[idx % CHART_COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip 
+                          contentStyle={{ 
+                            backgroundColor: 'hsl(var(--background))', 
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '6px'
+                          }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* 라인차트 - 기간별 추세 */}
+                <div className="border border-border rounded-lg p-4">
+                  <h3 className="text-xs font-medium text-muted-foreground mb-3">기간별 유형 추세</h3>
+                  <div className="h-48">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={generateTrendData(selectedReport.type)}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                        <XAxis 
+                          dataKey="name" 
+                          tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                          axisLine={{ stroke: 'hsl(var(--border))' }}
+                        />
+                        <YAxis 
+                          tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                          axisLine={{ stroke: 'hsl(var(--border))' }}
+                        />
+                        <Tooltip 
+                          contentStyle={{ 
+                            backgroundColor: 'hsl(var(--background))', 
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '6px',
+                            fontSize: '12px'
+                          }}
+                        />
+                        <Legend wrapperStyle={{ fontSize: '11px' }} />
+                        <Line type="monotone" dataKey="차량사고" stroke={CHART_COLORS[0]} strokeWidth={2} dot={{ r: 3 }} />
+                        <Line type="monotone" dataKey="훈련사고" stroke={CHART_COLORS[1]} strokeWidth={2} dot={{ r: 3 }} />
+                        <Line type="monotone" dataKey="시설안전" stroke={CHART_COLORS[2]} strokeWidth={2} dot={{ r: 3 }} />
+                        <Line type="monotone" dataKey="개인부주의" stroke={CHART_COLORS[3]} strokeWidth={2} dot={{ r: 3 }} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </div>
+
+              {/* 테이블 */}
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-y border-border bg-muted/30">
@@ -810,7 +974,10 @@ export function StatisticsReportList() {
                     return (
                       <tr key={idx}>
                         <td className="p-3 text-center text-muted-foreground">{idx + 1}</td>
-                        <td className="p-3">{detail.category}</td>
+                        <td className="p-3 flex items-center gap-2">
+                          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: CHART_COLORS[idx % CHART_COLORS.length] }} />
+                          {detail.category}
+                        </td>
                         <td className="p-3 text-right font-medium">{detail.count}건</td>
                         <td className="p-3 text-right text-muted-foreground">{percentage}%</td>
                         <td className={`p-3 text-right ${detail.trend === 'up' ? 'text-status-error' : detail.trend === 'down' ? 'text-status-success' : 'text-muted-foreground'}`}>
