@@ -41,6 +41,13 @@ export function UnitDetailPanel({ unitId, onClose, onChatbotClick }: UnitDetailP
   const fullPath = getUnitFullName(unitId);
   const childUnits = getChildUnits(unitId).filter(u => u.lat !== undefined);
 
+  // 위험도에 따른 색상 반환
+  const getRiskColor = (risk: number) => {
+    if (risk >= 75) return 'text-status-error'; // 경고 (빨강)
+    if (risk >= 50) return 'text-status-warning'; // 주의 (노랑)
+    return 'text-status-success'; // 안전 (초록)
+  };
+
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
@@ -64,7 +71,7 @@ export function UnitDetailPanel({ unitId, onClose, onChatbotClick }: UnitDetailP
         {/* Risk Value */}
         <div className="px-4 py-4 border-b border-border">
           <p className="text-[10px] text-muted-foreground mb-1">현재 위험도</p>
-          <p className="text-4xl font-bold text-foreground tabular-nums">{riskValue}%</p>
+          <p className={`text-4xl font-bold tabular-nums ${getRiskColor(riskValue)}`}>{riskValue}%</p>
         </div>
 
         {/* Unit Info */}
