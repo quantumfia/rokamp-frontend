@@ -57,8 +57,8 @@ const DEFAULT_TEST_USER: User = {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [authState, setAuthState] = useState<AuthState>({
-    user: DEFAULT_TEST_USER,
-    isAuthenticated: true,
+    user: null,
+    isAuthenticated: false,
     isLoading: false,
   });
 
@@ -66,21 +66,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthState(prev => ({ ...prev, isLoading: true }));
     
     // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise(resolve => setTimeout(resolve, 800));
     
-    const mockUser = MOCK_USERS[militaryId];
+    // 테스트용: 아무 ID/비밀번호나 허용
+    const testUser: User = {
+      id: '1',
+      militaryId: militaryId || 'TEST001',
+      name: '테스트 사용자',
+      rank: '대령',
+      unit: '육군본부 군사경찰실',
+      role: 'ROLE_HQ',
+    };
     
-    if (mockUser && mockUser.password === password) {
-      setAuthState({
-        user: mockUser.user,
-        isAuthenticated: true,
-        isLoading: false,
-      });
-      return true;
-    }
-    
-    setAuthState(prev => ({ ...prev, isLoading: false }));
-    return false;
+    setAuthState({
+      user: testUser,
+      isAuthenticated: true,
+      isLoading: false,
+    });
+    return true;
   }, []);
 
   const logout = useCallback(() => {
