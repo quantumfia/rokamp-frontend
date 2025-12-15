@@ -94,24 +94,24 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
           </div>
 
           {/* Right: Notice Detail */}
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col bg-white">
             {/* Detail Header */}
-            <div className="px-5 py-4 border-b border-[#1a1a1a]">
+            <div className="px-5 py-4 border-b border-gray-200">
               <div className="flex items-center gap-3 mb-2">
                 <span className="text-[10px] text-primary font-medium">{selectedNotice.number}</span>
-                <span className="text-[10px] text-muted-foreground">{selectedNotice.date}</span>
+                <span className="text-[10px] text-gray-500">{selectedNotice.date}</span>
               </div>
-              <h3 className="text-sm font-medium text-white leading-relaxed">
+              <h3 className="text-sm font-medium text-gray-900 leading-relaxed">
                 {selectedNotice.title}
               </h3>
-              <div className="mt-2 text-[10px] text-muted-foreground">
+              <div className="mt-2 text-[10px] text-gray-500">
                 발신: {selectedNotice.department}
               </div>
             </div>
 
             {/* Detail Content */}
             <div className="flex-1 px-5 py-4 max-h-[180px] overflow-y-auto">
-              <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap">
+              <p className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap">
                 {selectedNotice.content}
               </p>
             </div>
