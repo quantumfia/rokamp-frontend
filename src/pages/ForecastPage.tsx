@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { ForecastSkeleton } from '@/components/skeletons';
-
+import { UnitCascadeSelect } from '@/components/unit/UnitCascadeSelect';
+import { getUnitById } from '@/data/armyUnits';
 // 월별 사고 추세 데이터
 const TREND_DATA = [
   { month: '7월', current: 12, previous: 15 },
@@ -39,6 +40,31 @@ const chartTooltipStyle = {
 export default function ForecastPage() {
   const [activeTab, setActiveTab] = useState('weekly');
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedUnitId, setSelectedUnitId] = useState<string>('');
+
+  // 부대별 주간 예보 목데이터
+  const UNIT_WEEKLY_FORECAST: Record<string, { days: number[]; events: string[] }> = {
+    'corps-1-div-1': { 
+      days: [25, 38, 52, 45, 32, 18, 15],
+      events: ['동계훈련 예정', '차량 이동 증가', '야간훈련', '정비일', '일반훈련', '휴일', '휴일']
+    },
+    'corps-1-div-9': { 
+      days: [45, 68, 78, 62, 55, 28, 22],
+      events: ['실탄사격', '전술훈련', '대규모 기동훈련', '정비점검', '교육훈련', '휴일', '휴일']
+    },
+    'corps-5-div-6': { 
+      days: [32, 45, 55, 48, 42, 25, 18],
+      events: ['체력단련', '사격훈련', '야외훈련', '보급작업', '안전교육', '휴일', '휴일']
+    },
+    'corps-3-div-21': { 
+      days: [28, 35, 42, 38, 30, 15, 12],
+      events: ['정비작업', '일반훈련', '도보행군', '보급정비', '교육', '휴일', '휴일']
+    },
+    'goc': { 
+      days: [35, 42, 58, 52, 45, 22, 18],
+      events: ['지휘소훈련', '연합훈련', '대규모훈련', '점검', '보고회', '휴일', '휴일']
+    },
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 1000);
@@ -242,27 +268,117 @@ export default function ForecastPage() {
 
           {/* 부대별 주간 예보 */}
           <div>
-            <h2 className="text-sm font-medium text-foreground mb-1">부대별 주간 위험도 예보</h2>
-            <p className="text-xs text-muted-foreground mb-4">개별 사고 건수가 아닌 위험 확률(%)과 등급만 표시됩니다</p>
-            <div className="divide-y divide-border">
-              {['제1사단', '제3사단', '제6사단', '제7사단'].map((unit, index) => (
-                <div key={unit} className="flex items-center justify-between py-3">
-                  <span className="text-sm font-medium w-20">{unit}</span>
-                  <div className="flex items-center gap-3">
-                    {['월', '화', '수', '목', '금', '토', '일'].map((day, dayIndex) => {
-                      const risk = (index * 12 + dayIndex * 8 + 15) % 100;
-                      const dayColor = dayIndex === 5 ? 'text-blue-500' : dayIndex === 6 ? 'text-red-500' : 'text-muted-foreground';
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <h2 className="text-sm font-medium text-foreground mb-1">부대별 주간 위험도 예보</h2>
+                <p className="text-xs text-muted-foreground">부대를 선택하면 해당 부대의 주간 예보가 표시됩니다</p>
+              </div>
+              <div className="flex items-center gap-3 text-[10px]">
+                <span className="text-status-error">■ 위험 75%↑</span>
+                <span className="text-orange-500">■ 주의 50~74%</span>
+                <span className="text-status-warning">■ 관심 25~49%</span>
+                <span className="text-status-success">■ 안전 ~24%</span>
+              </div>
+            </div>
+
+            {/* 부대 선택 */}
+            <div className="mb-4">
+              <UnitCascadeSelect
+                value={selectedUnitId}
+                onChange={setSelectedUnitId}
+                placeholder="부대 선택"
+                showFullPath={true}
+              />
+            </div>
+
+            {/* 주간 예보 테이블 */}
+            <div className="border border-border rounded overflow-hidden">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-muted/30 border-b-2 border-foreground/30">
+                    <th className="py-2 text-xs font-medium text-foreground text-center border-r border-border w-24">구분</th>
+                    {[
+                      { date: '12/21', day: '일' },
+                      { date: '12/22', day: '월' },
+                      { date: '12/23', day: '화' },
+                      { date: '12/24', day: '수' },
+                      { date: '12/25', day: '목' },
+                      { date: '12/26', day: '금' },
+                      { date: '12/27', day: '토' },
+                    ].map((item) => (
+                      <th key={item.date} className="py-2 text-xs font-medium text-foreground text-center border-r border-border last:border-r-0">
+                        {item.date}({item.day})
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* 위험도 수치 */}
+                  <tr className="border-b border-border">
+                    <td className="py-2 text-xs text-muted-foreground text-center border-r border-border bg-muted/20">위험도</td>
+                    {(selectedUnitId && UNIT_WEEKLY_FORECAST[selectedUnitId] 
+                      ? UNIT_WEEKLY_FORECAST[selectedUnitId].days 
+                      : [null, null, null, null, null, null, null]
+                    ).map((risk, index) => (
+                      <td key={index} className="py-3 text-center border-r border-border last:border-r-0">
+                        <span className="text-lg font-semibold tabular-nums text-foreground">
+                          {risk !== null ? `${risk}%` : '-'}
+                        </span>
+                      </td>
+                    ))}
+                  </tr>
+                  {/* 위험 등급 */}
+                  <tr className="border-b border-border bg-muted/20">
+                    <td className="py-2 text-xs text-muted-foreground text-center border-r border-border">등급</td>
+                    {(selectedUnitId && UNIT_WEEKLY_FORECAST[selectedUnitId] 
+                      ? UNIT_WEEKLY_FORECAST[selectedUnitId].days 
+                      : [null, null, null, null, null, null, null]
+                    ).map((risk, index) => {
+                      if (risk === null) {
+                        return (
+                          <td key={index} className="py-2 text-center border-r border-border last:border-r-0">
+                            <span className="text-xs text-muted-foreground">-</span>
+                          </td>
+                        );
+                      }
+                      const level = risk >= 75 ? '위험' : risk >= 50 ? '주의' : risk >= 25 ? '관심' : '안전';
+                      const levelColor = risk >= 75 ? 'text-status-error' : risk >= 50 ? 'text-orange-500' : risk >= 25 ? 'text-status-warning' : 'text-status-success';
                       return (
-                        <div key={day} className="flex flex-col items-center gap-1">
-                          <span className={`text-[10px] ${dayColor}`}>{day}</span>
-                          <span className="text-xs font-medium tabular-nums text-foreground">{risk}</span>
-                        </div>
+                        <td key={index} className="py-2 text-center border-r border-border last:border-r-0">
+                          <span className={`text-xs font-medium ${levelColor}`}>{level}</span>
+                        </td>
                       );
                     })}
-                  </div>
-                </div>
-              ))}
+                  </tr>
+                  {/* 사건사고 예측 */}
+                  <tr>
+                    <td className="py-2 text-xs text-muted-foreground text-center border-r border-border bg-muted/20">예측 내용</td>
+                    {(selectedUnitId && UNIT_WEEKLY_FORECAST[selectedUnitId] 
+                      ? UNIT_WEEKLY_FORECAST[selectedUnitId].events 
+                      : [null, null, null, null, null, null, null]
+                    ).map((event, index) => (
+                      <td key={index} className="py-2 text-center border-r border-border last:border-r-0">
+                        <span className="text-[10px] text-muted-foreground">
+                          {event || '-'}
+                        </span>
+                      </td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
             </div>
+
+            {!selectedUnitId && (
+              <p className="text-xs text-muted-foreground text-center mt-4">
+                상단에서 부대를 선택하면 해당 부대의 주간 위험도 예보가 표시됩니다
+              </p>
+            )}
+
+            {selectedUnitId && !UNIT_WEEKLY_FORECAST[selectedUnitId] && (
+              <p className="text-xs text-muted-foreground text-center mt-4">
+                선택한 부대({getUnitById(selectedUnitId)?.name})의 예보 데이터가 없습니다
+              </p>
+            )}
           </div>
         </div>
       )}
