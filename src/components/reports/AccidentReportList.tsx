@@ -492,26 +492,42 @@ export function AccidentReportList({ onCreateNew }: AccidentReportListProps) {
     return <p key={idx} className="text-[11px] leading-[1.6]">{line || '\u00A0'}</p>;
   };
 
-  // PDF 미리보기 뷰
-  if (selectedReport && showPreview) {
+  // 상세보기 (좌: 상세 정보, 우: PDF 미리보기)
+  if (selectedReport) {
     const pages = splitContentToPages(selectedReport.content);
+    const inputClass = "w-full bg-muted/30 border border-border rounded px-3 py-2 text-sm";
+    const labelClass = "text-xs text-muted-foreground";
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* 상단 네비게이션 */}
         <div className="flex items-center justify-between">
           <button 
-            onClick={() => setShowPreview(false)}
+            onClick={() => setSelectedReport(null)}
             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            상세로 돌아가기
+            목록으로 돌아가기
           </button>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => toast({ title: '수정', description: '수정 기능은 추후 구현 예정입니다.' })}
+              className="flex items-center gap-2 px-4 py-2 border border-border rounded text-sm hover:bg-muted/50 transition-colors"
+            >
+              <Pencil className="w-4 h-4" />
+              수정
+            </button>
+            <button 
+              onClick={() => toast({ title: '삭제', description: '삭제 기능은 추후 구현 예정입니다.', variant: 'destructive' })}
+              className="flex items-center gap-2 px-4 py-2 border border-border rounded text-sm hover:bg-muted/50 transition-colors text-red-400"
+            >
+              <Trash2 className="w-4 h-4" />
+              삭제
+            </button>
             <button
               onClick={() => handlePrint(selectedReport)}
               disabled={isPrinting}
-              className="flex items-center gap-2 px-4 py-2 border border-border rounded text-sm hover:bg-muted/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-4 py-2 border border-border rounded text-sm hover:bg-muted/50 transition-colors disabled:opacity-50"
             >
               <Printer className="w-4 h-4" />
               {isPrinting ? '인쇄 준비중...' : '인쇄'}
@@ -538,287 +554,251 @@ export function AccidentReportList({ onCreateNew }: AccidentReportListProps) {
           </div>
         </div>
 
-        {/* PDF 스타일 미리보기 */}
-        <div 
-          ref={previewRef}
-          className="flex flex-col items-center gap-6"
-          style={{ backgroundColor: '#e5e5e5', padding: '20px' }}
-        >
-          {pages.map((pageLines, pageIdx) => (
-            <div 
-              key={pageIdx}
-              className="a4-page bg-white shadow-lg relative"
-              style={{ 
-                width: `${A4_WIDTH_PX}px`, 
-                height: `${A4_HEIGHT_PX}px`,
-                overflow: 'hidden',
-                paddingLeft: `${PAGE_PADDING_X}px`,
-                paddingRight: `${PAGE_PADDING_X}px`,
-                paddingTop: `${PAGE_PADDING_TOP}px`,
-                paddingBottom: `${PAGE_PADDING_BOTTOM}px`,
-                fontFamily: "'Noto Sans KR', 'Malgun Gothic', sans-serif",
-              }}
-            >
-              {/* 워터마크 */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 0 }}>
-                <img src={armyLogo} alt="" className="w-48 h-48 opacity-[0.05]" style={{ filter: 'grayscale(100%)' }} />
+        {/* 좌: 상세 정보, 우: PDF 미리보기 */}
+        <div className="grid grid-cols-2 gap-6" style={{ height: 'calc(100vh - 220px)' }}>
+          {/* 좌측: 상세 정보 */}
+          <div className="overflow-y-auto pr-2">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-medium text-foreground">보고서 상세 정보</h2>
+              <span className="text-xs text-muted-foreground">{selectedReport.id}</span>
+            </div>
+
+            <div className="space-y-4">
+              {/* 발생 일시 */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className={labelClass}>발생 일자</label>
+                  <div className={inputClass}>{selectedReport.date}</div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className={labelClass}>작성 일시</label>
+                  <div className={inputClass}>{selectedReport.createdAt}</div>
+                </div>
               </div>
 
-              <div className="relative z-10 flex flex-col h-full">
-                {/* 첫 페이지 헤더 */}
-                {pageIdx === 0 && (
-                  <>
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-2">
-                        <img src={armyLogo} alt="육군본부" className="w-10 h-10" />
-                        <div>
-                          <p className="text-[9px] text-gray-500">대한민국 육군</p>
-                          <p className="text-[11px] font-bold text-black">육군본부</p>
+              {/* 발생 장소 */}
+              <div className="space-y-1.5">
+                <label className={labelClass}>발생 장소</label>
+                <div className={inputClass}>{selectedReport.location}</div>
+              </div>
+
+              {/* 보고 부대 */}
+              <div className="space-y-1.5">
+                <label className={labelClass}>보고 부대</label>
+                <div className={inputClass}>{selectedReport.unit}</div>
+              </div>
+
+              {/* 사고 분류 */}
+              <div className="border-t border-border pt-4 mt-4">
+                <h3 className="text-xs font-medium text-foreground mb-3">사고 분류</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className={labelClass}>대분류</label>
+                    <div className={inputClass}>{selectedReport.category}</div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className={labelClass}>중분류</label>
+                    <div className={inputClass}>{selectedReport.categoryDetail}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 피해 현황 */}
+              <div className="border-t border-border pt-4 mt-4">
+                <h3 className="text-xs font-medium text-foreground mb-3">피해 현황</h3>
+                <div className="grid grid-cols-4 gap-3">
+                  <div className="space-y-1.5">
+                    <label className={labelClass}>군인 사망</label>
+                    <div className={inputClass}>{selectedReport.casualties.militaryDeaths}명</div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className={labelClass}>민간 사망</label>
+                    <div className={inputClass}>{selectedReport.casualties.civilianDeaths}명</div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className={labelClass}>군인 부상</label>
+                    <div className={inputClass}>{selectedReport.casualties.militaryInjuries}명</div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className={labelClass}>민간 부상</label>
+                    <div className={inputClass}>{selectedReport.casualties.civilianInjuries}명</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 보고자 정보 */}
+              <div className="border-t border-border pt-4 mt-4">
+                <h3 className="text-xs font-medium text-foreground mb-3">보고자 정보</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className={labelClass}>계급</label>
+                    <div className={inputClass}>{selectedReport.reporterRank}</div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className={labelClass}>성명</label>
+                    <div className={inputClass}>{selectedReport.reporter}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 사고 경위 */}
+              <div className="border-t border-border pt-4 mt-4">
+                <h3 className="text-xs font-medium text-foreground mb-3">사고 경위</h3>
+                <div className="bg-muted/30 border border-border rounded p-4 text-sm whitespace-pre-wrap">
+                  {selectedReport.overview}
+                </div>
+              </div>
+
+              {/* 조치 사항 */}
+              <div className="border-t border-border pt-4 mt-4">
+                <h3 className="text-xs font-medium text-foreground mb-3">조치 사항</h3>
+                <div className="bg-muted/30 border border-border rounded p-4 text-sm whitespace-pre-wrap">
+                  {selectedReport.actionsTaken}
+                </div>
+              </div>
+
+              {/* 재발 방지 대책 */}
+              <div className="border-t border-border pt-4 mt-4">
+                <h3 className="text-xs font-medium text-foreground mb-3">재발 방지 대책</h3>
+                <div className="bg-muted/30 border border-border rounded p-4 text-sm whitespace-pre-wrap">
+                  {selectedReport.preventionMeasures}
+                </div>
+              </div>
+
+              {/* 처리 상태 */}
+              <div className="border-t border-border pt-4 mt-4">
+                <h3 className="text-xs font-medium text-foreground mb-3">처리 상태</h3>
+                <div className={inputClass}>{getStatusLabel(selectedReport.status)}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* 우측: PDF 미리보기 */}
+          <div 
+            ref={previewRef}
+            className="overflow-y-auto flex flex-col items-center gap-4"
+            style={{ backgroundColor: '#e5e5e5', padding: '16px', borderRadius: '8px' }}
+          >
+            {pages.map((pageLines, pageIdx) => (
+              <div 
+                key={pageIdx}
+                className="a4-page bg-white shadow-lg relative flex-shrink-0"
+                style={{ 
+                  width: `${A4_WIDTH_PX}px`, 
+                  height: `${A4_HEIGHT_PX}px`,
+                  overflow: 'hidden',
+                  paddingLeft: `${PAGE_PADDING_X}px`,
+                  paddingRight: `${PAGE_PADDING_X}px`,
+                  paddingTop: `${PAGE_PADDING_TOP}px`,
+                  paddingBottom: `${PAGE_PADDING_BOTTOM}px`,
+                  fontFamily: "'Noto Sans KR', 'Malgun Gothic', sans-serif",
+                  transform: 'scale(0.75)',
+                  transformOrigin: 'top center',
+                  marginBottom: '-210px',
+                }}
+              >
+                {/* 워터마크 */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 0 }}>
+                  <img src={armyLogo} alt="" className="w-48 h-48 opacity-[0.05]" style={{ filter: 'grayscale(100%)' }} />
+                </div>
+
+                <div className="relative z-10 flex flex-col h-full">
+                  {/* 첫 페이지 헤더 */}
+                  {pageIdx === 0 && (
+                    <>
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                          <img src={armyLogo} alt="육군본부" className="w-10 h-10" />
+                          <div>
+                            <p className="text-[9px] text-gray-500">대한민국 육군</p>
+                            <p className="text-[11px] font-bold text-black">육군본부</p>
+                          </div>
+                        </div>
+                        <div className="text-right text-[9px] text-gray-500">
+                          <p>문서번호: {selectedReport.id}</p>
+                          <p>작성일시: {selectedReport.createdAt}</p>
+                          <p>작 성 자: {selectedReport.reporterRank} {selectedReport.reporter}</p>
                         </div>
                       </div>
-                      <div className="text-right text-[9px] text-gray-500">
-                        <p>문서번호: {selectedReport.id}</p>
-                        <p>작성일시: {selectedReport.createdAt}</p>
-                        <p>작 성 자: {selectedReport.reporterRank} {selectedReport.reporter}</p>
+
+                      <div className="text-center border-y-2 border-black py-3 mb-6">
+                        <h1 className="text-base font-bold text-black tracking-widest">사 고 보 고 서</h1>
+                        <p className="text-[9px] text-gray-500 mt-0.5">ACCIDENT REPORT</p>
                       </div>
+
+                      <table className="w-full border-collapse mb-4 text-[10px]">
+                        <tbody>
+                          <tr>
+                            <td className="border border-black bg-gray-100 p-1.5 w-20 font-semibold">보고 부대</td>
+                            <td className="border border-black p-1.5">{selectedReport.unit}</td>
+                          </tr>
+                          <tr>
+                            <td className="border border-black bg-gray-100 p-1.5 font-semibold">사고 유형</td>
+                            <td className="border border-black p-1.5">{selectedReport.category} &gt; {selectedReport.categoryDetail}</td>
+                          </tr>
+                          <tr>
+                            <td className="border border-black bg-gray-100 p-1.5 font-semibold">발생 일시</td>
+                            <td className="border border-black p-1.5">{selectedReport.date}</td>
+                          </tr>
+                          <tr>
+                            <td className="border border-black bg-gray-100 p-1.5 font-semibold">발생 장소</td>
+                            <td className="border border-black p-1.5">{selectedReport.location}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </>
+                  )}
+
+                  {/* 2페이지 이후 헤더 */}
+                  {pageIdx > 0 && (
+                    <div className="flex justify-between items-center mb-6 pb-2 border-b border-gray-200">
+                      <p className="text-[9px] text-gray-400">사고보고서 (계속)</p>
+                      <p className="text-[9px] text-gray-400">문서번호: {selectedReport.id}</p>
                     </div>
+                  )}
 
-                    <div className="text-center border-y-2 border-black py-3 mb-6">
-                      <h1 className="text-base font-bold text-black tracking-widest">사 고 보 고 서</h1>
-                      <p className="text-[9px] text-gray-500 mt-0.5">ACCIDENT REPORT</p>
+                  {/* 본문 */}
+                  <div className="flex-1 text-black whitespace-pre-wrap">
+                    {pageLines.map((line, idx) => renderLine(line, idx))}
+                  </div>
+
+                  {/* 마지막 페이지 결재란 */}
+                  {pageIdx === pages.length - 1 && (
+                    <div className="mt-6 flex justify-end">
+                      <table className="border-collapse text-[9px] text-black">
+                        <thead>
+                          <tr>
+                            <th className="border border-gray-400 px-3 py-1 bg-gray-100">담당</th>
+                            <th className="border border-gray-400 px-3 py-1 bg-gray-100">검토</th>
+                            <th className="border border-gray-400 px-3 py-1 bg-gray-100">승인</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td className="border border-gray-400 px-3 py-3 h-10 w-12"></td>
+                            <td className="border border-gray-400 px-3 py-3 h-10 w-12"></td>
+                            <td className="border border-gray-400 px-3 py-3 h-10 w-12"></td>
+                          </tr>
+                        </tbody>
+                      </table>
                     </div>
+                  )}
 
-                    <table className="w-full border-collapse mb-4 text-[10px]">
-                      <tbody>
-                        <tr>
-                          <td className="border border-black bg-gray-100 p-1.5 w-20 font-semibold">보고 부대</td>
-                          <td className="border border-black p-1.5">{selectedReport.unit}</td>
-                        </tr>
-                        <tr>
-                          <td className="border border-black bg-gray-100 p-1.5 font-semibold">사고 유형</td>
-                          <td className="border border-black p-1.5">{selectedReport.category} &gt; {selectedReport.categoryDetail}</td>
-                        </tr>
-                        <tr>
-                          <td className="border border-black bg-gray-100 p-1.5 font-semibold">발생 일시</td>
-                          <td className="border border-black p-1.5">{selectedReport.date}</td>
-                        </tr>
-                        <tr>
-                          <td className="border border-black bg-gray-100 p-1.5 font-semibold">발생 장소</td>
-                          <td className="border border-black p-1.5">{selectedReport.location}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </>
-                )}
-
-                {/* 2페이지 이후 헤더 */}
-                {pageIdx > 0 && (
-                  <div className="flex justify-between items-center mb-6 pb-2 border-b border-gray-200">
-                    <p className="text-[9px] text-gray-400">사고보고서 (계속)</p>
-                    <p className="text-[9px] text-gray-400">문서번호: {selectedReport.id}</p>
+                  {/* 푸터 */}
+                  <div className="mt-auto pt-4 border-t border-gray-300 flex justify-between items-center">
+                    <p className="text-[8px] text-gray-400">본 문서는 대외비로 취급하시기 바랍니다.</p>
+                    <p className="text-[9px] text-gray-400">- {pageIdx + 1} / {pages.length} -</p>
                   </div>
-                )}
-
-                {/* 본문 */}
-                <div className="flex-1 text-black whitespace-pre-wrap">
-                  {pageLines.map((line, idx) => renderLine(line, idx))}
-                </div>
-
-                {/* 마지막 페이지 결재란 */}
-                {pageIdx === pages.length - 1 && (
-                  <div className="mt-6 flex justify-end">
-                    <table className="border-collapse text-[9px] text-black">
-                      <thead>
-                        <tr>
-                          <th className="border border-gray-400 px-3 py-1 bg-gray-100">담당</th>
-                          <th className="border border-gray-400 px-3 py-1 bg-gray-100">검토</th>
-                          <th className="border border-gray-400 px-3 py-1 bg-gray-100">승인</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td className="border border-gray-400 px-3 py-3 h-10 w-12"></td>
-                          <td className="border border-gray-400 px-3 py-3 h-10 w-12"></td>
-                          <td className="border border-gray-400 px-3 py-3 h-10 w-12"></td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-
-                {/* 푸터 */}
-                <div className="mt-auto pt-4 border-t border-gray-300 flex justify-between items-center">
-                  <p className="text-[8px] text-gray-400">본 문서는 대외비로 취급하시기 바랍니다.</p>
-                  <p className="text-[9px] text-gray-400">- {pageIdx + 1} / {pages.length} -</p>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     );
   }
 
-  // 상세보기 - 폼 스타일
-  if (selectedReport) {
-    const inputClass = "w-full bg-muted/30 border border-border rounded px-3 py-2 text-sm";
-    const labelClass = "text-xs text-muted-foreground";
-
-    return (
-      <div className="space-y-6">
-        {/* 상단 네비게이션 */}
-        <div className="flex items-center justify-between">
-          <button 
-            onClick={() => setSelectedReport(null)}
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            목록으로 돌아가기
-          </button>
-          <div className="flex items-center gap-2">
-            <button 
-              onClick={() => toast({ title: '수정', description: '수정 기능은 추후 구현 예정입니다.' })}
-              className="flex items-center gap-2 px-4 py-2 border border-border rounded text-sm hover:bg-muted/50 transition-colors"
-            >
-              <Pencil className="w-4 h-4" />
-              수정
-            </button>
-            <button 
-              onClick={() => toast({ title: '삭제', description: '삭제 기능은 추후 구현 예정입니다.', variant: 'destructive' })}
-              className="flex items-center gap-2 px-4 py-2 border border-border rounded text-sm hover:bg-muted/50 transition-colors text-red-400"
-            >
-              <Trash2 className="w-4 h-4" />
-              삭제
-            </button>
-            <button 
-              onClick={() => setShowPreview(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-foreground text-background rounded text-sm hover:opacity-80 transition-opacity"
-            >
-              <Eye className="w-4 h-4" />
-              PDF 미리보기
-            </button>
-          </div>
-        </div>
-
-        {/* 폼 스타일 상세보기 */}
-        <div className="max-h-[calc(100vh-220px)] overflow-y-auto pr-2">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-medium text-foreground">보고서 상세 정보</h2>
-            <span className="text-xs text-muted-foreground">{selectedReport.id}</span>
-          </div>
-
-          <div className="space-y-4">
-            {/* 발생 일시 */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className={labelClass}>발생 일자</label>
-                <div className={inputClass}>{selectedReport.date}</div>
-              </div>
-              <div className="space-y-1.5">
-                <label className={labelClass}>작성 일시</label>
-                <div className={inputClass}>{selectedReport.createdAt}</div>
-              </div>
-            </div>
-
-            {/* 발생 장소 */}
-            <div className="space-y-1.5">
-              <label className={labelClass}>발생 장소</label>
-              <div className={inputClass}>{selectedReport.location}</div>
-            </div>
-
-            {/* 보고 부대 */}
-            <div className="space-y-1.5">
-              <label className={labelClass}>보고 부대</label>
-              <div className={inputClass}>{selectedReport.unit}</div>
-            </div>
-
-            {/* 사고 분류 */}
-            <div className="border-t border-border pt-4 mt-4">
-              <h3 className="text-xs font-medium text-foreground mb-3">사고 분류</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className={labelClass}>대분류</label>
-                  <div className={inputClass}>{selectedReport.category}</div>
-                </div>
-                <div className="space-y-1.5">
-                  <label className={labelClass}>중분류</label>
-                  <div className={inputClass}>{selectedReport.categoryDetail}</div>
-                </div>
-              </div>
-            </div>
-
-            {/* 피해 현황 */}
-            <div className="border-t border-border pt-4 mt-4">
-              <h3 className="text-xs font-medium text-foreground mb-3">피해 현황</h3>
-              <div className="grid grid-cols-4 gap-3">
-                <div className="space-y-1.5">
-                  <label className={labelClass}>군인 사망</label>
-                  <div className={inputClass}>{selectedReport.casualties.militaryDeaths}명</div>
-                </div>
-                <div className="space-y-1.5">
-                  <label className={labelClass}>민간 사망</label>
-                  <div className={inputClass}>{selectedReport.casualties.civilianDeaths}명</div>
-                </div>
-                <div className="space-y-1.5">
-                  <label className={labelClass}>군인 부상</label>
-                  <div className={inputClass}>{selectedReport.casualties.militaryInjuries}명</div>
-                </div>
-                <div className="space-y-1.5">
-                  <label className={labelClass}>민간 부상</label>
-                  <div className={inputClass}>{selectedReport.casualties.civilianInjuries}명</div>
-                </div>
-              </div>
-            </div>
-
-            {/* 보고자 정보 */}
-            <div className="border-t border-border pt-4 mt-4">
-              <h3 className="text-xs font-medium text-foreground mb-3">보고자 정보</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className={labelClass}>계급</label>
-                  <div className={inputClass}>{selectedReport.reporterRank}</div>
-                </div>
-                <div className="space-y-1.5">
-                  <label className={labelClass}>성명</label>
-                  <div className={inputClass}>{selectedReport.reporter}</div>
-                </div>
-              </div>
-            </div>
-
-            {/* 사고 경위 */}
-            <div className="border-t border-border pt-4 mt-4">
-              <h3 className="text-xs font-medium text-foreground mb-3">사고 경위</h3>
-              <div className="bg-muted/30 border border-border rounded p-4 text-sm whitespace-pre-wrap">
-                {selectedReport.overview}
-              </div>
-            </div>
-
-            {/* 조치 사항 */}
-            <div className="border-t border-border pt-4 mt-4">
-              <h3 className="text-xs font-medium text-foreground mb-3">조치 사항</h3>
-              <div className="bg-muted/30 border border-border rounded p-4 text-sm whitespace-pre-wrap">
-                {selectedReport.actionsTaken}
-              </div>
-            </div>
-
-            {/* 재발 방지 대책 */}
-            <div className="border-t border-border pt-4 mt-4">
-              <h3 className="text-xs font-medium text-foreground mb-3">재발 방지 대책</h3>
-              <div className="bg-muted/30 border border-border rounded p-4 text-sm whitespace-pre-wrap">
-                {selectedReport.preventionMeasures}
-              </div>
-            </div>
-
-            {/* 처리 상태 */}
-            <div className="border-t border-border pt-4 mt-4">
-              <h3 className="text-xs font-medium text-foreground mb-3">처리 상태</h3>
-              <div className={inputClass}>{getStatusLabel(selectedReport.status)}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // 이제 상세보기와 미리보기가 합쳐짐 (위에서 처리)
 
   // 목록 뷰
   return (
