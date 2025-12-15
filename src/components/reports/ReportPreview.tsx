@@ -119,7 +119,7 @@ export function ReportPreview({ content, onContentChange, reporterInfo }: Report
     body { background: #fff; }
     .page { width: 210mm; height: 297mm; page-break-after: always; }
     .page:last-child { page-break-after: auto; }
-    img { width: 210mm; height: 297mm; object-fit: cover; display: block; }
+    img { width: 210mm; height: 297mm; object-fit: contain; display: block; background: #fff; }
     @page { size: A4; margin: 0; }
     @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
   </style>

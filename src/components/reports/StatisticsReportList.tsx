@@ -518,7 +518,7 @@ export function StatisticsReportList() {
     body { background: #fff; }
     .page { width: 210mm; height: 297mm; page-break-after: always; }
     .page:last-child { page-break-after: auto; }
-    img { width: 210mm; height: 297mm; object-fit: cover; display: block; }
+    img { width: 210mm; height: 297mm; object-fit: contain; display: block; background: #fff; }
     @page { size: A4; margin: 0; }
     @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
   </style>
@@ -589,7 +589,7 @@ export function StatisticsReportList() {
   const A4_HEIGHT_PX = 842;
   const PAGE_PADDING_X = 50;
   const PAGE_PADDING_TOP = 50;
-  const PAGE_PADDING_BOTTOM = 60;
+  const PAGE_PADDING_BOTTOM = 90;
 
   // PDF 미리보기 뷰
   if (selectedReport && showPreview) {
@@ -660,6 +660,7 @@ export function StatisticsReportList() {
               paddingTop: `${PAGE_PADDING_TOP}px`,
               paddingBottom: `${PAGE_PADDING_BOTTOM}px`,
               fontFamily: "'Noto Sans KR', 'Malgun Gothic', sans-serif",
+              lineHeight: '1.6',
             }}
           >
             {/* 워터마크 로고 */}
@@ -780,6 +781,7 @@ export function StatisticsReportList() {
               paddingTop: `${PAGE_PADDING_TOP}px`,
               paddingBottom: `${PAGE_PADDING_BOTTOM}px`,
               fontFamily: "'Noto Sans KR', 'Malgun Gothic', sans-serif",
+              lineHeight: '1.6',
             }}
           >
             {/* 워터마크 로고 */}
