@@ -84,7 +84,10 @@ export function GNB({ onNotificationClick, onSearchSelect }: GNBProps) {
   return (
     <header className="h-12 bg-sidebar flex items-center justify-between px-4 sticky top-0 z-[100] border-b border-sidebar-border">
       {/* Logo */}
-      <div className="flex items-center gap-3">
+      <button 
+        onClick={() => navigate('/dashboard')}
+        className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+      >
         <div className="flex items-center justify-center w-8 h-8">
           <img src={armyLogo} alt="육군본부" className="w-8 h-8 object-contain" />
         </div>
@@ -94,7 +97,7 @@ export function GNB({ onNotificationClick, onSearchSelect }: GNBProps) {
         <div className="hidden lg:flex items-center gap-1 ml-4">
           <span className="text-xs text-sidebar-muted px-2 py-1 rounded bg-sidebar-accent">안전사고 예측 시스템</span>
         </div>
-      </div>
+      </button>
 
       {/* Search with Autocomplete */}
       <div ref={searchRef} className="flex-1 max-w-md mx-4 relative">
