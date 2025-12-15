@@ -171,25 +171,30 @@ export function GNB({ onNotificationClick, onSearchSelect }: GNBProps) {
         {/* User Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="gap-2 h-8 px-2 text-sidebar-foreground hover:bg-sidebar-accent">
+            <Button variant="ghost" className="gap-2 h-auto py-1 px-2 text-sidebar-foreground hover:bg-sidebar-accent">
               <div className="w-6 h-6 rounded bg-primary/20 flex items-center justify-center">
                 <User className="w-3 h-3 text-primary" />
               </div>
               <div className="hidden md:block text-left">
-                <p className="text-xs font-medium leading-none text-sidebar-foreground">{user?.name}</p>
+                <p className="text-[10px] text-sidebar-muted leading-tight">
+                  군번: {user?.militaryId || '24-503994'} ({user?.name || '홍길동'})
+                </p>
+                <p className="text-[10px] text-primary leading-tight">
+                  권한: {user?.role ? ROLE_LABELS[user.role] : 'Super Admin'}
+                </p>
               </div>
               <ChevronDown className="w-3 h-3 text-sidebar-muted" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56 bg-sidebar border-sidebar-border">
             <div className="p-2">
-              <p className="text-sm font-medium text-sidebar-foreground">{user?.name}</p>
-              <p className="text-xs text-sidebar-muted">{user?.militaryId}</p>
+              <p className="text-sm font-medium text-sidebar-foreground">{user?.name || '홍길동'}</p>
+              <p className="text-xs text-sidebar-muted">{user?.militaryId || '24-503994'}</p>
               <p className="text-xs text-sidebar-muted mt-1">
-                {user?.rank} · {user?.unit}
+                {user?.rank || '대위'} · {user?.unit || '육군본부'}
               </p>
               <p className="text-[10px] text-primary mt-1">
-                권한: {user?.role && ROLE_LABELS[user.role]}
+                권한: {user?.role ? ROLE_LABELS[user.role] : 'Super Admin'}
               </p>
             </div>
             <DropdownMenuSeparator className="bg-sidebar-border" />
