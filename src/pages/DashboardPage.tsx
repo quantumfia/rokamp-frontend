@@ -35,6 +35,8 @@ export default function DashboardPage() {
   useEffect(() => {
     if (searchContext?.selectedUnitFromSearch) {
       setSelectedUnitId(searchContext.selectedUnitFromSearch);
+      // 처리 후 context 초기화
+      searchContext.setSelectedUnitFromSearch(null);
     }
   }, [searchContext?.selectedUnitFromSearch]);
 

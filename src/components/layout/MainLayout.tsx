@@ -46,11 +46,13 @@ export function MainLayout() {
 
   const handleSearchSelect = (unitId: string) => {
     // 대시보드로 이동하고 해당 부대 선택
-    navigate('/dashboard');
-    setSelectedUnitFromSearch(unitId);
-    
-    // 약간의 딜레이 후 초기화 (대시보드에서 처리 후)
-    setTimeout(() => setSelectedUnitFromSearch(null), 100);
+    if (location.pathname !== '/dashboard') {
+      navigate('/dashboard');
+      // 페이지 이동 후 충분한 시간 대기
+      setTimeout(() => setSelectedUnitFromSearch(unitId), 500);
+    } else {
+      setSelectedUnitFromSearch(unitId);
+    }
   };
 
   const handleNotificationClick = () => {
