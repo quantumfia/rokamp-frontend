@@ -30,6 +30,7 @@ interface ReportPreviewProps {
 export function ReportPreview({ content, onContentChange, reporterInfo }: ReportPreviewProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
   const currentDate = new Date();
@@ -67,91 +68,85 @@ export function ReportPreview({ content, onContentChange, reporterInfo }: Report
     });
   };
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
     if (!printRef.current) return;
-    
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      toast({
-        title: '인쇄 실패',
-        description: '팝업이 차단되었습니다. 팝업 차단을 해제해주세요.',
-        variant: 'destructive',
-      });
-      return;
-    }
 
-    const printContent = printRef.current.innerHTML;
-    
-    printWindow.document.write(`<!DOCTYPE html>
+    setIsPrinting(true);
+
+    try {
+      const pageElements = Array.from(printRef.current.querySelectorAll('.a4-page')) as HTMLElement[];
+      if (pageElements.length === 0) return;
+
+      // PDF 다운로드와 동일하게 페이지를 이미지로 래스터라이즈해서 인쇄하면
+      // 브라우저/프린터별 CSS 차이 없이 "미리보기 그대로" 출력됩니다.
+      const pageImages: string[] = [];
+      for (const pageEl of pageElements) {
+        const canvas = await html2canvas(pageEl, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff',
+          logging: false,
+        });
+        pageImages.push(canvas.toDataURL('image/png'));
+      }
+
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        toast({
+          title: '인쇄 실패',
+          description: '팝업이 차단되었습니다. 팝업 차단을 해제해주세요.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const imgsHtml = pageImages
+        .map(
+          (src) => `
+            <div class="page">
+              <img src="${src}" alt="print-page" />
+            </div>
+          `
+        )
+        .join('');
+
+      printWindow.document.write(`<!DOCTYPE html>
 <html>
 <head>
-  <title>사고보고서</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <title>사고보고서 인쇄</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { 
-      font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif; 
-      background: white;
-      padding: 0;
-    }
-    .a4-page {
-      width: 210mm;
-      min-height: 297mm;
-      padding: 15mm 18mm 20mm 18mm;
-      background: white;
-      page-break-after: always;
-      position: relative;
-      margin: 0 auto;
-    }
-    .a4-page:last-child {
-      page-break-after: auto;
-    }
-    img {
-      max-width: 100%;
-      height: auto;
-    }
-    p, h1, th, td, span {
-      font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
-    }
-    table {
-      border-collapse: collapse;
-    }
-    @media print {
-      body {
-        background: white;
-        padding: 0;
-        margin: 0;
-      }
-      .a4-page {
-        width: 100%;
-        min-height: auto;
-        padding: 10mm 15mm 15mm 15mm;
-        margin: 0;
-        box-shadow: none;
-      }
-    }
-    @page {
-      size: A4;
-      margin: 0;
-    }
+    body { background: #fff; }
+    .page { width: 210mm; height: 297mm; page-break-after: always; }
+    .page:last-child { page-break-after: auto; }
+    img { width: 210mm; height: 297mm; object-fit: cover; display: block; }
+    @page { size: A4; margin: 0; }
+    @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
   </style>
 </head>
 <body>
-  ${printContent}
+  ${imgsHtml}
+  <script>
+    // 이미지 로딩 완료 후 인쇄
+    const imgs = Array.from(document.images);
+    const wait = imgs.map(img => img.complete ? Promise.resolve() : new Promise(res => img.onload = img.onerror = res));
+    Promise.all(wait).then(() => {
+      setTimeout(() => window.print(), 50);
+    });
+    window.onafterprint = () => window.close();
+  </script>
 </body>
 </html>`);
-    
-    printWindow.document.close();
-    
-    setTimeout(() => {
-      printWindow.print();
-      printWindow.close();
-    }, 800);
-    
-    toast({
-      title: '인쇄',
-      description: '인쇄 대화상자가 열립니다.',
-    });
+
+      printWindow.document.close();
+
+      toast({
+        title: '인쇄',
+        description: '미리보기와 동일한 형태로 인쇄합니다.',
+      });
+    } finally {
+      setIsPrinting(false);
+    }
   };
 
   const handleDownloadPDF = async () => {
@@ -261,10 +256,11 @@ export function ReportPreview({ content, onContentChange, reporterInfo }: Report
             </button>
             <button 
               onClick={handlePrint}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs border border-border rounded hover:bg-muted/50 transition-colors"
+              disabled={isPrinting}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs border border-border rounded hover:bg-muted/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Printer className="w-3.5 h-3.5" />
-              인쇄
+              {isPrinting ? '인쇄 준비중...' : '인쇄'}
             </button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
