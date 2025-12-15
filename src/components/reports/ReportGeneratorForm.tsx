@@ -20,17 +20,38 @@ export interface ReportFormData {
   accidentType: string;
   overview: string;
   keywords: string;
+  reporter: string;
+  reporterRank: string;
+  reporterContact: string;
+  casualties: string;
+  damage: string;
+  actionsTaken: string;
 }
 
+// 테스트용 기본값
+const getDefaultFormData = (): ReportFormData => {
+  const today = new Date();
+  const dateStr = today.toISOString().split('T')[0];
+  const timeStr = `${String(today.getHours()).padStart(2, '0')}:${String(today.getMinutes()).padStart(2, '0')}`;
+  
+  return {
+    date: dateStr,
+    time: timeStr,
+    location: '제00사단 훈련장 A구역',
+    accidentType: 'training',
+    overview: '야간 전술훈련 중 장병 1명이 참호 진입 시 발을 헛디뎌 낙상. 우측 발목 염좌 부상 발생.',
+    keywords: '야간훈련, 참호, 낙상',
+    reporter: '홍길동',
+    reporterRank: '대위',
+    reporterContact: '010-1234-5678',
+    casualties: '부상 1명 (우측 발목 염좌, 경상)',
+    damage: '없음',
+    actionsTaken: '현장 응급처치 후 사단 의무대 후송 완료. 훈련 일시 중단 후 안전점검 실시.',
+  };
+};
+
 export function ReportGeneratorForm({ onGenerate, isGenerating }: ReportGeneratorFormProps) {
-  const [formData, setFormData] = useState<ReportFormData>({
-    date: '',
-    time: '',
-    location: '',
-    accidentType: '',
-    overview: '',
-    keywords: '',
-  });
+  const [formData, setFormData] = useState<ReportFormData>(getDefaultFormData());
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,7 +62,7 @@ export function ReportGeneratorForm({ onGenerate, isGenerating }: ReportGenerato
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const isFormValid = formData.date && formData.location && formData.accidentType && formData.overview;
+  const isFormValid = formData.date && formData.location && formData.accidentType && formData.overview && formData.reporter;
 
   return (
     <div>
@@ -120,6 +141,83 @@ export function ReportGeneratorForm({ onGenerate, isGenerating }: ReportGenerato
             className="w-full bg-transparent border border-border rounded px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
           />
           <p className="text-xs text-muted-foreground">쉼표로 구분하여 입력</p>
+        </div>
+
+        <div className="border-t border-border pt-4 mt-4">
+          <h3 className="text-xs font-medium text-foreground mb-3">보고자 정보</h3>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-1.5">
+              <label htmlFor="reporterRank" className="text-xs text-muted-foreground">계급</label>
+              <input
+                id="reporterRank"
+                placeholder="예: 대위"
+                value={formData.reporterRank}
+                onChange={(e) => handleChange('reporterRank', e.target.value)}
+                className="w-full bg-transparent border border-border rounded px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label htmlFor="reporter" className="text-xs text-muted-foreground">성명 *</label>
+              <input
+                id="reporter"
+                placeholder="예: 홍길동"
+                value={formData.reporter}
+                onChange={(e) => handleChange('reporter', e.target.value)}
+                className="w-full bg-transparent border border-border rounded px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label htmlFor="reporterContact" className="text-xs text-muted-foreground">연락처</label>
+              <input
+                id="reporterContact"
+                placeholder="예: 010-0000-0000"
+                value={formData.reporterContact}
+                onChange={(e) => handleChange('reporterContact', e.target.value)}
+                className="w-full bg-transparent border border-border rounded px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="border-t border-border pt-4 mt-4">
+          <h3 className="text-xs font-medium text-foreground mb-3">피해 현황</h3>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <label htmlFor="casualties" className="text-xs text-muted-foreground">인명 피해</label>
+              <input
+                id="casualties"
+                placeholder="예: 부상 1명 (우측 발목 염좌, 경상)"
+                value={formData.casualties}
+                onChange={(e) => handleChange('casualties', e.target.value)}
+                className="w-full bg-transparent border border-border rounded px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label htmlFor="damage" className="text-xs text-muted-foreground">재산/장비 피해</label>
+              <input
+                id="damage"
+                placeholder="예: 차량 전면부 파손"
+                value={formData.damage}
+                onChange={(e) => handleChange('damage', e.target.value)}
+                className="w-full bg-transparent border border-border rounded px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="border-t border-border pt-4 mt-4">
+          <h3 className="text-xs font-medium text-foreground mb-3">조치 사항</h3>
+          <div className="space-y-1.5">
+            <label htmlFor="actionsTaken" className="text-xs text-muted-foreground">현재까지 조치 내용</label>
+            <textarea
+              id="actionsTaken"
+              placeholder="현장 조치 및 후속 조치 사항을 기술해주세요"
+              rows={3}
+              value={formData.actionsTaken}
+              onChange={(e) => handleChange('actionsTaken', e.target.value)}
+              className="w-full bg-transparent border border-border rounded px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors resize-none"
+            />
+          </div>
         </div>
 
         <button 
