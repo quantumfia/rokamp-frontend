@@ -22,17 +22,14 @@ export interface ReportFormData {
   keywords: string;
 }
 
-// 오늘 날짜 기본값
-const today = new Date().toISOString().split('T')[0];
-
 export function ReportGeneratorForm({ onGenerate, isGenerating }: ReportGeneratorFormProps) {
   const [formData, setFormData] = useState<ReportFormData>({
-    date: today,
-    time: '14:30',
-    location: '제1사단 3연대 훈련장',
-    accidentType: 'training',
-    overview: '야간 훈련 중 병사 1명이 참호 이동 간 발을 헛디뎌 낙상, 좌측 발목 부상 발생. 즉시 의무대 후송 조치 완료.',
-    keywords: '야간, 훈련, 낙상',
+    date: '',
+    time: '',
+    location: '',
+    accidentType: '',
+    overview: '',
+    keywords: '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -44,7 +41,7 @@ export function ReportGeneratorForm({ onGenerate, isGenerating }: ReportGenerato
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const isFormValid = formData.date && formData.accidentType && formData.overview;
+  const isFormValid = formData.date && formData.location && formData.accidentType && formData.overview;
 
   return (
     <div>
@@ -58,25 +55,47 @@ export function ReportGeneratorForm({ onGenerate, isGenerating }: ReportGenerato
               type="date"
               value={formData.date}
               onChange={(e) => handleChange('date', e.target.value)}
-              className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+              className="w-full bg-transparent border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
             />
           </div>
           <div className="space-y-1.5">
-            <label htmlFor="accidentType" className="text-xs text-muted-foreground">사고 유형 *</label>
-            <select
-              id="accidentType"
-              value={formData.accidentType}
-              onChange={(e) => handleChange('accidentType', e.target.value)}
-              className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
-            >
-              <option value="">선택</option>
-              {ACCIDENT_TYPES.map((type) => (
-                <option key={type.value} value={type.value}>
-                  {type.label}
-                </option>
-              ))}
-            </select>
+            <label htmlFor="time" className="text-xs text-muted-foreground">발생 시간</label>
+            <input
+              id="time"
+              type="time"
+              value={formData.time}
+              onChange={(e) => handleChange('time', e.target.value)}
+              className="w-full bg-transparent border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+            />
           </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <label htmlFor="location" className="text-xs text-muted-foreground">발생 장소 *</label>
+          <input
+            id="location"
+            placeholder="예: 00사단 훈련장, 00대대 주둔지"
+            value={formData.location}
+            onChange={(e) => handleChange('location', e.target.value)}
+            className="w-full bg-transparent border border-border rounded px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <label htmlFor="accidentType" className="text-xs text-muted-foreground">사고 유형 *</label>
+          <select
+            id="accidentType"
+            value={formData.accidentType}
+            onChange={(e) => handleChange('accidentType', e.target.value)}
+            className="w-full bg-transparent border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+          >
+            <option value="">사고 유형 선택</option>
+            {ACCIDENT_TYPES.map((type) => (
+              <option key={type.value} value={type.value}>
+                {type.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="space-y-1.5">
@@ -89,6 +108,18 @@ export function ReportGeneratorForm({ onGenerate, isGenerating }: ReportGenerato
             onChange={(e) => handleChange('overview', e.target.value)}
             className="w-full bg-transparent border border-border rounded px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors resize-none"
           />
+        </div>
+
+        <div className="space-y-1.5">
+          <label htmlFor="keywords" className="text-xs text-muted-foreground">추가 키워드</label>
+          <input
+            id="keywords"
+            placeholder="예: 폭우, 야간, 신병"
+            value={formData.keywords}
+            onChange={(e) => handleChange('keywords', e.target.value)}
+            className="w-full bg-transparent border border-border rounded px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
+          />
+          <p className="text-xs text-muted-foreground">쉼표로 구분하여 입력</p>
         </div>
 
         <button 
