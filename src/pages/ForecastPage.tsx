@@ -84,20 +84,43 @@ export default function ForecastPage() {
           {/* 주간 종합 위험도 */}
           <div>
             <h2 className="text-sm font-medium text-foreground mb-3">주간 종합 위험도</h2>
-            <div className="grid grid-cols-7 gap-2">
-              {['월', '화', '수', '목', '금', '토', '일'].map((day, index) => {
-                const risk = [45, 52, 68, 55, 42, 25, 18][index];
-                const level = risk >= 75 ? '경고' : risk >= 50 ? '주의' : risk >= 25 ? '관심' : '안전';
-                const levelColor = risk >= 75 ? 'text-status-error' : risk >= 50 ? 'text-status-error' : risk >= 25 ? 'text-status-warning' : 'text-status-success';
-                const dayColor = index === 5 ? 'text-blue-500' : index === 6 ? 'text-red-500' : 'text-muted-foreground';
-                return (
-                  <div key={day} className="text-center py-3">
-                    <p className={`text-xs mb-2 ${dayColor}`}>{day}요일</p>
-                    <p className="text-xl font-semibold tabular-nums text-foreground">{risk}%</p>
-                    <p className={`text-xs mt-1 font-medium ${levelColor}`}>{level}</p>
-                  </div>
-                );
-              })}
+            <div className="border border-border rounded overflow-hidden">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-muted/30">
+                    {['일', '월', '화', '수', '목', '금', '토'].map((day, index) => {
+                      const dayColor = index === 0 ? 'text-red-500' : index === 6 ? 'text-blue-500' : 'text-muted-foreground';
+                      return (
+                        <th key={day} className={`py-2 text-xs font-medium ${dayColor} text-center border-r border-border last:border-r-0`}>
+                          {day}
+                        </th>
+                      );
+                    })}
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* 위험도 수치 */}
+                  <tr className="border-t border-border">
+                    {[18, 45, 52, 68, 55, 42, 25].map((risk, index) => (
+                      <td key={index} className="py-3 text-center border-r border-border last:border-r-0">
+                        <span className="text-lg font-semibold tabular-nums text-foreground">{risk}%</span>
+                      </td>
+                    ))}
+                  </tr>
+                  {/* 위험 등급 */}
+                  <tr className="border-t border-border bg-muted/20">
+                    {[18, 45, 52, 68, 55, 42, 25].map((risk, index) => {
+                      const level = risk >= 75 ? '경고' : risk >= 50 ? '주의' : risk >= 25 ? '관심' : '안전';
+                      const levelColor = risk >= 75 ? 'text-status-error' : risk >= 50 ? 'text-status-error' : risk >= 25 ? 'text-status-warning' : 'text-status-success';
+                      return (
+                        <td key={index} className="py-2 text-center border-r border-border last:border-r-0">
+                          <span className={`text-xs font-medium ${levelColor}`}>{level}</span>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
 
