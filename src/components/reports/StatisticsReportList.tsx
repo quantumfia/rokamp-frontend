@@ -408,39 +408,35 @@ export function StatisticsReportList() {
     }
     
     try {
-      const canvas = await html2canvas(previewRef.current, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff',
-        logging: false,
-      });
-
-      const imgData = canvas.toDataURL('image/png');
-      
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4',
       });
 
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 10;
+      // 각 A4 페이지를 개별적으로 캡처
+      const pageElements = previewRef.current.querySelectorAll('.a4-page');
       
-      const imgWidth = pageWidth - margin * 2;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
-      let heightLeft = imgHeight;
-      let position = margin;
+      for (let i = 0; i < pageElements.length; i++) {
+        const pageEl = pageElements[i] as HTMLElement;
+        
+        const canvas = await html2canvas(pageEl, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff',
+          logging: false,
+        });
 
-      pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
-      heightLeft -= (pageHeight - margin * 2);
-
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight + margin;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
-        heightLeft -= (pageHeight - margin * 2);
+        const imgData = canvas.toDataURL('image/png');
+        
+        if (i > 0) {
+          pdf.addPage();
+        }
+        
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        
+        pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight);
       }
 
       pdf.save(`${report.title}.pdf`);
@@ -496,8 +492,23 @@ export function StatisticsReportList() {
     return Math.round((stats.resolved / stats.totalAccidents) * 100);
   };
 
+  // A4 페이지 상수
+  const A4_WIDTH_PX = 595;
+  const A4_HEIGHT_PX = 842;
+  const PAGE_PADDING_X = 50;
+  const PAGE_PADDING_TOP = 50;
+  const PAGE_PADDING_BOTTOM = 60;
+
   // PDF 미리보기 뷰
   if (selectedReport && showPreview) {
+    // CSS 기반 바 차트 데이터
+    const totalCount = selectedReport.details?.reduce((sum, d) => sum + d.count, 0) || 1;
+    const barChartData = selectedReport.details?.map((d, i) => ({
+      ...d,
+      percentage: Math.round((d.count / totalCount) * 100),
+      color: CHART_COLORS[i % CHART_COLORS.length]
+    })) || [];
+
     return (
       <div className="space-y-6">
         {/* 상단 네비게이션 */}
@@ -530,234 +541,260 @@ export function StatisticsReportList() {
           </DropdownMenu>
         </div>
 
-        {/* PDF 스타일 미리보기 */}
-        <div className="flex justify-center">
+        {/* PDF 스타일 미리보기 - A4 페이지들 */}
+        <div 
+          ref={previewRef}
+          className="flex flex-col items-center gap-6"
+          style={{ backgroundColor: '#e5e5e5', padding: '20px' }}
+        >
+          {/* 1페이지 - 헤더 + 개요 + 요약 + 통계 */}
           <div 
-            ref={previewRef}
-            className="bg-white text-black shadow-2xl relative"
+            className="a4-page bg-white shadow-lg relative"
             style={{ 
-              width: '210mm', 
-              minHeight: '297mm', 
-              padding: '20mm',
-              fontFamily: "'Noto Sans KR', 'Malgun Gothic', serif"
+              width: `${A4_WIDTH_PX}px`, 
+              minHeight: `${A4_HEIGHT_PX}px`,
+              paddingLeft: `${PAGE_PADDING_X}px`,
+              paddingRight: `${PAGE_PADDING_X}px`,
+              paddingTop: `${PAGE_PADDING_TOP}px`,
+              paddingBottom: `${PAGE_PADDING_BOTTOM}px`,
+              fontFamily: "'Noto Sans KR', 'Malgun Gothic', sans-serif",
             }}
           >
             {/* 워터마크 로고 */}
-            <div 
-              className="absolute inset-0 flex items-center justify-center pointer-events-none"
-              style={{ zIndex: 0 }}
-            >
-              <img 
-                src={armyLogo} 
-                alt="" 
-                className="w-64 h-64 opacity-[0.05]"
-                style={{ filter: 'grayscale(100%)' }}
-              />
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 0 }}>
+              <img src={armyLogo} alt="" className="w-48 h-48 opacity-[0.05]" style={{ filter: 'grayscale(100%)' }} />
             </div>
 
-            {/* 콘텐츠 영역 */}
-            <div className="relative z-10">
+            <div className="relative z-10 flex flex-col h-full">
               {/* 문서 헤더 */}
-              <div className="text-center border-b-2 border-black pb-6 mb-8">
-                <p className="text-sm tracking-widest mb-2">육군 안전관리단</p>
-                <h1 className="text-2xl font-bold tracking-wide">통 계 보 고 서</h1>
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <img src={armyLogo} alt="육군본부" className="w-10 h-10" />
+                  <div>
+                    <p className="text-[9px] text-gray-500">대한민국 육군</p>
+                    <p className="text-[11px] font-bold text-black">육군본부</p>
+                  </div>
+                </div>
+                <div className="text-right text-[9px] text-gray-500">
+                  <p>문서번호: STAT-{new Date().getFullYear()}-{String(Math.floor(Math.random() * 10000)).padStart(5, '0')}</p>
+                  <p>생성일: {selectedReport.generatedAt}</p>
+                </div>
               </div>
 
-            {/* 기본 정보 테이블 */}
-            <table className="w-full border-collapse mb-8 text-sm">
-              <tbody>
-                <tr className="border border-black">
-                  <td className="border border-black bg-gray-100 p-2 w-28 font-semibold">분석 대상</td>
-                  <td className="border border-black p-2">{selectedReport.unit}</td>
-                  <td className="border border-black bg-gray-100 p-2 w-28 font-semibold">보고서 유형</td>
-                  <td className="border border-black p-2">{getTypeLabel(selectedReport.type)} 보고서</td>
-                </tr>
-                <tr className="border border-black">
-                  <td className="border border-black bg-gray-100 p-2 font-semibold">분석 기간</td>
-                  <td className="border border-black p-2">{selectedReport.period}</td>
-                  <td className="border border-black bg-gray-100 p-2 font-semibold">생성일</td>
-                  <td className="border border-black p-2">{selectedReport.generatedAt}</td>
-                </tr>
-              </tbody>
-            </table>
+              {/* 문서 제목 */}
+              <div className="text-center border-y-2 border-black py-3 mb-6">
+                <h1 className="text-base font-bold text-black tracking-widest">통 계 보 고 서</h1>
+                <p className="text-[9px] text-gray-500 mt-0.5">STATISTICS REPORT</p>
+              </div>
 
-            {/* 보고서 제목 */}
-            <div className="text-center mb-8">
-              <h2 className="text-lg font-bold">{selectedReport.title}</h2>
-            </div>
+              {/* 기본 정보 테이블 */}
+              <table className="w-full border-collapse mb-6 text-[10px]">
+                <tbody>
+                  <tr>
+                    <td className="border border-black bg-gray-100 p-1.5 w-20 font-semibold">분석 대상</td>
+                    <td className="border border-black p-1.5">{selectedReport.unit}</td>
+                    <td className="border border-black bg-gray-100 p-1.5 w-20 font-semibold">보고서 유형</td>
+                    <td className="border border-black p-1.5">{getTypeLabel(selectedReport.type)} 보고서</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-black bg-gray-100 p-1.5 font-semibold">분석 기간</td>
+                    <td className="border border-black p-1.5">{selectedReport.period}</td>
+                    <td className="border border-black bg-gray-100 p-1.5 font-semibold">생성일</td>
+                    <td className="border border-black p-1.5">{selectedReport.generatedAt}</td>
+                  </tr>
+                </tbody>
+              </table>
 
-            {/* 1. 개요 */}
-            <div className="mb-6">
-              <h3 className="font-bold mb-3 border-b-2 border-black pb-1">1. 개요</h3>
-              <div className="pl-4 space-y-2 text-sm">
-                <p><strong>가. 목적</strong></p>
-                <p className="pl-4 text-justify">본 보고서는 분석 기간 내 발생한 사고 및 안전 현황을 종합적으로 분석하여, 향후 사고 예방 및 안전관리 개선을 위한 기초자료로 활용하고자 함.</p>
-                <p className="mt-2"><strong>나. 분석 범위</strong></p>
-                <p className="pl-4">- 분석 대상: {selectedReport.unit}</p>
-                <p className="pl-4">- 분석 기간: {selectedReport.period}</p>
+              {/* 보고서 제목 */}
+              <div className="text-center mb-6">
+                <h2 className="text-sm font-bold">{selectedReport.title}</h2>
+              </div>
+
+              {/* 1. 개요 */}
+              <div className="mb-4">
+                <h3 className="font-bold mb-2 border-b-2 border-black pb-1 text-[11px]">1. 개요</h3>
+                <div className="pl-3 space-y-1 text-[10px]">
+                  <p><strong>가. 목적</strong></p>
+                  <p className="pl-3 text-justify">본 보고서는 분석 기간 내 발생한 사고 및 안전 현황을 종합적으로 분석하여, 향후 사고 예방 및 안전관리 개선을 위한 기초자료로 활용하고자 함.</p>
+                  <p className="mt-1"><strong>나. 분석 범위</strong></p>
+                  <p className="pl-3">- 분석 대상: {selectedReport.unit}</p>
+                  <p className="pl-3">- 분석 기간: {selectedReport.period}</p>
+                </div>
+              </div>
+
+              {/* 2. 요약 */}
+              <div className="mb-4">
+                <h3 className="font-bold mb-2 border-b-2 border-black pb-1 text-[11px]">2. 주요 현황 요약</h3>
+                <p className="text-[10px] leading-relaxed pl-3 text-justify">{selectedReport.summary}</p>
+              </div>
+
+              {/* 3. 주요 통계 */}
+              {selectedReport.stats && (
+                <div className="mb-4">
+                  <h3 className="font-bold mb-2 border-b-2 border-black pb-1 text-[11px]">3. 사고 통계 현황</h3>
+                  <table className="w-full border-collapse text-[10px] mb-2">
+                    <thead>
+                      <tr>
+                        <th className="border border-black bg-gray-100 p-1.5">구분</th>
+                        <th className="border border-black bg-gray-100 p-1.5">총 발생</th>
+                        <th className="border border-black bg-gray-100 p-1.5">처리 완료</th>
+                        <th className="border border-black bg-gray-100 p-1.5">처리 중</th>
+                        <th className="border border-black bg-gray-100 p-1.5">처리율</th>
+                        <th className="border border-black bg-gray-100 p-1.5">전기 대비</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="border border-black p-1.5 text-center bg-gray-50">사고 건수</td>
+                        <td className="border border-black p-1.5 text-center font-semibold">{selectedReport.stats.totalAccidents}건</td>
+                        <td className="border border-black p-1.5 text-center">{selectedReport.stats.resolved}건</td>
+                        <td className="border border-black p-1.5 text-center">{selectedReport.stats.pending}건</td>
+                        <td className="border border-black p-1.5 text-center">{getProcessingRate(selectedReport.stats)}%</td>
+                        <td className="border border-black p-1.5 text-center font-semibold">
+                          {selectedReport.stats.changeRate > 0 ? '▲' : selectedReport.stats.changeRate < 0 ? '▼' : '-'} {Math.abs(selectedReport.stats.changeRate)}%
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {/* 문서 푸터 */}
+              <div className="mt-auto pt-4 border-t border-gray-300 flex justify-between items-center">
+                <p className="text-[8px] text-gray-400">본 문서는 대외비로 취급하시기 바랍니다.</p>
+                <p className="text-[9px] text-gray-400">- 1 / 2 -</p>
               </div>
             </div>
+          </div>
 
-            {/* 2. 요약 */}
-            <div className="mb-6">
-              <h3 className="font-bold mb-3 border-b-2 border-black pb-1">2. 주요 현황 요약</h3>
-              <p className="text-sm leading-relaxed pl-4 text-justify">{selectedReport.summary}</p>
+          {/* 2페이지 - 유형별 분석 + 권고사항 + 결론 */}
+          <div 
+            className="a4-page bg-white shadow-lg relative"
+            style={{ 
+              width: `${A4_WIDTH_PX}px`, 
+              minHeight: `${A4_HEIGHT_PX}px`,
+              paddingLeft: `${PAGE_PADDING_X}px`,
+              paddingRight: `${PAGE_PADDING_X}px`,
+              paddingTop: `${PAGE_PADDING_TOP}px`,
+              paddingBottom: `${PAGE_PADDING_BOTTOM}px`,
+              fontFamily: "'Noto Sans KR', 'Malgun Gothic', sans-serif",
+            }}
+          >
+            {/* 워터마크 로고 */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 0 }}>
+              <img src={armyLogo} alt="" className="w-48 h-48 opacity-[0.05]" style={{ filter: 'grayscale(100%)' }} />
             </div>
 
-            {/* 3. 주요 통계 */}
-            {selectedReport.stats && (
-              <div className="mb-6">
-                <h3 className="font-bold mb-3 border-b-2 border-black pb-1">3. 사고 통계 현황</h3>
-                <table className="w-full border-collapse text-sm mb-4">
-                  <thead>
-                    <tr>
-                      <th className="border border-black bg-gray-100 p-2">구분</th>
-                      <th className="border border-black bg-gray-100 p-2">총 발생</th>
-                      <th className="border border-black bg-gray-100 p-2">처리 완료</th>
-                      <th className="border border-black bg-gray-100 p-2">처리 중</th>
-                      <th className="border border-black bg-gray-100 p-2">처리율</th>
-                      <th className="border border-black bg-gray-100 p-2">전기 대비</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td className="border border-black p-2 text-center bg-gray-50">사고 건수</td>
-                      <td className="border border-black p-2 text-center font-semibold">{selectedReport.stats.totalAccidents}건</td>
-                      <td className="border border-black p-2 text-center">{selectedReport.stats.resolved}건</td>
-                      <td className="border border-black p-2 text-center">{selectedReport.stats.pending}건</td>
-                      <td className="border border-black p-2 text-center">{getProcessingRate(selectedReport.stats)}%</td>
-                      <td className="border border-black p-2 text-center font-semibold">
-                        {selectedReport.stats.changeRate > 0 ? '▲' : selectedReport.stats.changeRate < 0 ? '▼' : '-'} {Math.abs(selectedReport.stats.changeRate)}%
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-                <p className="text-xs text-gray-600 pl-4">
-                  ※ 전기 대비: {selectedReport.stats.changeRate > 0 ? '증가' : selectedReport.stats.changeRate < 0 ? '감소' : '동일'} 
-                  ({selectedReport.stats.changeRate > 0 ? '+' : ''}{selectedReport.stats.changeRate}%)
+            <div className="relative z-10 flex flex-col h-full">
+              {/* 페이지 헤더 */}
+              <div className="flex justify-between items-center mb-4 pb-2 border-b border-gray-200">
+                <p className="text-[9px] text-gray-400">통계보고서 (계속)</p>
+                <p className="text-[9px] text-gray-400">{selectedReport.title}</p>
+              </div>
+
+              {/* 4. 유형별 현황 */}
+              {selectedReport.details && (
+                <div className="mb-4">
+                  <h3 className="font-bold mb-2 border-b-2 border-black pb-1 text-[11px]">4. 사고 유형별 분석</h3>
+                  
+                  {/* CSS 기반 바 차트 - 유형별 분포 */}
+                  <div className="mb-4 p-3 border border-gray-200 rounded">
+                    <p className="text-[9px] font-medium text-gray-600 mb-2">유형별 분포</p>
+                    <div className="space-y-2">
+                      {barChartData.map((item, idx) => (
+                        <div key={idx} className="flex items-center gap-2">
+                          <span className="text-[9px] w-16 truncate">{item.category}</span>
+                          <div className="flex-1 h-4 bg-gray-100 rounded overflow-hidden">
+                            <div 
+                              className="h-full rounded"
+                              style={{ width: `${item.percentage}%`, backgroundColor: item.color }}
+                            />
+                          </div>
+                          <span className="text-[9px] w-8 text-right">{item.percentage}%</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 테이블 */}
+                  <table className="w-full border-collapse text-[10px]">
+                    <thead>
+                      <tr>
+                        <th className="border border-black bg-gray-100 p-1.5 text-left w-10">순번</th>
+                        <th className="border border-black bg-gray-100 p-1.5 text-left">사고 유형</th>
+                        <th className="border border-black bg-gray-100 p-1.5 w-20 text-center">발생 건수</th>
+                        <th className="border border-black bg-gray-100 p-1.5 w-16 text-center">비율</th>
+                        <th className="border border-black bg-gray-100 p-1.5 w-20 text-center">전기 대비</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedReport.details.map((detail, idx) => {
+                        const percentage = Math.round((detail.count / totalCount) * 100);
+                        return (
+                          <tr key={idx}>
+                            <td className="border border-black p-1.5 text-center">{idx + 1}</td>
+                            <td className="border border-black p-1.5">
+                              <span className="inline-block w-2 h-2 rounded-sm mr-1" style={{ backgroundColor: CHART_COLORS[idx % CHART_COLORS.length] }} />
+                              {detail.category}
+                            </td>
+                            <td className="border border-black p-1.5 text-center">{detail.count}건</td>
+                            <td className="border border-black p-1.5 text-center">{percentage}%</td>
+                            <td className="border border-black p-1.5 text-center">
+                              {detail.trend === 'up' ? '▲ 증가' : detail.trend === 'down' ? '▼ 감소' : '- 유지'}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {/* 5. 권고사항 */}
+              {selectedReport.recommendations && (
+                <div className="mb-4">
+                  <h3 className="font-bold mb-2 border-b-2 border-black pb-1 text-[11px]">5. 권고사항 및 개선방안</h3>
+                  <div className="pl-3 text-[10px] space-y-1">
+                    {selectedReport.recommendations.map((rec, idx) => (
+                      <p key={idx}><strong>{String.fromCharCode(97 + idx)}.</strong> {rec}</p>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 6. 결론 */}
+              <div className="mb-4">
+                <h3 className="font-bold mb-2 border-b-2 border-black pb-1 text-[11px]">6. 결론</h3>
+                <p className="text-[10px] leading-relaxed pl-3 text-justify">
+                  상기 분석 결과를 바탕으로 지속적인 안전관리 활동 및 예방 조치를 시행하여 사고 발생률 저감에 기여하고자 함. 
+                  각 부대는 본 보고서의 권고사항을 참고하여 자체 안전관리 계획을 수립·시행할 것을 권고함.
                 </p>
               </div>
-            )}
 
-            {/* 4. 유형별 현황 */}
-            {selectedReport.details && (
-              <div className="mb-6">
-                <h3 className="font-bold mb-3 border-b-2 border-black pb-1">4. 사고 유형별 분석</h3>
-                
-                {/* 차트 영역 */}
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  {/* 파이차트 - 유형별 분포 */}
-                  <div className="border border-gray-300 rounded p-3">
-                    <p className="text-xs font-medium text-gray-600 mb-2 text-center">유형별 분포</p>
-                    <div className="h-32">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={selectedReport.details.map((d, i) => ({
-                              name: d.category,
-                              value: d.count,
-                            }))}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={25}
-                            outerRadius={50}
-                            paddingAngle={2}
-                            dataKey="value"
-                          >
-                            {selectedReport.details.map((_, idx) => (
-                              <Cell key={idx} fill={CHART_COLORS[idx % CHART_COLORS.length]} />
-                            ))}
-                          </Pie>
-                          <Tooltip />
-                          <Legend wrapperStyle={{ fontSize: '10px' }} />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-
-                  {/* 라인차트 - 기간별 추세 */}
-                  <div className="border border-gray-300 rounded p-3">
-                    <p className="text-xs font-medium text-gray-600 mb-2 text-center">기간별 유형 추세</p>
-                    <div className="h-32">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={generateTrendData(selectedReport.type)}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                          <XAxis dataKey="name" tick={{ fontSize: 9 }} />
-                          <YAxis tick={{ fontSize: 9 }} />
-                          <Tooltip contentStyle={{ fontSize: '10px' }} />
-                          <Line type="monotone" dataKey="차량사고" stroke={CHART_COLORS[0]} strokeWidth={1.5} dot={{ r: 2 }} />
-                          <Line type="monotone" dataKey="훈련사고" stroke={CHART_COLORS[1]} strokeWidth={1.5} dot={{ r: 2 }} />
-                          <Line type="monotone" dataKey="시설안전" stroke={CHART_COLORS[2]} strokeWidth={1.5} dot={{ r: 2 }} />
-                          <Line type="monotone" dataKey="개인부주의" stroke={CHART_COLORS[3]} strokeWidth={1.5} dot={{ r: 2 }} />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 테이블 */}
-                <table className="w-full border-collapse text-sm">
+              {/* 결재란 */}
+              <div className="mt-6 flex justify-end">
+                <table className="border-collapse text-[9px] text-black">
                   <thead>
                     <tr>
-                      <th className="border border-black bg-gray-100 p-2 text-left w-12">순번</th>
-                      <th className="border border-black bg-gray-100 p-2 text-left">사고 유형</th>
-                      <th className="border border-black bg-gray-100 p-2 w-24 text-center">발생 건수</th>
-                      <th className="border border-black bg-gray-100 p-2 w-20 text-center">비율</th>
-                      <th className="border border-black bg-gray-100 p-2 w-24 text-center">전기 대비</th>
+                      <th className="border border-gray-400 px-3 py-1 bg-gray-100">담당</th>
+                      <th className="border border-gray-400 px-3 py-1 bg-gray-100">검토</th>
+                      <th className="border border-gray-400 px-3 py-1 bg-gray-100">승인</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {selectedReport.details.map((detail, idx) => {
-                      const totalCount = selectedReport.details?.reduce((sum, d) => sum + d.count, 0) || 1;
-                      const percentage = Math.round((detail.count / totalCount) * 100);
-                      return (
-                        <tr key={idx}>
-                          <td className="border border-black p-2 text-center">{idx + 1}</td>
-                          <td className="border border-black p-2">
-                            <span className="inline-block w-2 h-2 rounded-sm mr-2" style={{ backgroundColor: CHART_COLORS[idx % CHART_COLORS.length] }} />
-                            {detail.category}
-                          </td>
-                          <td className="border border-black p-2 text-center">{detail.count}건</td>
-                          <td className="border border-black p-2 text-center">{percentage}%</td>
-                          <td className="border border-black p-2 text-center">
-                            {detail.trend === 'up' ? '▲ 증가' : detail.trend === 'down' ? '▼ 감소' : '- 유지'}
-                          </td>
-                        </tr>
-                      );
-                    })}
+                    <tr>
+                      <td className="border border-gray-400 px-3 py-3 h-10 w-12"></td>
+                      <td className="border border-gray-400 px-3 py-3 h-10 w-12"></td>
+                      <td className="border border-gray-400 px-3 py-3 h-10 w-12"></td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
-            )}
 
-            {/* 5. 권고사항 */}
-            {selectedReport.recommendations && (
-              <div className="mb-6">
-                <h3 className="font-bold mb-3 border-b-2 border-black pb-1">5. 권고사항 및 개선방안</h3>
-                <div className="pl-4 text-sm space-y-2">
-                  {selectedReport.recommendations.map((rec, idx) => (
-                    <p key={idx}><strong>{String.fromCharCode(97 + idx)}.</strong> {rec}</p>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* 6. 결론 */}
-            <div className="mb-6">
-              <h3 className="font-bold mb-3 border-b-2 border-black pb-1">6. 결론</h3>
-              <p className="text-sm leading-relaxed pl-4 text-justify">
-                상기 분석 결과를 바탕으로 지속적인 안전관리 활동 및 예방 조치를 시행하여 사고 발생률 저감에 기여하고자 함. 
-                각 부대는 본 보고서의 권고사항을 참고하여 자체 안전관리 계획을 수립·시행할 것을 권고함.
-              </p>
-            </div>
-            </div>
-
-            {/* 문서 푸터 */}
-            <div className="absolute bottom-8 left-0 right-0 text-center text-xs text-gray-500" style={{ padding: '0 20mm' }}>
-              <div className="border-t border-gray-300 pt-4 flex justify-between items-center">
-                <span>육군 안전관리단</span>
-                <span>- 1 / 1 -</span>
-                <span>{selectedReport.generatedAt}</span>
+              {/* 문서 푸터 */}
+              <div className="mt-auto pt-4 border-t border-gray-300 flex justify-between items-center">
+                <p className="text-[8px] text-gray-400">본 문서는 대외비로 취급하시기 바랍니다.</p>
+                <p className="text-[9px] text-gray-400">- 2 / 2 -</p>
               </div>
             </div>
           </div>
