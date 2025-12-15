@@ -117,11 +117,16 @@ export function MapView({ className, onMarkerClick, selectedUnitId }: MapViewPro
         duration: 0.5,
       });
       
-      // 해당 마커의 팝업 열기
-      const marker = markersRef.current.get(selectedUnitId);
-      if (marker) {
-        setTimeout(() => marker.openPopup(), 500);
-      }
+      // flyTo 완료 후 팝업 열기
+      const openPopup = () => {
+        const marker = markersRef.current.get(selectedUnitId);
+        if (marker) {
+          marker.openPopup();
+        }
+        mapRef.current?.off('moveend', openPopup);
+      };
+      
+      mapRef.current.on('moveend', openPopup);
     }
   }, [selectedUnitId]);
 
