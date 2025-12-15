@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Plus, Upload, Download, MoreHorizontal } from 'lucide-react';
 import { UnitCascadeSelect } from '@/components/unit/UnitCascadeSelect';
 import { getUnitById, getAllDescendants, getUnitFullName } from '@/data/armyUnits';
+import { ROLE_LABELS, UserRole } from '@/types/auth';
 import { toast } from '@/hooks/use-toast';
-
 interface User {
   id: string;
   militaryId: string;
@@ -33,16 +33,7 @@ export default function UserManagementPage() {
   const [showActionMenu, setShowActionMenu] = useState<string | null>(null);
 
   const getRoleLabel = (role: string) => {
-    switch (role) {
-      case 'ROLE_HQ':
-        return '육군본부';
-      case 'ROLE_DIV':
-        return '사단급';
-      case 'ROLE_BN':
-        return '대대급';
-      default:
-        return role;
-    }
+    return ROLE_LABELS[role as UserRole] ?? role;
   };
 
   const getUnitName = (unitId: string) => {
