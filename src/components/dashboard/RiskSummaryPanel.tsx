@@ -24,6 +24,15 @@ export function RiskSummaryPanel({ onUnitClick }: RiskSummaryPanelProps) {
   const { user } = useAuth();
   const overallRisk = 52;
 
+  // 위험도에 따른 색상 반환
+  const getRiskColor = (risk: number) => {
+    if (risk >= 75) return 'text-status-error'; // 경고 (빨강)
+    if (risk >= 50) return 'text-status-warning'; // 주의 (노랑)
+    return 'text-status-success'; // 안전 (초록)
+  };
+
+  const overallRiskColor = getRiskColor(overallRisk);
+
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
@@ -39,7 +48,7 @@ export function RiskSummaryPanel({ onUnitClick }: RiskSummaryPanelProps) {
       {/* Overall Risk */}
       <div className="px-4 py-4 border-b border-border">
         <p className="text-[10px] text-muted-foreground mb-1">종합 위험도</p>
-        <p className="text-4xl font-bold text-foreground tabular-nums">{overallRisk}%</p>
+        <p className={`text-4xl font-bold tabular-nums ${overallRiskColor}`}>{overallRisk}%</p>
       </div>
 
       {/* Stats Row */}
@@ -68,11 +77,11 @@ export function RiskSummaryPanel({ onUnitClick }: RiskSummaryPanelProps) {
             >
               <span className="text-xs text-foreground">{unit.name}</span>
               <div className="flex items-center gap-1.5">
-                <span className="text-xs font-semibold text-foreground tabular-nums">
+                <span className={`text-xs font-semibold tabular-nums ${getRiskColor(unit.risk)}`}>
                   {unit.risk}%
                 </span>
-                {unit.trend === 'up' && <TrendingUp className="w-3 h-3 text-muted-foreground" />}
-                {unit.trend === 'down' && <TrendingDown className="w-3 h-3 text-muted-foreground" />}
+                {unit.trend === 'up' && <TrendingUp className="w-3 h-3 text-status-error" />}
+                {unit.trend === 'down' && <TrendingDown className="w-3 h-3 text-status-success" />}
               </div>
             </button>
           ))}
