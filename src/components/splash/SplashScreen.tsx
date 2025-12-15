@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Shield, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { GeometricScene } from './GeometricScene';
+import landingHero from '@/assets/landing-hero.png';
 
 interface SplashScreenProps {
   onComplete: () => void;
@@ -79,59 +79,32 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
       className="fixed inset-0 bg-black flex flex-col items-center justify-center z-50 overflow-hidden cursor-pointer"
       onClick={handleClick}
     >
-      {/* Animated gradient background */}
+      {/* Hero image background */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Moving spotlight effect 1 */}
+        {/* Main hero image */}
         <div 
-          className="absolute w-[800px] h-[800px] rounded-full opacity-20"
+          className="absolute inset-0 flex items-center justify-center"
           style={{
-            background: 'radial-gradient(circle, hsl(187, 85%, 43%) 0%, transparent 70%)',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            animation: 'spotlight-pulse 4s ease-in-out infinite',
+            animation: 'float-slow 8s ease-in-out infinite',
           }}
-        />
-        
-        {/* Moving spotlight effect 2 */}
-        <div 
-          className="absolute w-[600px] h-[600px] rounded-full opacity-10"
-          style={{
-            background: 'radial-gradient(circle, hsl(187, 85%, 60%) 0%, transparent 60%)',
-            top: '30%',
-            left: '30%',
-            animation: 'spotlight-float 8s ease-in-out infinite',
-          }}
-        />
-        
-        {/* Moving spotlight effect 3 */}
-        <div 
-          className="absolute w-[500px] h-[500px] rounded-full opacity-10"
-          style={{
-            background: 'radial-gradient(circle, hsl(187, 85%, 50%) 0%, transparent 60%)',
-            bottom: '20%',
-            right: '20%',
-            animation: 'spotlight-float 10s ease-in-out infinite reverse',
-          }}
-        />
+        >
+          <img 
+            src={landingHero}
+            alt="Hero visualization"
+            className="w-full h-full object-cover opacity-70"
+            style={{
+              filter: 'brightness(0.9)',
+            }}
+          />
+        </div>
 
-        {/* Grid overlay */}
+        {/* Subtle glow overlay */}
         <div 
-          className="absolute inset-0 opacity-[0.03]"
+          className="absolute inset-0"
           style={{
-            backgroundImage: `
-              linear-gradient(hsl(187, 85%, 43%) 1px, transparent 1px),
-              linear-gradient(90deg, hsl(187, 85%, 43%) 1px, transparent 1px)
-            `,
-            backgroundSize: '100px 100px',
-            animation: 'grid-move 20s linear infinite',
+            background: 'radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.7) 70%)',
           }}
         />
-
-        {/* 3D Geometric Scene */}
-        <Suspense fallback={null}>
-          <GeometricScene />
-        </Suspense>
       </div>
 
       {/* Vignette overlay */}
@@ -289,26 +262,14 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
       />
 
       <style>{`
-        @keyframes spotlight-pulse {
-          0%, 100% { opacity: 0.15; transform: translate(-50%, -50%) scale(1); }
-          50% { opacity: 0.25; transform: translate(-50%, -50%) scale(1.1); }
-        }
-        
-        @keyframes spotlight-float {
-          0%, 100% { transform: translate(0, 0); }
-          25% { transform: translate(50px, -30px); }
-          50% { transform: translate(20px, 40px); }
-          75% { transform: translate(-30px, 20px); }
+        @keyframes float-slow {
+          0%, 100% { transform: scale(1) translateY(0); }
+          50% { transform: scale(1.02) translateY(-10px); }
         }
         
         @keyframes logo-glow {
           0%, 100% { opacity: 0.5; transform: scale(1); }
           50% { opacity: 0.8; transform: scale(1.1); }
-        }
-        
-        @keyframes grid-move {
-          0% { transform: translate(0, 0); }
-          100% { transform: translate(100px, 100px); }
         }
         
         @keyframes scan-line {
