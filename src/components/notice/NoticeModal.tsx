@@ -87,7 +87,7 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
                   }`}
                 >
                   <div className="text-[10px] text-muted-foreground mb-1">{notice.number}</div>
-                  <div className="text-xs text-foreground line-clamp-2 leading-relaxed">{notice.title}</div>
+                  <div className="text-xs text-white line-clamp-2 leading-relaxed">{notice.title}</div>
                 </button>
               ))}
             </div>
