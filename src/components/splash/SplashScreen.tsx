@@ -95,6 +95,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
             className="w-full h-full object-cover opacity-70"
             style={{
               filter: 'brightness(0.9)',
+              objectPosition: '55% 55%',
             }}
           />
         </div>
