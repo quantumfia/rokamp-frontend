@@ -373,17 +373,17 @@ export default function ForecastPage() {
           <div className="grid grid-cols-3 gap-6">
             <div>
               <p className="text-xs text-muted-foreground">작년 동기 대비</p>
-              <p className="text-2xl font-semibold text-foreground mt-1">-12%</p>
+              <p className="text-2xl font-semibold text-status-success mt-1">-12%</p>
               <p className="text-xs text-muted-foreground">전체 사고 감소</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">차량 사고</p>
-              <p className="text-2xl font-semibold text-foreground mt-1">+20%</p>
+              <p className="text-2xl font-semibold text-status-error mt-1">+20%</p>
               <p className="text-xs text-muted-foreground">동절기 증가 추세</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">훈련 부상</p>
-              <p className="text-2xl font-semibold text-foreground mt-1">-8%</p>
+              <p className="text-2xl font-semibold text-status-success mt-1">-8%</p>
               <p className="text-xs text-muted-foreground">안전교육 효과</p>
             </div>
           </div>
@@ -413,9 +413,9 @@ export default function ForecastPage() {
                       type="monotone" 
                       dataKey="current" 
                       name="금년"
-                      stroke="hsl(var(--foreground))" 
+                      stroke="hsl(var(--primary))" 
                       strokeWidth={2}
-                      dot={{ fill: 'hsl(var(--foreground))', r: 3 }}
+                      dot={{ fill: 'hsl(var(--primary))', r: 3 }}
                     />
                     <Line 
                       type="monotone" 
@@ -447,24 +447,43 @@ export default function ForecastPage() {
                         paddingAngle={2}
                         dataKey="value"
                       >
-                        {TYPE_DISTRIBUTION.map((_, index) => (
-                          <Cell 
-                            key={`cell-${index}`} 
-                            fill={index === 0 ? 'hsl(var(--foreground))' : `hsl(var(--muted-foreground) / ${1 - index * 0.2})`} 
-                          />
-                        ))}
+                        {TYPE_DISTRIBUTION.map((_, index) => {
+                          const colors = [
+                            'hsl(var(--primary))',
+                            'hsl(var(--status-warning))',
+                            'hsl(var(--status-success))',
+                            'hsl(var(--muted-foreground))'
+                          ];
+                          return (
+                            <Cell 
+                              key={`cell-${index}`} 
+                              fill={colors[index]} 
+                            />
+                          );
+                        })}
                       </Pie>
                       <Tooltip contentStyle={chartTooltipStyle} />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
                 <div className="w-1/2 space-y-2">
-                  {TYPE_DISTRIBUTION.map((item, index) => (
-                    <div key={index} className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">{item.name}</span>
-                      <span className="font-medium tabular-nums">{item.value}%</span>
-                    </div>
-                  ))}
+                  {TYPE_DISTRIBUTION.map((item, index) => {
+                    const colors = [
+                      'bg-primary',
+                      'bg-status-warning',
+                      'bg-status-success',
+                      'bg-muted-foreground'
+                    ];
+                    return (
+                      <div key={index} className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2">
+                          <span className={`w-2.5 h-2.5 rounded-sm ${colors[index]}`} />
+                          <span className="text-muted-foreground">{item.name}</span>
+                        </div>
+                        <span className="font-medium tabular-nums">{item.value}%</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -498,7 +517,7 @@ export default function ForecastPage() {
                   />
                   <Bar 
                     dataKey="risk" 
-                    fill="hsl(var(--muted-foreground))"
+                    fill="hsl(var(--primary))"
                     radius={[0, 2, 2, 0]}
                   />
                 </BarChart>
