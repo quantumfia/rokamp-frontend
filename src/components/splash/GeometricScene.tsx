@@ -138,11 +138,11 @@ function OrbitingParticles() {
   const particlesRef = useRef<THREE.Group>(null);
   
   const particles = useMemo(() => {
-    return Array.from({ length: 20 }, (_, i) => ({
-      angle: (i / 20) * Math.PI * 2,
-      radius: 1.8 + Math.random() * 1.5,
-      speed: 0.2 + Math.random() * 0.3,
-      yOffset: (Math.random() - 0.5) * 2,
+    return Array.from({ length: 8 }, (_, i) => ({
+      angle: (i / 8) * Math.PI * 2,
+      radius: 2.2 + Math.random() * 0.8,
+      speed: 0.05 + Math.random() * 0.08,
+      yOffset: (Math.random() - 0.5) * 1,
       color: i % 3 === 0 
         ? 'hsl(45, 100%, 70%)' 
         : i % 3 === 1 
@@ -158,7 +158,7 @@ function OrbitingParticles() {
         const p = particles[i];
         child.position.x = Math.cos(p.angle + t * p.speed) * p.radius;
         child.position.z = Math.sin(p.angle + t * p.speed) * p.radius;
-        child.position.y = p.yOffset + Math.sin(t * 2 + i) * 0.3;
+        child.position.y = p.yOffset + Math.sin(t * 0.5 + i) * 0.1;
       });
     }
   });
@@ -167,11 +167,11 @@ function OrbitingParticles() {
     <group ref={particlesRef}>
       {particles.map((p, i) => (
         <mesh key={i} position={[p.radius, p.yOffset, 0]}>
-          <sphereGeometry args={[0.03, 8, 8]} />
+          <sphereGeometry args={[0.015, 8, 8]} />
           <meshStandardMaterial
             color={p.color}
             emissive={p.color}
-            emissiveIntensity={2}
+            emissiveIntensity={1.5}
           />
         </mesh>
       ))}
@@ -238,11 +238,11 @@ export function GeometricScene() {
         <DataLines />
         
         <Sparkles
-          count={100}
-          scale={8}
-          size={1.5}
-          speed={0.3}
-          opacity={0.5}
+          count={30}
+          scale={6}
+          size={0.4}
+          speed={0.1}
+          opacity={0.3}
           color="hsl(187, 85%, 60%)"
         />
       </Canvas>
