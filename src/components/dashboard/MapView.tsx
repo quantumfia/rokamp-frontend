@@ -106,14 +106,14 @@ export function MapView({ className, onMarkerClick, selectedUnitId }: MapViewPro
   const [showHeatmap, setShowHeatmap] = useState(true);
   const { user } = useAuth();
 
-  // 선택된 부대로 맵 이동
+  // 선택된 부대로 맵 이동 (빠르게)
   useEffect(() => {
     if (!mapRef.current || !selectedUnitId) return;
 
     const unit = ARMY_UNITS.find(u => u.id === selectedUnitId);
     if (unit && unit.lat && unit.lng) {
       mapRef.current.flyTo([unit.lat, unit.lng], 10, {
-        duration: 1.5,
+        duration: 0.5,
       });
     }
   }, [selectedUnitId]);
@@ -226,7 +226,7 @@ export function MapView({ className, onMarkerClick, selectedUnitId }: MapViewPro
     }
   }, [user?.role]);
 
-  // Add/update markers
+  // Add/update markers - 전체 부대 마커 표시
   useEffect(() => {
     if (!mapRef.current) return;
 
@@ -234,10 +234,12 @@ export function MapView({ className, onMarkerClick, selectedUnitId }: MapViewPro
     markersRef.current.forEach(marker => marker.remove());
     markersRef.current = [];
 
-    // Add unit markers
-    viewConfig.units.forEach((unit) => {
-      const marker = L.marker([unit.lat, unit.lng], {
-        icon: createMarkerIcon(unit.risk),
+    // ARMY_UNITS에서 좌표가 있는 모든 부대 마커 추가
+    const unitsWithCoords = ARMY_UNITS.filter(u => u.lat && u.lng && u.risk !== undefined);
+    
+    unitsWithCoords.forEach((unit) => {
+      const marker = L.marker([unit.lat!, unit.lng!], {
+        icon: createMarkerIcon(unit.risk!),
       }).addTo(mapRef.current!);
 
       // Create popup content
@@ -257,7 +259,7 @@ export function MapView({ className, onMarkerClick, selectedUnitId }: MapViewPro
           ">${unit.name}</div>
           <div style="
             font-size: 10px;
-            color: ${getRiskColor(unit.risk)};
+            color: ${getRiskColor(unit.risk!)};
           ">위험도: ${unit.risk}%</div>
         </div>
       `;
@@ -273,7 +275,7 @@ export function MapView({ className, onMarkerClick, selectedUnitId }: MapViewPro
 
       markersRef.current.push(marker);
     });
-  }, [viewConfig.units, onMarkerClick]);
+  }, [onMarkerClick]);
 
   return (
     <div className={cn('relative overflow-hidden', className)}>
