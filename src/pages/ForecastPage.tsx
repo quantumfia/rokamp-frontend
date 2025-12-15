@@ -151,7 +151,7 @@ export default function ForecastPage() {
 
           {/* 사고 유형별 주간 예측 위험도 */}
           <div>
-            <div className="flex items-start justify-between mb-1">
+            <div className="flex items-start justify-between mb-3">
               <h2 className="text-sm font-medium text-foreground">사고 유형별 주간 위험 지수</h2>
               <div className="flex items-center gap-3 text-[10px]">
                 <span className="text-status-error">■ 경고 75%↑</span>
@@ -159,7 +159,6 @@ export default function ForecastPage() {
                 <span className="text-status-success">■ 안전 ~49%</span>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground mb-4">각 유형별 예측 위험 확률 (%)</p>
             <div className="border border-border rounded overflow-hidden">
               <table className="w-full">
                 <thead>
@@ -257,10 +256,7 @@ export default function ForecastPage() {
           {/* 부대별 주간 예보 */}
           <div>
             <div className="flex items-start justify-between mb-3">
-              <div>
-                <h2 className="text-sm font-medium text-foreground mb-1">부대별 주간 위험도 예보</h2>
-                <p className="text-xs text-muted-foreground">부대를 선택하면 해당 부대의 주간 예보가 표시됩니다</p>
-              </div>
+              <h2 className="text-sm font-medium text-foreground">부대별 주간 위험도 예보</h2>
               <div className="flex items-center gap-3 text-[10px]">
                 <span className="text-status-error">■ 경고 75%↑</span>
                 <span className="text-status-warning">■ 주의 50~74%</span>
@@ -520,8 +516,7 @@ export default function ForecastPage() {
         <div className="space-y-6">
           {/* AI 생성 체크리스트 */}
           <div>
-            <h2 className="text-sm font-medium text-foreground mb-1">AI 맞춤형 예방 체크리스트</h2>
-            <p className="text-xs text-muted-foreground mb-4">현재 위험 징후를 분석하여 자동 생성된 체크리스트입니다</p>
+            <h2 className="text-sm font-medium text-foreground mb-3">AI 맞춤형 예방 체크리스트</h2>
             <div className="divide-y divide-border">
               {[
                 { task: '차량 일일 점검 실시 (동절기 배터리/부동액)', completed: true, priority: 'high' },
@@ -558,8 +553,7 @@ export default function ForecastPage() {
 
           {/* 교육 자료 링크 */}
           <div>
-            <h2 className="text-sm font-medium text-foreground mb-1">관련 교육 자료</h2>
-            <p className="text-xs text-muted-foreground mb-4">현재 위험 유형에 맞는 교육 자료를 추천합니다</p>
+            <h2 className="text-sm font-medium text-foreground mb-3">관련 교육 자료</h2>
             <div className="divide-y divide-border">
               {[
                 { title: '동절기 차량 안전운행 매뉴얼', pages: 24 },
