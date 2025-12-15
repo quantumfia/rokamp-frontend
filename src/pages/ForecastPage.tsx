@@ -95,7 +95,7 @@ export default function ForecastPage() {
             <div className="border border-border rounded overflow-hidden">
               <table className="w-full">
                 <thead>
-                  <tr className="bg-muted/30">
+                  <tr className="bg-muted/30 border-b-2 border-foreground/30">
                     {[
                       { date: '12/21', day: '일' },
                       { date: '12/22', day: '월' },
@@ -104,19 +104,16 @@ export default function ForecastPage() {
                       { date: '12/25', day: '목' },
                       { date: '12/26', day: '금' },
                       { date: '12/27', day: '토' },
-                    ].map((item, index) => {
-                      const dayColor = index === 0 ? 'text-red-500' : index === 6 ? 'text-blue-500' : 'text-muted-foreground';
-                      return (
-                        <th key={item.date} className={`py-2 text-xs font-medium ${dayColor} text-center border-r border-border last:border-r-0`}>
-                          {item.date}({item.day})
-                        </th>
-                      );
-                    })}
+                    ].map((item) => (
+                      <th key={item.date} className="py-2 text-xs font-medium text-foreground text-center border-r border-border last:border-r-0">
+                        {item.date}({item.day})
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
                   {/* 위험도 수치 */}
-                  <tr className="border-t border-border">
+                  <tr>
                     {[18, 45, 52, 78, 55, 42, 25].map((risk, index) => (
                       <td key={index} className="py-3 text-center border-r border-border last:border-r-0">
                         <span className="text-lg font-semibold tabular-nums text-foreground">{risk}%</span>
