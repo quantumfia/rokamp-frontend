@@ -62,7 +62,7 @@ export function RiskSummaryPanel({ onUnitClick }: RiskSummaryPanelProps) {
       </div>
 
       {/* High Risk Units List */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 min-h-0 overflow-y-auto">
         <div className="px-4 py-2 bg-muted/30 border-b border-border sticky top-0">
           <p className="text-[10px] text-muted-foreground">주의 필요 부대 TOP 5</p>
         </div>
