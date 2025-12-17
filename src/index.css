@@ -6,109 +6,158 @@
 
 @layer base {
   :root {
-    /* Palantir/SAP Inspired Light Theme */
-    --background: 0 0% 98%;
-    --foreground: 0 0% 9%;
+    /* ========================================
+       Commercial-Grade Light Theme
+       Inspired by: Notion, Linear, Vercel
+       ======================================== */
+    
+    /* Base Colors - Clean white with subtle warmth */
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
 
+    /* Card - Slightly elevated surface */
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 9%;
+    --card-foreground: 222 47% 11%;
 
+    /* Popover - Floating elements */
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 9%;
+    --popover-foreground: 222 47% 11%;
 
-    /* 육군본부 Primary Blue - #1962ac 기반, 가시성 향상 */
-    --primary: 210 75% 50%;
+    /* Primary - Army Blue with excellent contrast */
+    --primary: 210 75% 42%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 9%;
+    /* Secondary - Subtle gray surface */
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 222 47% 11%;
 
-    --muted: 0 0% 94%;
-    --muted-foreground: 0 0% 45%;
+    /* Muted - Background accents */
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
 
-    --accent: 210 30% 94%;
-    --accent-foreground: 210 75% 30%;
+    /* Accent - Light blue tint */
+    --accent: 210 40% 96%;
+    --accent-foreground: 210 75% 35%;
 
-    --destructive: 0 72% 51%;
+    /* Destructive */
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 210 75% 50%;
+    /* Borders & Inputs */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 210 75% 42%;
 
-    --radius: 0.375rem;
+    --radius: 0.5rem;
 
-    /* Status Colors */
-    --status-success: 142 71% 45%;
+    /* Status Colors - Vibrant but balanced */
+    --status-success: 142 76% 36%;
     --status-warning: 38 92% 50%;
-    --status-error: 0 72% 51%;
-    --status-info: 210 75% 50%;
+    --status-error: 0 84% 60%;
+    --status-info: 210 75% 42%;
 
     /* Risk Level Colors */
-    --risk-safe: 142 71% 45%;
-    --risk-caution: 38 92% 50%;
+    --risk-safe: 142 76% 36%;
+    --risk-caution: 45 93% 47%;
     --risk-warning: 25 95% 53%;
-    --risk-danger: 0 72% 51%;
+    --risk-danger: 0 84% 60%;
 
-    /* Terminal/Console Colors */
-    --terminal-bg: 220 15% 15%;
+    /* Terminal/Console - Dark always */
+    --terminal-bg: 222 47% 11%;
     --terminal-text: 142 71% 55%;
-    --terminal-accent: 210 75% 50%;
-    --terminal-muted: 220 10% 50%;
+    --terminal-accent: 210 75% 55%;
+    --terminal-muted: 220 13% 46%;
 
-    /* Map Dark Theme */
-    --map-bg: 220 15% 18%;
-    --map-overlay: 220 13% 12%;
-    --map-border: 220 10% 28%;
+    /* Map - Dark always for better visibility */
+    --map-bg: 222 47% 11%;
+    --map-overlay: 223 47% 8%;
+    --map-border: 220 13% 26%;
 
-    /* Sidebar - Lighter for better contrast with Army Blue */
-    --sidebar-background: 220 15% 18%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 210 75% 50%;
+    /* Sidebar - Light theme uses dark sidebar for contrast */
+    --sidebar-background: 222 47% 11%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 210 75% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 13% 25%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 220 10% 30%;
-    --sidebar-ring: 210 75% 50%;
-    --sidebar-muted: 220 10% 60%;
+    --sidebar-accent: 223 47% 16%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 220 13% 20%;
+    --sidebar-ring: 210 75% 55%;
+    --sidebar-muted: 220 13% 55%;
 
     /* Header Bar */
     --header-bg: 142 55% 35%;
     --header-foreground: 0 0% 100%;
 
     /* Panel Colors */
-    --panel-dark: 220 15% 18%;
-    --panel-dark-foreground: 0 0% 95%;
+    --panel-dark: 222 47% 11%;
+    --panel-dark-foreground: 210 40% 98%;
+
+    /* Shadows - Light theme specific */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
   }
 
   .dark {
-    --background: 220 15% 15%;
-    --foreground: 0 0% 95%;
-    --card: 220 15% 18%;
-    --card-foreground: 0 0% 95%;
-    --popover: 220 15% 18%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 210 75% 50%;
+    /* ========================================
+       Commercial-Grade Dark Theme  
+       Inspired by: GitHub, Discord, Figma
+       ======================================== */
+    
+    /* Base Colors - Deep navy with subtle blue undertone */
+    --background: 222 47% 8%;
+    --foreground: 210 40% 98%;
+
+    /* Card - Elevated surface */
+    --card: 223 47% 10%;
+    --card-foreground: 210 40% 98%;
+
+    /* Popover - Higher elevation */
+    --popover: 223 47% 12%;
+    --popover-foreground: 210 40% 98%;
+
+    /* Primary - Brighter for dark mode */
+    --primary: 210 75% 55%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 13% 25%;
-    --secondary-foreground: 0 0% 95%;
-    --muted: 220 13% 22%;
-    --muted-foreground: 220 10% 60%;
-    --accent: 220 13% 25%;
-    --accent-foreground: 0 0% 95%;
-    --destructive: 0 72% 45%;
+
+    /* Secondary - Subtle elevation */
+    --secondary: 223 47% 14%;
+    --secondary-foreground: 210 40% 98%;
+
+    /* Muted - Subdued backgrounds */
+    --muted: 223 47% 12%;
+    --muted-foreground: 215 20% 55%;
+
+    /* Accent */
+    --accent: 223 47% 16%;
+    --accent-foreground: 210 40% 98%;
+
+    /* Destructive */
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 10% 28%;
-    --input: 220 10% 28%;
-    --ring: 210 75% 50%;
-    --sidebar-background: 220 15% 15%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 210 75% 50%;
+
+    /* Borders & Inputs */
+    --border: 220 13% 20%;
+    --input: 220 13% 20%;
+    --ring: 210 75% 55%;
+
+    /* Sidebar - Unified with background */
+    --sidebar-background: 222 47% 7%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 210 75% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 13% 20%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 220 10% 25%;
-    --sidebar-ring: 210 75% 50%;
+    --sidebar-accent: 223 47% 12%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 220 13% 16%;
+    --sidebar-ring: 210 75% 55%;
+    --sidebar-muted: 215 20% 50%;
+
+    /* Dark theme shadows - Deeper and more diffuse */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.4);
   }
 }
 
@@ -117,24 +166,44 @@
     @apply border-border;
   }
 
+  /* Smooth theme transition */
+  html {
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   .font-mono {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'JetBrains Mono', ui-monospace, 'SF Mono', Monaco, monospace;
   }
 
-  /* Custom Scrollbar - Thin & Clean */
+  /* Selection styling */
+  ::selection {
+    background-color: hsl(var(--primary) / 0.2);
+    color: hsl(var(--foreground));
+  }
+
+  /* Focus visible styling */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  /* Custom Scrollbar - Minimal & Elegant */
   * {
     scrollbar-width: thin;
-    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.2) transparent;
   }
 
   *::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
   }
 
   *::-webkit-scrollbar-track {
@@ -142,26 +211,32 @@
   }
 
   *::-webkit-scrollbar-thumb {
-    background-color: hsl(var(--muted-foreground) / 0.3);
-    border-radius: 3px;
+    background-color: hsl(var(--muted-foreground) / 0.2);
+    border-radius: 4px;
+    border: 2px solid transparent;
+    background-clip: content-box;
   }
 
   *::-webkit-scrollbar-thumb:hover {
-    background-color: hsl(var(--muted-foreground) / 0.5);
+    background-color: hsl(var(--muted-foreground) / 0.35);
   }
 
-  /* Dark theme scrollbar adjustment */
+  *::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /* Dark theme scrollbar */
   .dark *::-webkit-scrollbar-thumb {
-    background-color: hsl(var(--muted-foreground) / 0.4);
+    background-color: hsl(var(--muted-foreground) / 0.25);
   }
 
   .dark *::-webkit-scrollbar-thumb:hover {
-    background-color: hsl(var(--muted-foreground) / 0.6);
+    background-color: hsl(var(--muted-foreground) / 0.4);
   }
 }
 
 @layer components {
-  /* Terminal/Console Styles - Palantir style */
+  /* Terminal/Console Styles */
   .terminal-screen {
     @apply bg-terminal-bg text-terminal-text font-mono text-sm;
   }
@@ -170,50 +245,51 @@
     @apply inline-block w-2 h-4 bg-terminal-accent animate-blink;
   }
 
-  /* Status Badges - SAP/Palantir style */
+  /* Status Badges - Clean, minimal design */
   .status-running {
-    @apply bg-status-success/15 text-status-success border border-status-success/30 text-xs font-medium px-2 py-0.5 rounded;
+    @apply bg-status-success/10 text-status-success text-xs font-medium px-2.5 py-1 rounded-full;
   }
 
   .status-error {
-    @apply bg-status-error/15 text-status-error border border-status-error/30 text-xs font-medium px-2 py-0.5 rounded;
+    @apply bg-status-error/10 text-status-error text-xs font-medium px-2.5 py-1 rounded-full;
   }
 
   .status-warning {
-    @apply bg-status-warning/15 text-status-warning border border-status-warning/30 text-xs font-medium px-2 py-0.5 rounded;
+    @apply bg-status-warning/10 text-status-warning text-xs font-medium px-2.5 py-1 rounded-full;
   }
 
   .status-info {
-    @apply bg-status-info/15 text-status-info border border-status-info/30 text-xs font-medium px-2 py-0.5 rounded;
+    @apply bg-status-info/10 text-status-info text-xs font-medium px-2.5 py-1 rounded-full;
   }
 
   /* Risk Level Badges */
   .risk-safe {
-    @apply bg-risk-safe/10 text-risk-safe border-risk-safe/30;
+    @apply bg-risk-safe/10 text-risk-safe;
   }
 
   .risk-caution {
-    @apply bg-risk-caution/10 text-risk-caution border-risk-caution/30;
+    @apply bg-risk-caution/10 text-risk-caution;
   }
 
   .risk-warning {
-    @apply bg-risk-warning/10 text-risk-warning border-risk-warning/30;
+    @apply bg-risk-warning/10 text-risk-warning;
   }
 
   .risk-danger {
-    @apply bg-risk-danger/10 text-risk-danger border-risk-danger/30;
+    @apply bg-risk-danger/10 text-risk-danger;
   }
 
   /* Map Container */
   .map-container {
-    @apply bg-map-bg rounded overflow-hidden border border-map-border;
+    @apply bg-map-bg rounded-lg overflow-hidden border border-map-border;
   }
 
-  /* Floating Panel - Palantir style */
+  /* Floating Panel - Glass effect */
   .floating-panel {
-    @apply backdrop-blur-sm rounded border border-sidebar-border shadow-2xl;
-    background-color: hsl(var(--panel-dark) / 0.98);
+    @apply backdrop-blur-md rounded-lg border shadow-xl;
+    background-color: hsl(var(--panel-dark) / 0.95);
     color: hsl(var(--panel-dark-foreground));
+    border-color: hsl(var(--sidebar-border));
   }
 
   /* Dark Panel */
@@ -221,37 +297,109 @@
     @apply bg-panel-dark text-panel-dark-foreground border-sidebar-border;
   }
 
-  /* Header Bar - SAP green style */
+  /* Header Bar */
   .header-bar {
     @apply bg-header-bg text-header-foreground;
   }
 
-  /* Data Grid Rows */
+  /* Data Grid Rows - Subtle hover */
   .data-row {
-    @apply border-b border-border/50 hover:bg-muted/50 transition-colors;
+    @apply border-b border-border hover:bg-muted/50 transition-colors duration-150;
   }
 
   .data-row-selected {
-    @apply bg-primary/10 border-l-2 border-l-primary;
+    @apply bg-primary/5 border-l-2 border-l-primary;
   }
 
   /* Sidebar Navigation Item */
   .nav-item {
-    @apply flex items-center gap-3 px-3 py-2 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent rounded transition-colors text-sm;
+    @apply flex items-center gap-3 px-3 py-2 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent rounded-md transition-all duration-150 text-sm;
   }
 
   .nav-item-active {
     @apply text-sidebar-primary bg-sidebar-accent border-l-2 border-l-sidebar-primary;
   }
 
-  /* Metric Card */
+  /* Metric Card - Elevated with subtle shadow */
   .metric-card {
-    @apply bg-card p-4 rounded border border-border;
+    @apply bg-card p-4 rounded-lg border border-border transition-shadow duration-200;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .metric-card:hover {
+    box-shadow: var(--shadow-md);
   }
 
   /* Code Block */
   .code-block {
-    @apply bg-terminal-bg text-terminal-text font-mono text-xs p-3 rounded border border-sidebar-border overflow-auto;
+    @apply bg-terminal-bg text-terminal-text font-mono text-xs p-3 rounded-lg border border-sidebar-border overflow-auto;
+  }
+
+  /* Interactive Card - For clickable cards */
+  .interactive-card {
+    @apply bg-card border border-border rounded-lg transition-all duration-200 cursor-pointer;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .interactive-card:hover {
+    @apply border-primary/30;
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Glass Card - Frosted glass effect */
+  .glass-card {
+    @apply backdrop-blur-md rounded-lg border;
+    background-color: hsl(var(--card) / 0.8);
+    border-color: hsl(var(--border) / 0.5);
+  }
+
+  /* Button States Enhancement */
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-150;
+    box-shadow: 0 1px 2px 0 hsl(var(--primary) / 0.3);
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 4px 8px 0 hsl(var(--primary) / 0.25);
+  }
+
+  .btn-primary:active {
+    transform: translateY(1px);
+  }
+
+  /* Input Enhancement */
+  .input-enhanced {
+    @apply bg-background border border-input rounded-md px-3 py-2 text-sm transition-all duration-150;
+  }
+
+  .input-enhanced:focus {
+    @apply border-primary ring-2 ring-primary/20;
+  }
+
+  /* Table Enhancement */
+  .table-enhanced {
+    @apply w-full text-sm;
+  }
+
+  .table-enhanced th {
+    @apply text-left font-medium text-muted-foreground px-4 py-3 border-b border-border bg-muted/30;
+  }
+
+  .table-enhanced td {
+    @apply px-4 py-3 border-b border-border;
+  }
+
+  .table-enhanced tr:hover td {
+    @apply bg-muted/30;
+  }
+
+  /* Divider */
+  .divider {
+    @apply h-px bg-border;
+  }
+
+  .divider-vertical {
+    @apply w-px h-full bg-border;
   }
 }
 

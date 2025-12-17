@@ -99,6 +99,15 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      boxShadow: {
+        'theme-sm': 'var(--shadow-sm)',
+        'theme-md': 'var(--shadow-md)',
+        'theme-lg': 'var(--shadow-lg)',
+        'theme-xl': 'var(--shadow-xl)',
+      },
+      transitionProperty: {
+        'theme': 'background-color, border-color, color, fill, stroke, box-shadow',
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
