@@ -37,15 +37,15 @@ export function AddModal({
 
   return (
     <>
-      {/* Backdrop */}
+      {/* Backdrop - 통일된 배경 처리 */}
       <div 
-        className="fixed inset-0 bg-black/60 z-50 animate-in fade-in duration-200" 
+        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50" 
         onClick={onClose} 
       />
       
       {/* Modal */}
-      <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-lg animate-in zoom-in-95 fade-in duration-200">
-        <div className="bg-card border border-border rounded-lg shadow-xl overflow-hidden">
+      <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-lg">
+        <div className="bg-card border border-border rounded-lg shadow-2xl overflow-hidden">
           {/* Header */}
           <div className="flex items-start justify-between p-5 border-b border-border">
             <div>
@@ -62,30 +62,51 @@ export function AddModal({
             </button>
           </div>
 
-          {/* Type Selector (only if multiple types) */}
+          {/* Type Selector - Radio Button Style (only if multiple types) */}
           {inputTypes.length > 1 && (
             <div className="px-5 pt-4">
-              <div className="flex items-center gap-1 p-1 bg-muted/50 rounded-lg">
+              <div className="flex items-center gap-4">
                 {inputTypes.map((type) => (
-                  <button
+                  <label
                     key={type.id}
-                    onClick={() => setSelectedType(type.id)}
-                    className={cn(
-                      'flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition-all',
-                      selectedType === type.id
-                        ? 'bg-background text-foreground shadow-sm'
-                        : 'text-muted-foreground hover:text-foreground'
-                    )}
+                    className="flex items-center gap-2 cursor-pointer"
                   >
-                    {type.label}
-                  </button>
+                    <div className="relative">
+                      <input
+                        type="radio"
+                        name="inputType"
+                        value={type.id}
+                        checked={selectedType === type.id}
+                        onChange={() => setSelectedType(type.id)}
+                        className="sr-only"
+                      />
+                      <div className={cn(
+                        'w-4 h-4 rounded-full border-2 transition-colors',
+                        selectedType === type.id
+                          ? 'border-primary'
+                          : 'border-muted-foreground/40'
+                      )}>
+                        {selectedType === type.id && (
+                          <div className="absolute inset-1 bg-primary rounded-full" />
+                        )}
+                      </div>
+                    </div>
+                    <span className={cn(
+                      'text-sm transition-colors',
+                      selectedType === type.id
+                        ? 'text-foreground font-medium'
+                        : 'text-muted-foreground'
+                    )}>
+                      {type.label}
+                    </span>
+                  </label>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Content */}
-          <div className="p-5">
+          {/* Content - Fixed Height */}
+          <div className="p-5 min-h-[280px]">
             {currentContent}
           </div>
 

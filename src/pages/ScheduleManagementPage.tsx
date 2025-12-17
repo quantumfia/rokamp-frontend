@@ -330,7 +330,10 @@ export default function ScheduleManagementPage() {
     <div className="p-6 space-y-5 animate-page-enter">
       <PageHeader 
         title="일정 관리" 
-        description="부대별 훈련 일정 관리 및 조회" 
+        description="부대별 훈련 일정 관리 및 조회"
+        actions={
+          <ActionButton label="일정 추가" onClick={() => setShowAddModal(true)} />
+        }
       />
 
       {/* 주간 네비게이션 */}
@@ -377,8 +380,6 @@ export default function ScheduleManagementPage() {
               <span className="text-foreground font-medium">{weekStats.totalParticipants.toLocaleString()}</span>
             </div>
           </div>
-
-          <ActionButton label="일정 추가" onClick={() => setShowAddModal(true)} />
         </div>
       </div>
 
