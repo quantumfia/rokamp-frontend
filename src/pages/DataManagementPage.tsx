@@ -4,6 +4,14 @@ import { toast } from '@/hooks/use-toast';
 import { DataManagementSkeleton } from '@/components/skeletons';
 import { PageHeader, TabNavigation, ActionButton, AddModal, FileDropZone } from '@/components/common';
 import { usePageLoading } from '@/hooks/usePageLoading';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 // 상태 라벨
 function StatusLabel({ status }: { status: 'completed' | 'processing' | 'failed' }) {
@@ -182,35 +190,38 @@ export default function DataManagementPage() {
             </span>
           </div>
 
-          <div className="grid grid-cols-[1fr_60px_60px_140px_80px_60px_40px] gap-4 py-3 text-xs text-muted-foreground border-y border-border">
-            <div>문서명</div>
-            <div>형식</div>
-            <div>크기</div>
-            <div>업로드 일시</div>
-            <div className="text-center">청크 수</div>
-            <div>상태</div>
-            <div></div>
-          </div>
-
-          <div className="divide-y divide-border">
-            {documentData.map((doc) => (
-              <div key={doc.id} className="grid grid-cols-[1fr_60px_60px_140px_80px_60px_40px] gap-4 py-3 items-center text-sm">
-                <div className="font-medium truncate">{doc.name}</div>
-                <div className="text-muted-foreground">{doc.type}</div>
-                <div className="text-muted-foreground">{doc.size}</div>
-                <div className="text-muted-foreground tabular-nums">{doc.uploadedAt}</div>
-                <div className="text-center text-muted-foreground">
-                  {doc.status === 'completed' ? doc.chunks : '-'}
-                </div>
-                <div><StatusLabel status={doc.status} /></div>
-                <div>
-                  <button className="p-1 hover:bg-muted rounded transition-colors">
-                    <Trash2 className="w-4 h-4 text-muted-foreground" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-xs">문서명</TableHead>
+                <TableHead className="text-xs w-16">형식</TableHead>
+                <TableHead className="text-xs w-16">크기</TableHead>
+                <TableHead className="text-xs w-36">업로드 일시</TableHead>
+                <TableHead className="text-xs w-20 text-center">청크 수</TableHead>
+                <TableHead className="text-xs w-16">상태</TableHead>
+                <TableHead className="text-xs w-12"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {documentData.map((doc) => (
+                <TableRow key={doc.id}>
+                  <TableCell className="text-sm font-medium">{doc.name}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{doc.type}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{doc.size}</TableCell>
+                  <TableCell className="text-xs text-muted-foreground tabular-nums">{doc.uploadedAt}</TableCell>
+                  <TableCell className="text-center text-muted-foreground">
+                    {doc.status === 'completed' ? doc.chunks : '-'}
+                  </TableCell>
+                  <TableCell><StatusLabel status={doc.status} /></TableCell>
+                  <TableCell>
+                    <button className="p-1 hover:bg-muted rounded transition-colors">
+                      <Trash2 className="w-4 h-4 text-muted-foreground" />
+                    </button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       )}
 
@@ -224,33 +235,36 @@ export default function DataManagementPage() {
             </span>
           </div>
 
-          <div className="grid grid-cols-[1fr_100px_100px_80px_60px_40px] gap-4 py-3 text-xs text-muted-foreground border-y border-border">
-            <div>제목</div>
-            <div>출처</div>
-            <div>날짜</div>
-            <div className="text-center">임베딩 수</div>
-            <div>상태</div>
-            <div></div>
-          </div>
-
-          <div className="divide-y divide-border">
-            {newsData.map((news) => (
-              <div key={news.id} className="grid grid-cols-[1fr_100px_100px_80px_60px_40px] gap-4 py-3 items-center text-sm">
-                <div className="font-medium truncate">{news.title}</div>
-                <div className="text-muted-foreground">{news.source}</div>
-                <div className="text-muted-foreground tabular-nums">{news.date}</div>
-                <div className="text-center text-muted-foreground">
-                  {news.status === 'completed' ? news.embeddings : '-'}
-                </div>
-                <div><StatusLabel status={news.status} /></div>
-                <div>
-                  <button className="p-1 hover:bg-muted rounded transition-colors">
-                    <Trash2 className="w-4 h-4 text-muted-foreground" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-xs">제목</TableHead>
+                <TableHead className="text-xs w-24">출처</TableHead>
+                <TableHead className="text-xs w-24">날짜</TableHead>
+                <TableHead className="text-xs w-20 text-center">임베딩 수</TableHead>
+                <TableHead className="text-xs w-16">상태</TableHead>
+                <TableHead className="text-xs w-12"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {newsData.map((news) => (
+                <TableRow key={news.id}>
+                  <TableCell className="text-sm font-medium">{news.title}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{news.source}</TableCell>
+                  <TableCell className="text-xs text-muted-foreground tabular-nums">{news.date}</TableCell>
+                  <TableCell className="text-center text-muted-foreground">
+                    {news.status === 'completed' ? news.embeddings : '-'}
+                  </TableCell>
+                  <TableCell><StatusLabel status={news.status} /></TableCell>
+                  <TableCell>
+                    <button className="p-1 hover:bg-muted rounded transition-colors">
+                      <Trash2 className="w-4 h-4 text-muted-foreground" />
+                    </button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       )}
 

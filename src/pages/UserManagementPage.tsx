@@ -7,6 +7,14 @@ import { toast } from '@/hooks/use-toast';
 import { UserManagementSkeleton } from '@/components/skeletons';
 import { PageHeader, ActionButton, AddModal, FileDropZone } from '@/components/common';
 import { usePageLoading } from '@/hooks/usePageLoading';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 interface User {
   id: string;
@@ -211,31 +219,32 @@ export default function UserManagementPage() {
       </div>
 
       {/* 테이블 */}
-      <div>
-        <div className="grid grid-cols-[100px_100px_60px_1fr_100px_80px_40px] gap-4 py-3 text-xs text-muted-foreground border-y border-border">
-          <div>군번</div>
-          <div>이름</div>
-          <div>계급</div>
-          <div>소속 부대</div>
-          <div>권한</div>
-          <div>상태</div>
-          <div></div>
-        </div>
-
-        <div className="divide-y divide-border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="text-xs w-24">군번</TableHead>
+            <TableHead className="text-xs w-20">이름</TableHead>
+            <TableHead className="text-xs w-16">계급</TableHead>
+            <TableHead className="text-xs">소속 부대</TableHead>
+            <TableHead className="text-xs w-24">권한</TableHead>
+            <TableHead className="text-xs w-16">상태</TableHead>
+            <TableHead className="text-xs w-12"></TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {filteredUsers.map((user) => (
-            <div key={user.id} className="grid grid-cols-[100px_100px_60px_1fr_100px_80px_40px] gap-4 py-3 items-center text-sm">
-              <div className="font-mono text-muted-foreground">{user.militaryId}</div>
-              <div className="font-medium">{user.name}</div>
-              <div className="text-muted-foreground">{user.rank}</div>
-              <div className="text-muted-foreground text-xs truncate" title={getUnitFullName(user.unitId)}>
+            <TableRow key={user.id}>
+              <TableCell className="font-mono text-xs">{user.militaryId}</TableCell>
+              <TableCell className="text-sm font-medium">{user.name}</TableCell>
+              <TableCell className="text-sm text-muted-foreground">{user.rank}</TableCell>
+              <TableCell className="text-xs text-muted-foreground truncate max-w-[300px]" title={getUnitFullName(user.unitId)}>
                 {getUnitFullName(user.unitId)}
-              </div>
-              <div className="text-muted-foreground">{getRoleLabel(user.role)}</div>
-              <div className="text-muted-foreground">
+              </TableCell>
+              <TableCell className="text-sm text-muted-foreground">{getRoleLabel(user.role)}</TableCell>
+              <TableCell className="text-sm text-muted-foreground">
                 {user.status === 'active' ? '활성' : '비활성'}
-              </div>
-              <div className="relative">
+              </TableCell>
+              <TableCell className="relative">
                 <button 
                   onClick={() => setShowActionMenu(showActionMenu === user.id ? null : user.id)}
                   className="p-1 hover:bg-muted rounded transition-colors"
@@ -270,11 +279,11 @@ export default function UserManagementPage() {
                     </div>
                   </>
                 )}
-              </div>
-            </div>
+              </TableCell>
+            </TableRow>
           ))}
-        </div>
-      </div>
+        </TableBody>
+      </Table>
 
       {/* 사용자 추가 모달 */}
       <AddModal
