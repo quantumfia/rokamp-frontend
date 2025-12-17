@@ -1,10 +1,11 @@
 import { useState, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, Plus, MapPin, Clock, AlertCircle, Users } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MapPin, Clock, AlertCircle, Users, Download } from 'lucide-react';
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, eachDayOfInterval, isSameDay, isToday } from 'date-fns';
 import { ko } from 'date-fns/locale';
-import { PageHeader } from '@/components/common';
+import { PageHeader, ActionButton, AddModal, FileDropZone } from '@/components/common';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { cn } from '@/lib/utils';
+import { toast } from '@/hooks/use-toast';
 
 // 훈련 일정 타입
 interface TrainingSchedule {
@@ -165,8 +166,112 @@ function ScheduleCard({ schedule }: { schedule: TrainingSchedule }) {
   );
 }
 
+// 일정 직접 입력 폼
+function ScheduleForm() {
+  return (
+    <div className="space-y-4">
+      <div>
+        <label className="block text-xs text-muted-foreground mb-1.5">훈련명 *</label>
+        <input
+          type="text"
+          placeholder="K-2 소총 영점사격"
+          className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs text-muted-foreground mb-1.5">부대 *</label>
+          <input
+            type="text"
+            placeholder="제1보병사단"
+            className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-muted-foreground mb-1.5">훈련 유형 *</label>
+          <select className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors">
+            <option value="">선택</option>
+            <option value="사격">사격</option>
+            <option value="기동">기동</option>
+            <option value="전술">전술</option>
+            <option value="체력">체력</option>
+            <option value="교육">교육</option>
+            <option value="점검">점검</option>
+          </select>
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <label className="block text-xs text-muted-foreground mb-1.5">날짜 *</label>
+          <input
+            type="date"
+            className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-muted-foreground mb-1.5">시작 시간</label>
+          <input
+            type="time"
+            className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-muted-foreground mb-1.5">종료 시간</label>
+          <input
+            type="time"
+            className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs text-muted-foreground mb-1.5">장소</label>
+          <input
+            type="text"
+            placeholder="종합사격장"
+            className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-muted-foreground mb-1.5">참여 인원</label>
+          <input
+            type="number"
+            placeholder="120"
+            className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// 일괄 업로드 폼
+function ScheduleBulkUploadForm({ onDownloadTemplate }: { onDownloadTemplate: () => void }) {
+  return (
+    <div className="space-y-4">
+      <FileDropZone
+        accept=".xlsx,.xls"
+        hint="엑셀 파일을 드래그하거나 클릭하여 업로드"
+        maxSize="10MB"
+      />
+      <button
+        onClick={onDownloadTemplate}
+        className="w-full flex items-center justify-center gap-2 py-2 text-xs border border-border rounded-md hover:bg-muted transition-colors"
+      >
+        <Download className="w-3.5 h-3.5" />
+        템플릿 다운로드
+      </button>
+      <div className="text-[11px] text-muted-foreground space-y-0.5">
+        <p>• 필수 필드: 훈련명, 부대, 날짜, 훈련유형</p>
+        <p>• 선택 필드: 시작시간, 종료시간, 장소, 참여인원</p>
+      </div>
+    </div>
+  );
+}
+
 export default function ScheduleManagementPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [showAddModal, setShowAddModal] = useState(false);
   const isLoading = usePageLoading(800);
 
   // 현재 주의 시작일과 종료일
@@ -195,6 +300,21 @@ export default function ScheduleManagementPage() {
       totalParticipants: weekSchedules.reduce((sum, s) => sum + s.participants, 0),
     };
   }, [weekStart, weekEnd]);
+
+  const handleSubmit = () => {
+    toast({
+      title: '등록 완료',
+      description: '일정이 등록되었습니다.',
+    });
+    setShowAddModal(false);
+  };
+
+  const handleDownloadTemplate = () => {
+    toast({
+      title: '템플릿 다운로드',
+      description: '일정 일괄 등록 템플릿이 다운로드됩니다.',
+    });
+  };
 
   if (isLoading) {
     return (
@@ -258,10 +378,7 @@ export default function ScheduleManagementPage() {
             </div>
           </div>
 
-          <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors">
-            <Plus className="w-3.5 h-3.5" />
-            일정 추가
-          </button>
+          <ActionButton label="일정 추가" onClick={() => setShowAddModal(true)} />
         </div>
       </div>
 
@@ -341,6 +458,20 @@ export default function ScheduleManagementPage() {
           <span>고위험</span>
         </div>
       </div>
+
+      {/* 일정 추가 모달 */}
+      <AddModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        title="일정 추가"
+        description="개별 입력 또는 엑셀 파일로 일괄 등록"
+        inputTypes={[
+          { id: 'single', label: '직접 입력', content: <ScheduleForm /> },
+          { id: 'bulk', label: '일괄 등록', content: <ScheduleBulkUploadForm onDownloadTemplate={handleDownloadTemplate} /> },
+        ]}
+        onSubmit={handleSubmit}
+        submitLabel="등록"
+      />
     </div>
   );
 }
