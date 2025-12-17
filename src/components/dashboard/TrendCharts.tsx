@@ -52,6 +52,14 @@ const chartTooltipStyle = {
   color: 'hsl(0, 0%, 90%)'
 };
 
+const chartTooltipLabelStyle = {
+  color: 'hsl(0, 0%, 90%)'
+};
+
+const chartTooltipItemStyle = {
+  color: 'hsl(0, 0%, 90%)'
+};
+
 export function TrendCharts() {
   return (
     <div className="p-3 grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -82,6 +90,8 @@ export function TrendCharts() {
               />
               <Tooltip 
                 contentStyle={chartTooltipStyle}
+                labelStyle={chartTooltipLabelStyle}
+                itemStyle={chartTooltipItemStyle}
                 formatter={(value: number) => [`${value}%`, '예측 위험도']}
               />
               <Area 
@@ -117,6 +127,8 @@ export function TrendCharts() {
               />
               <Tooltip 
                 contentStyle={chartTooltipStyle}
+                labelStyle={chartTooltipLabelStyle}
+                itemStyle={chartTooltipItemStyle}
                 formatter={(value: number) => [`${value}%`, '예측 위험도']}
                 labelFormatter={(label) => `${label}시`}
               />
@@ -153,6 +165,8 @@ export function TrendCharts() {
               />
               <Tooltip 
                 contentStyle={chartTooltipStyle}
+                labelStyle={chartTooltipLabelStyle}
+                itemStyle={chartTooltipItemStyle}
                 formatter={(value: number) => [`${value}%`, '예측 위험도']}
               />
               <Bar 
@@ -187,6 +201,8 @@ export function TrendCharts() {
                 </Pie>
                 <Tooltip 
                   contentStyle={chartTooltipStyle}
+                  labelStyle={chartTooltipLabelStyle}
+                  itemStyle={chartTooltipItemStyle}
                   formatter={(value: number) => [`${value}%`, '비율']}
                 />
               </PieChart>
