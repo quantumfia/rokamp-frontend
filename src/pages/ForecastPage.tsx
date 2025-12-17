@@ -106,7 +106,6 @@ const TRAINING_STATUS_OPTIONS = ['complete', 'inprogress'] as const;
 const FORECAST_TABS = [
   { id: 'weekly', label: '주간 예보' },
   { id: 'trends', label: '경향 분석' },
-  { id: 'prevention', label: '예방 활동' },
 ];
 
 export default function ForecastPage() {
