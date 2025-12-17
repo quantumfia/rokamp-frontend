@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Shield, Search, Download, Users, Lock, Clock, Globe, FileText } from 'lucide-react';
+import { Shield, Search, Download, Users, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
@@ -30,38 +30,15 @@ const AUDIT_LOGS = [
 
 // 허용 IP 대역 Mock 데이터
 const ALLOWED_IPS = [
-  { ip: '10.10.0.0/16', desc: '본부 네트워크', canDelete: false },
-  { ip: '10.20.0.0/16', desc: '사단급 네트워크', canDelete: false },
-  { ip: '10.30.0.0/16', desc: '대대급 네트워크', canDelete: false },
+  { ip: '10.10.0.0/16', desc: '본부 네트워크' },
+  { ip: '10.20.0.0/16', desc: '사단급 네트워크' },
+  { ip: '10.30.0.0/16', desc: '대대급 네트워크' },
 ];
 
 const TABS = [
   { id: 'security', label: '보안 정책', icon: Shield },
   { id: 'audit', label: '감사 로그', icon: Users },
 ];
-
-// 고정된 보안 정책 (읽기 전용)
-const SECURITY_POLICIES = {
-  password: {
-    minLength: 8,
-    changeInterval: 90,
-    requireUppercase: true,
-    requireSpecial: true,
-    requireNumber: true,
-    preventReuse: 5,
-  },
-  session: {
-    timeout: 30,
-    maxFailedAttempts: 5,
-    singleSession: true,
-  },
-  audit: {
-    logLogin: true,
-    logDataAccess: true,
-    logSettingsChange: true,
-    retentionDays: 365,
-  },
-};
 
 export default function SystemSettingsPage() {
   const [activeTab, setActiveTab] = useState('security');
@@ -110,100 +87,78 @@ export default function SystemSettingsPage() {
 
       {/* 보안 정책 탭 */}
       {activeTab === 'security' && (
-        <div className="space-y-8">
-          {/* 안내 문구 */}
-          <div className="p-4 bg-muted/30 rounded-lg border border-border">
-            <p className="text-sm text-muted-foreground">
-              아래 보안 정책은 시스템 기본값으로 설정되어 있습니다. 
-              정책 변경이 필요한 경우 시스템 관리팀에 문의하세요.
-            </p>
-          </div>
-
+        <div className="space-y-6">
           {/* 비밀번호 정책 */}
-          <section>
-            <div className="flex items-center gap-2 mb-4">
-              <Lock className="w-4 h-4 text-muted-foreground" />
-              <h2 className="text-sm font-semibold text-foreground">비밀번호 정책</h2>
+          <section className="border border-border rounded-lg overflow-hidden">
+            <div className="px-4 py-3 bg-muted/30 border-b border-border">
+              <h2 className="text-sm font-medium">비밀번호 정책</h2>
             </div>
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-              <PolicyItem label="최소 길이" value={`${SECURITY_POLICIES.password.minLength}자`} />
-              <PolicyItem label="변경 주기" value={`${SECURITY_POLICIES.password.changeInterval}일`} />
-              <PolicyItem label="재사용 금지" value={`최근 ${SECURITY_POLICIES.password.preventReuse}개`} />
-              <PolicyItem label="대문자 필수" value={SECURITY_POLICIES.password.requireUppercase ? '적용' : '미적용'} />
-              <PolicyItem label="특수문자 필수" value={SECURITY_POLICIES.password.requireSpecial ? '적용' : '미적용'} />
-              <PolicyItem label="숫자 필수" value={SECURITY_POLICIES.password.requireNumber ? '적용' : '미적용'} />
+            <div className="divide-y divide-border">
+              <PolicyRow label="최소 길이" value="8자" />
+              <PolicyRow label="변경 주기" value="90일" />
+              <PolicyRow label="재사용 금지" value="최근 5개" />
+              <PolicyRow label="대문자 포함" value="필수" />
+              <PolicyRow label="특수문자 포함" value="필수" />
+              <PolicyRow label="숫자 포함" value="필수" />
             </div>
           </section>
-
-          <div className="border-t border-border" />
 
           {/* 세션 정책 */}
-          <section>
-            <div className="flex items-center gap-2 mb-4">
-              <Clock className="w-4 h-4 text-muted-foreground" />
-              <h2 className="text-sm font-semibold text-foreground">세션 정책</h2>
+          <section className="border border-border rounded-lg overflow-hidden">
+            <div className="px-4 py-3 bg-muted/30 border-b border-border">
+              <h2 className="text-sm font-medium">세션 정책</h2>
             </div>
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-              <PolicyItem label="세션 타임아웃" value={`${SECURITY_POLICIES.session.timeout}분`} />
-              <PolicyItem label="로그인 실패 허용" value={`${SECURITY_POLICIES.session.maxFailedAttempts}회`} />
-              <PolicyItem label="동시 로그인 제한" value={SECURITY_POLICIES.session.singleSession ? '적용' : '미적용'} />
+            <div className="divide-y divide-border">
+              <PolicyRow label="세션 타임아웃" value="30분" />
+              <PolicyRow label="로그인 실패 허용" value="5회" />
+              <PolicyRow label="동시 로그인 제한" value="적용" />
             </div>
           </section>
-
-          <div className="border-t border-border" />
 
           {/* 감사 정책 */}
-          <section>
-            <div className="flex items-center gap-2 mb-4">
-              <FileText className="w-4 h-4 text-muted-foreground" />
-              <h2 className="text-sm font-semibold text-foreground">감사 정책</h2>
+          <section className="border border-border rounded-lg overflow-hidden">
+            <div className="px-4 py-3 bg-muted/30 border-b border-border">
+              <h2 className="text-sm font-medium">감사 정책</h2>
             </div>
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-              <PolicyItem label="로그인 기록" value={SECURITY_POLICIES.audit.logLogin ? '활성' : '비활성'} />
-              <PolicyItem label="데이터 조회 기록" value={SECURITY_POLICIES.audit.logDataAccess ? '활성' : '비활성'} />
-              <PolicyItem label="설정 변경 기록" value={SECURITY_POLICIES.audit.logSettingsChange ? '활성' : '비활성'} />
-              <PolicyItem label="로그 보관 기간" value={`${SECURITY_POLICIES.audit.retentionDays}일`} />
+            <div className="divide-y divide-border">
+              <PolicyRow label="로그인/로그아웃 기록" value="활성" />
+              <PolicyRow label="데이터 조회 기록" value="활성" />
+              <PolicyRow label="설정 변경 기록" value="활성" />
+              <PolicyRow label="로그 보관 기간" value="365일" />
             </div>
           </section>
 
-          <div className="border-t border-border" />
-
           {/* IP 접근 제어 - 관리자 조작 가능 */}
-          <section>
-            <div className="flex items-center justify-between mb-4">
+          <section className="border border-border rounded-lg overflow-hidden">
+            <div className="px-4 py-3 bg-muted/30 border-b border-border flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Globe className="w-4 h-4 text-muted-foreground" />
-                <h2 className="text-sm font-semibold text-foreground">IP 접근 제어</h2>
+                <h2 className="text-sm font-medium">IP 접근 제어</h2>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-xs text-muted-foreground">화이트리스트 활성화</span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">화이트리스트</span>
                 <Switch 
                   checked={ipWhitelistEnabled}
                   onCheckedChange={setIpWhitelistEnabled}
                 />
               </div>
             </div>
-            
             <div className={cn(
-              "transition-opacity",
-              !ipWhitelistEnabled && "opacity-50 pointer-events-none"
+              "divide-y divide-border transition-opacity",
+              !ipWhitelistEnabled && "opacity-50"
             )}>
-              <p className="text-xs text-muted-foreground mb-3">
-                아래 IP 대역에서만 시스템 접근이 허용됩니다.
-              </p>
-              <div className="divide-y divide-border border-t border-b border-border">
-                {ALLOWED_IPS.map((item, index) => (
-                  <div key={index} className="flex items-center justify-between py-2.5">
-                    <div className="flex items-center gap-4">
-                      <code className="text-xs font-mono bg-muted px-2 py-1 rounded">{item.ip}</code>
-                      <span className="text-sm text-muted-foreground">{item.desc}</span>
-                    </div>
-                    <span className="text-xs text-muted-foreground">기본 설정</span>
+              {ALLOWED_IPS.map((item, index) => (
+                <div key={index} className="flex items-center justify-between px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    <code className="text-xs font-mono bg-muted px-2 py-0.5 rounded">{item.ip}</code>
+                    <span className="text-sm text-muted-foreground">{item.desc}</span>
                   </div>
-                ))}
-              </div>
-              <p className="text-xs text-muted-foreground mt-3">
-                * IP 대역 추가/삭제는 시스템 관리팀에 문의하세요.
+                </div>
+              ))}
+            </div>
+            <div className="px-4 py-2 bg-muted/20 border-t border-border">
+              <p className="text-xs text-muted-foreground">
+                IP 대역 추가/삭제는 시스템 관리팀에 문의하세요.
               </p>
             </div>
           </section>
@@ -216,7 +171,7 @@ export default function SystemSettingsPage() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-sm font-semibold text-foreground">접속 이력 조회</h2>
-              <p className="text-xs text-muted-foreground">사용자 접속 및 활동 이력 ({SECURITY_POLICIES.audit.retentionDays}일 보관)</p>
+              <p className="text-xs text-muted-foreground">사용자 접속 및 활동 이력 (365일 보관)</p>
             </div>
             <Button variant="outline" size="sm" onClick={handleExportLogs}>
               <Download className="w-4 h-4 mr-2" />
@@ -278,7 +233,7 @@ export default function SystemSettingsPage() {
                       "text-xs",
                       log.status === 'success' ? 'text-foreground' : 'text-destructive'
                     )}>
-                      {log.status === 'success' ? '●' : '○'}
+                      {log.status === 'success' ? '성공' : '실패'}
                     </span>
                   </TableCell>
                   <TableCell className="text-center">
@@ -305,12 +260,12 @@ export default function SystemSettingsPage() {
   );
 }
 
-// 정책 항목 표시 컴포넌트
-function PolicyItem({ label, value }: { label: string; value: string }) {
+// 정책 항목 행 컴포넌트
+function PolicyRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="py-3 px-4 bg-muted/20 rounded-lg">
-      <p className="text-xs text-muted-foreground mb-1">{label}</p>
-      <p className="text-sm font-medium">{value}</p>
+    <div className="flex items-center justify-between px-4 py-3">
+      <span className="text-sm text-muted-foreground">{label}</span>
+      <span className="text-sm font-medium">{value}</span>
     </div>
   );
 }
