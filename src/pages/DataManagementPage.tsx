@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Upload, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { DataManagementSkeleton } from '@/components/skeletons';
-import { PageHeader, TabNavigation } from '@/components/common';
+import { PageHeader, TabNavigation, ActionButton, AddModal, FileDropZone } from '@/components/common';
 import { usePageLoading } from '@/hooks/usePageLoading';
 
 // 상태 라벨
@@ -32,18 +32,55 @@ const newsData = [
   { id: 4, title: '국방부 안전관리 혁신방안 추진', source: 'YTN', date: '2024-12-10', status: 'processing' as const, embeddings: 0 },
 ];
 
-// 업로드 컴포넌트
-function CompactUploader({ label, hint }: { label: string; hint: string }) {
+// 문서 업로드 폼
+function DocumentUploadForm() {
   return (
-    <div className="flex items-center justify-between py-4 px-4 bg-muted/30 border border-dashed border-border rounded-lg">
-      <div>
-        <p className="text-sm font-medium text-foreground">{label}</p>
-        <p className="text-xs text-muted-foreground mt-0.5">{hint}</p>
+    <div className="space-y-4">
+      <FileDropZone
+        accept=".pdf,.hwp,.docx"
+        hint="문서 파일을 드래그하거나 클릭하여 업로드"
+        maxSize="50MB"
+      />
+      <div className="text-[11px] text-muted-foreground space-y-0.5">
+        <p>• PDF, HWP, DOCX 형식 지원</p>
+        <p>• 업로드 후 자동으로 청크 분할 및 임베딩 처리</p>
       </div>
-      <button className="flex items-center gap-2 px-4 py-2 text-sm border border-border bg-background rounded hover:bg-muted/50 transition-colors">
-        <Upload className="w-4 h-4" />
-        파일 업로드
-      </button>
+    </div>
+  );
+}
+
+// 기사 파일 업로드 폼
+function NewsFileUploadForm() {
+  return (
+    <div className="space-y-4">
+      <FileDropZone
+        accept=".pdf,.txt"
+        hint="기사 파일을 드래그하거나 클릭하여 업로드"
+        maxSize="20MB"
+      />
+      <div className="text-[11px] text-muted-foreground">
+        • PDF, TXT 형식 지원
+      </div>
+    </div>
+  );
+}
+
+// 기사 텍스트 입력 폼
+function NewsTextInputForm({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <div className="space-y-4">
+      <div>
+        <label className="block text-xs text-muted-foreground mb-1.5">JSON 데이터</label>
+        <textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={'[\n  {\n    "Title": "기사 제목",\n    "Content": "기사 본문 내용...",\n    "Date": "2024-12-14",\n    "Source": "국방일보"\n  }\n]'}
+          className="w-full h-48 px-3 py-2 text-sm font-mono bg-background border border-border rounded-md focus:outline-none focus:border-primary resize-none"
+        />
+      </div>
+      <div className="text-[11px] text-muted-foreground">
+        • 형식: Title, Content, Date, Source 필드를 포함한 JSON 배열
+      </div>
     </div>
   );
 }
@@ -55,186 +92,177 @@ const DATA_TABS = [
 
 export default function DataManagementPage() {
   const [activeTab, setActiveTab] = useState('documents');
-  const [showJsonInput, setShowJsonInput] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [jsonInput, setJsonInput] = useState('');
   const isLoading = usePageLoading(1000);
 
-  const handleJsonUpload = () => {
-    try {
-      const parsed = JSON.parse(jsonInput);
-      if (!Array.isArray(parsed)) {
-        throw new Error('배열 형식이어야 합니다');
+  const handleDocumentUpload = () => {
+    toast({
+      title: '업로드 완료',
+      description: '문서가 업로드되었습니다. 임베딩 처리가 시작됩니다.',
+    });
+    setShowAddModal(false);
+  };
+
+  const handleNewsUpload = () => {
+    if (jsonInput) {
+      try {
+        const parsed = JSON.parse(jsonInput);
+        if (!Array.isArray(parsed)) {
+          throw new Error('배열 형식이어야 합니다');
+        }
+        toast({
+          title: '데이터 적재 완료',
+          description: `${parsed.length}개 기사가 Vector DB로 변환됩니다.`,
+        });
+        setJsonInput('');
+      } catch (e) {
+        toast({
+          title: 'JSON 파싱 오류',
+          description: '올바른 JSON 형식인지 확인해주세요.',
+          variant: 'destructive',
+        });
+        return;
       }
+    } else {
       toast({
-        title: '데이터 적재 완료',
-        description: `${parsed.length}개 기사가 Vector DB로 변환됩니다.`,
-      });
-      setJsonInput('');
-      setShowJsonInput(false);
-    } catch (e) {
-      toast({
-        title: 'JSON 파싱 오류',
-        description: '올바른 JSON 형식인지 확인해주세요.',
-        variant: 'destructive',
+        title: '업로드 완료',
+        description: '기사가 업로드되었습니다.',
       });
     }
+    setShowAddModal(false);
   };
 
   if (isLoading) {
     return <DataManagementSkeleton />;
   }
 
+  // 탭별 모달 설정
+  const modalConfig = activeTab === 'documents' 
+    ? {
+        title: '문서 추가',
+        description: '학습용 문서를 업로드합니다',
+        inputTypes: [
+          { id: 'file', label: '파일 업로드', content: <DocumentUploadForm /> },
+        ],
+        onSubmit: handleDocumentUpload,
+      }
+    : {
+        title: '기사 추가',
+        description: '언론 기사를 업로드하거나 직접 입력합니다',
+        inputTypes: [
+          { id: 'file', label: '파일 업로드', content: <NewsFileUploadForm /> },
+          { id: 'text', label: '텍스트 입력', content: <NewsTextInputForm value={jsonInput} onChange={setJsonInput} /> },
+        ],
+        onSubmit: handleNewsUpload,
+      };
+
   return (
     <div className="p-6 space-y-6 animate-page-enter">
       <PageHeader 
         title="데이터 관리" 
-        description="문서 및 언론 기사 학습 데이터 관리" 
+        description="문서 및 언론 기사 학습 데이터 관리"
+        actions={
+          <ActionButton 
+            label={activeTab === 'documents' ? '문서 추가' : '기사 추가'} 
+            onClick={() => setShowAddModal(true)} 
+          />
+        }
       />
 
       <TabNavigation tabs={DATA_TABS} activeTab={activeTab} onChange={setActiveTab} />
 
       {/* 문서 관리 탭 */}
       {activeTab === 'documents' && (
-        <div className="space-y-6">
-          <CompactUploader
-            label="규정/매뉴얼 문서 업로드"
-            hint="PDF, HWP 형식 (최대 50MB)"
-          />
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-medium text-foreground">학습 현황</h2>
+            <span className="text-xs text-muted-foreground">
+              총 {documentData.length}개 문서 · {documentData.filter(d => d.status === 'completed').reduce((sum, d) => sum + d.chunks, 0)}개 청크
+            </span>
+          </div>
 
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-medium text-foreground">학습 현황</h2>
-              <span className="text-xs text-muted-foreground">
-                총 {documentData.length}개 문서 · {documentData.filter(d => d.status === 'completed').reduce((sum, d) => sum + d.chunks, 0)}개 청크
-              </span>
-            </div>
+          <div className="grid grid-cols-[1fr_60px_60px_140px_80px_60px_40px] gap-4 py-3 text-xs text-muted-foreground border-y border-border">
+            <div>문서명</div>
+            <div>형식</div>
+            <div>크기</div>
+            <div>업로드 일시</div>
+            <div className="text-center">청크 수</div>
+            <div>상태</div>
+            <div></div>
+          </div>
 
-            {/* 테이블 헤더 */}
-            <div className="grid grid-cols-[1fr_60px_60px_140px_80px_60px_40px] gap-4 py-3 text-xs text-muted-foreground border-y border-border">
-              <div>문서명</div>
-              <div>형식</div>
-              <div>크기</div>
-              <div>업로드 일시</div>
-              <div className="text-center">청크 수</div>
-              <div>상태</div>
-              <div></div>
-            </div>
-
-            {/* 테이블 내용 */}
-            <div className="divide-y divide-border">
-              {documentData.map((doc) => (
-                <div key={doc.id} className="grid grid-cols-[1fr_60px_60px_140px_80px_60px_40px] gap-4 py-3 items-center text-sm">
-                  <div className="font-medium truncate">{doc.name}</div>
-                  <div className="text-muted-foreground">{doc.type}</div>
-                  <div className="text-muted-foreground">{doc.size}</div>
-                  <div className="text-muted-foreground tabular-nums">{doc.uploadedAt}</div>
-                  <div className="text-center text-muted-foreground">
-                    {doc.status === 'completed' ? doc.chunks : '-'}
-                  </div>
-                  <div><StatusLabel status={doc.status} /></div>
-                  <div>
-                    <button className="p-1 hover:bg-muted rounded transition-colors">
-                      <Trash2 className="w-4 h-4 text-muted-foreground" />
-                    </button>
-                  </div>
+          <div className="divide-y divide-border">
+            {documentData.map((doc) => (
+              <div key={doc.id} className="grid grid-cols-[1fr_60px_60px_140px_80px_60px_40px] gap-4 py-3 items-center text-sm">
+                <div className="font-medium truncate">{doc.name}</div>
+                <div className="text-muted-foreground">{doc.type}</div>
+                <div className="text-muted-foreground">{doc.size}</div>
+                <div className="text-muted-foreground tabular-nums">{doc.uploadedAt}</div>
+                <div className="text-center text-muted-foreground">
+                  {doc.status === 'completed' ? doc.chunks : '-'}
                 </div>
-              ))}
-            </div>
+                <div><StatusLabel status={doc.status} /></div>
+                <div>
+                  <button className="p-1 hover:bg-muted rounded transition-colors">
+                    <Trash2 className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
 
       {/* 언론 기사 관리 탭 */}
       {activeTab === 'news' && (
-        <div className="space-y-6">
-          {/* 업로드 방식 선택 */}
-          <div className="grid grid-cols-2 gap-4">
-            <CompactUploader
-              label="뉴스 파일 업로드"
-              hint="PDF 형식"
-            />
-            <div className="py-4 px-4 bg-muted/30 border border-dashed border-border rounded-lg">
-              <p className="text-sm font-medium text-foreground">JSON 직접 입력</p>
-              <p className="text-xs text-muted-foreground mt-0.5">구조화된 뉴스 데이터 입력</p>
-              <button 
-                onClick={() => setShowJsonInput(!showJsonInput)}
-                className="mt-2 flex items-center gap-2 px-4 py-2 text-sm border border-border bg-background rounded hover:bg-muted/50 transition-colors"
-              >
-                {showJsonInput ? '입력창 닫기' : 'JSON 입력'}
-              </button>
-            </div>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-medium text-foreground">학습된 뉴스 목록</h2>
+            <span className="text-xs text-muted-foreground">
+              총 {newsData.length}개 기사 · {newsData.filter(n => n.status === 'completed').reduce((sum, n) => sum + n.embeddings, 0)}개 임베딩
+            </span>
           </div>
 
-          {/* JSON 입력창 */}
-          {showJsonInput && (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-foreground">JSON 데이터 입력</p>
-                <p className="text-xs text-muted-foreground">형식: {'{'}Title, Content, Date, Source{'}'}</p>
-              </div>
-              <textarea
-                value={jsonInput}
-                onChange={(e) => setJsonInput(e.target.value)}
-                placeholder={'[\n  {\n    "Title": "기사 제목",\n    "Content": "기사 본문 내용...",\n    "Date": "2024-12-14",\n    "Source": "국방일보"\n  }\n]'}
-                className="w-full h-48 bg-background border border-border rounded p-3 text-sm font-mono placeholder:text-muted-foreground focus:outline-none focus:border-foreground resize-none"
-              />
-              <div className="flex justify-end gap-2">
-                <button 
-                  onClick={() => setJsonInput('')}
-                  className="px-3 py-1.5 text-sm border border-border rounded hover:bg-muted/50 transition-colors"
-                >
-                  초기화
-                </button>
-                <button 
-                  onClick={handleJsonUpload}
-                  className="px-3 py-1.5 text-sm bg-foreground text-background rounded hover:opacity-80 transition-opacity"
-                >
-                  데이터 적재
-                </button>
-              </div>
-            </div>
-          )}
+          <div className="grid grid-cols-[1fr_100px_100px_80px_60px_40px] gap-4 py-3 text-xs text-muted-foreground border-y border-border">
+            <div>제목</div>
+            <div>출처</div>
+            <div>날짜</div>
+            <div className="text-center">임베딩 수</div>
+            <div>상태</div>
+            <div></div>
+          </div>
 
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-medium text-foreground">학습된 뉴스 목록</h2>
-              <span className="text-xs text-muted-foreground">
-                총 {newsData.length}개 기사 · {newsData.filter(n => n.status === 'completed').reduce((sum, n) => sum + n.embeddings, 0)}개 임베딩
-              </span>
-            </div>
-
-            {/* 테이블 헤더 */}
-            <div className="grid grid-cols-[1fr_100px_100px_80px_60px_40px] gap-4 py-3 text-xs text-muted-foreground border-y border-border">
-              <div>제목</div>
-              <div>출처</div>
-              <div>날짜</div>
-              <div className="text-center">임베딩 수</div>
-              <div>상태</div>
-              <div></div>
-            </div>
-
-            {/* 테이블 내용 */}
-            <div className="divide-y divide-border">
-              {newsData.map((news) => (
-                <div key={news.id} className="grid grid-cols-[1fr_100px_100px_80px_60px_40px] gap-4 py-3 items-center text-sm">
-                  <div className="font-medium truncate">{news.title}</div>
-                  <div className="text-muted-foreground">{news.source}</div>
-                  <div className="text-muted-foreground tabular-nums">{news.date}</div>
-                  <div className="text-center text-muted-foreground">
-                    {news.status === 'completed' ? news.embeddings : '-'}
-                  </div>
-                  <div><StatusLabel status={news.status} /></div>
-                  <div>
-                    <button className="p-1 hover:bg-muted rounded transition-colors">
-                      <Trash2 className="w-4 h-4 text-muted-foreground" />
-                    </button>
-                  </div>
+          <div className="divide-y divide-border">
+            {newsData.map((news) => (
+              <div key={news.id} className="grid grid-cols-[1fr_100px_100px_80px_60px_40px] gap-4 py-3 items-center text-sm">
+                <div className="font-medium truncate">{news.title}</div>
+                <div className="text-muted-foreground">{news.source}</div>
+                <div className="text-muted-foreground tabular-nums">{news.date}</div>
+                <div className="text-center text-muted-foreground">
+                  {news.status === 'completed' ? news.embeddings : '-'}
                 </div>
-              ))}
-            </div>
+                <div><StatusLabel status={news.status} /></div>
+                <div>
+                  <button className="p-1 hover:bg-muted rounded transition-colors">
+                    <Trash2 className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
+
+      {/* 추가 모달 */}
+      <AddModal
+        isOpen={showAddModal}
+        onClose={() => {
+          setShowAddModal(false);
+          setJsonInput('');
+        }}
+        {...modalConfig}
+      />
     </div>
   );
 }

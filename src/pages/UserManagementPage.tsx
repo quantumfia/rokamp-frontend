@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { Plus, Upload, Download, MoreHorizontal } from 'lucide-react';
+import { Download, MoreHorizontal } from 'lucide-react';
 import { UnitCascadeSelect } from '@/components/unit/UnitCascadeSelect';
 import { getUnitById, getAllDescendants, getUnitFullName } from '@/data/armyUnits';
 import { ROLE_LABELS, UserRole } from '@/types/auth';
 import { toast } from '@/hooks/use-toast';
 import { UserManagementSkeleton } from '@/components/skeletons';
-import { PageHeader } from '@/components/common';
+import { PageHeader, ActionButton, AddModal, FileDropZone } from '@/components/common';
 import { usePageLoading } from '@/hooks/usePageLoading';
 
 interface User {
@@ -30,10 +30,86 @@ const MOCK_USERS: User[] = [
   { id: '9', militaryId: '15-638712', name: '이작전', rank: '대장', unitId: 'goc', role: 'ROLE_HQ', status: 'active' },
 ];
 
+// 개별 등록 폼
+function UserForm() {
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs text-muted-foreground mb-1.5">군번 *</label>
+          <input
+            type="text"
+            placeholder="00-000000"
+            className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-muted-foreground mb-1.5">이름 *</label>
+          <input
+            type="text"
+            placeholder="홍길동"
+            className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs text-muted-foreground mb-1.5">계급 *</label>
+          <select className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors">
+            <option value="">선택</option>
+            <option value="대장">대장</option>
+            <option value="중장">중장</option>
+            <option value="소장">소장</option>
+            <option value="준장">준장</option>
+            <option value="대령">대령</option>
+            <option value="중령">중령</option>
+            <option value="소령">소령</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs text-muted-foreground mb-1.5">소속 부대 *</label>
+          <input
+            type="text"
+            placeholder="부대 코드"
+            className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+          />
+        </div>
+      </div>
+      <div className="text-[11px] text-muted-foreground pt-2">
+        • 초기 비밀번호는 군번+생년월일 형식으로 자동 생성됩니다.
+      </div>
+    </div>
+  );
+}
+
+// 일괄 등록 폼
+function BulkUploadForm({ onDownloadTemplate }: { onDownloadTemplate: () => void }) {
+  return (
+    <div className="space-y-4">
+      <FileDropZone
+        accept=".xlsx,.xls"
+        hint="엑셀 파일을 드래그하거나 클릭하여 업로드"
+        maxSize="10MB"
+      />
+      <button
+        onClick={onDownloadTemplate}
+        className="w-full flex items-center justify-center gap-2 py-2 text-xs border border-border rounded-md hover:bg-muted transition-colors"
+      >
+        <Download className="w-3.5 h-3.5" />
+        템플릿 다운로드
+      </button>
+      <div className="text-[11px] text-muted-foreground space-y-0.5">
+        <p>• 필수 필드: 군번, 이름, 계급, 소속부대코드</p>
+        <p>• 소속 부대 코드에 따라 접근 권한 자동 설정</p>
+      </div>
+    </div>
+  );
+}
+
 export default function UserManagementPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUnitFilter, setSelectedUnitFilter] = useState<string>('');
-  const [showBulkUpload, setShowBulkUpload] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [showActionMenu, setShowActionMenu] = useState<string | null>(null);
   const isLoading = usePageLoading(1000);
 
@@ -41,17 +117,19 @@ export default function UserManagementPage() {
     return ROLE_LABELS[role as UserRole] ?? role;
   };
 
-  const getUnitName = (unitId: string) => {
-    const unit = getUnitById(unitId);
-    return unit?.name ?? unitId;
+  const handleSubmit = () => {
+    toast({
+      title: '등록 완료',
+      description: '사용자가 등록되었습니다.',
+    });
+    setShowAddModal(false);
   };
 
-  const handleBulkUpload = () => {
+  const handleDownloadTemplate = () => {
     toast({
-      title: '업로드 완료',
-      description: '사용자 일괄 등록이 완료되었습니다.',
+      title: '템플릿 다운로드',
+      description: '사용자 일괄 등록 템플릿이 다운로드됩니다.',
     });
-    setShowBulkUpload(false);
   };
 
   const handleResetPassword = (userName: string) => {
@@ -62,18 +140,11 @@ export default function UserManagementPage() {
     setShowActionMenu(null);
   };
 
-  const handleDownloadTemplate = () => {
-    toast({
-      title: '템플릿 다운로드',
-      description: '사용자 일괄 등록 템플릿이 다운로드됩니다.',
-    });
-  };
-
   const filteredUsers = MOCK_USERS.filter((user) => {
     const matchesSearch =
       user.name.includes(searchQuery) ||
       user.militaryId.includes(searchQuery) ||
-      getUnitName(user.unitId).includes(searchQuery);
+      getUnitById(user.unitId)?.name.includes(searchQuery);
     
     let matchesUnit = true;
     if (selectedUnitFilter && selectedUnitFilter !== 'all') {
@@ -95,19 +166,7 @@ export default function UserManagementPage() {
         title="사용자 관리" 
         description="시스템 사용자 계정 및 권한 관리"
         actions={
-          <>
-            <button
-              onClick={() => setShowBulkUpload(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-border rounded hover:bg-muted/50 transition-colors"
-            >
-              <Upload className="w-4 h-4" />
-              일괄 등록
-            </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-foreground text-background rounded hover:opacity-80 transition-opacity">
-              <Plus className="w-4 h-4" />
-              사용자 등록
-            </button>
-          </>
+          <ActionButton label="사용자 추가" onClick={() => setShowAddModal(true)} />
         }
       />
 
@@ -147,13 +206,12 @@ export default function UserManagementPage() {
           placeholder="이름, 군번, 부대 검색..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-64 bg-transparent border border-border rounded px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
+          className="w-64 bg-transparent border border-border rounded px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
         />
       </div>
 
       {/* 테이블 */}
       <div>
-        {/* 테이블 헤더 */}
         <div className="grid grid-cols-[100px_100px_60px_1fr_100px_80px_40px] gap-4 py-3 text-xs text-muted-foreground border-y border-border">
           <div>군번</div>
           <div>이름</div>
@@ -164,14 +222,15 @@ export default function UserManagementPage() {
           <div></div>
         </div>
 
-        {/* 테이블 내용 */}
         <div className="divide-y divide-border">
           {filteredUsers.map((user) => (
             <div key={user.id} className="grid grid-cols-[100px_100px_60px_1fr_100px_80px_40px] gap-4 py-3 items-center text-sm">
               <div className="font-mono text-muted-foreground">{user.militaryId}</div>
               <div className="font-medium">{user.name}</div>
               <div className="text-muted-foreground">{user.rank}</div>
-              <div className="text-muted-foreground text-xs" title={getUnitFullName(user.unitId)}>{getUnitFullName(user.unitId)}</div>
+              <div className="text-muted-foreground text-xs truncate" title={getUnitFullName(user.unitId)}>
+                {getUnitFullName(user.unitId)}
+              </div>
               <div className="text-muted-foreground">{getRoleLabel(user.role)}</div>
               <div className="text-muted-foreground">
                 {user.status === 'active' ? '활성' : '비활성'}
@@ -189,7 +248,7 @@ export default function UserManagementPage() {
                       className="fixed inset-0 z-40" 
                       onClick={() => setShowActionMenu(null)}
                     />
-                    <div className="absolute right-0 top-8 z-50 w-40 bg-background border border-border rounded shadow-lg py-1">
+                    <div className="absolute right-0 top-8 z-50 w-40 bg-popover border border-border rounded-md shadow-lg py-1">
                       <button 
                         className="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
                         onClick={() => setShowActionMenu(null)}
@@ -217,59 +276,19 @@ export default function UserManagementPage() {
         </div>
       </div>
 
-      {/* 일괄 등록 모달 */}
-      {showBulkUpload && (
-        <>
-          <div className="fixed inset-0 bg-black/50 z-50" onClick={() => setShowBulkUpload(false)} />
-          <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md bg-background border border-border rounded-lg p-6">
-            <h3 className="text-lg font-semibold mb-1">사용자 일괄 등록</h3>
-            <p className="text-sm text-muted-foreground mb-6">
-              엑셀 파일로 여러 사용자를 한 번에 등록합니다.
-            </p>
-            
-            <div className="space-y-4">
-              <div 
-                className="border border-dashed border-border rounded-lg p-8 text-center hover:border-foreground/50 transition-colors cursor-pointer"
-                onClick={() => document.getElementById('excel-upload')?.click()}
-              >
-                <Upload className="w-6 h-6 mx-auto text-muted-foreground mb-2" />
-                <p className="text-sm">엑셀 파일을 드래그하거나 클릭하여 업로드</p>
-                <p className="text-xs text-muted-foreground mt-1">XLSX, XLS 형식 지원</p>
-                <input id="excel-upload" type="file" accept=".xlsx,.xls" className="hidden" />
-              </div>
-              
-              <button 
-                className="w-full flex items-center justify-center gap-2 py-2 border border-border rounded text-sm hover:bg-muted/50 transition-colors"
-                onClick={handleDownloadTemplate}
-              >
-                <Download className="w-4 h-4" />
-                템플릿 다운로드
-              </button>
-              
-              <div className="text-xs text-muted-foreground space-y-1">
-                <p>• 필수 필드: 군번, 이름, 계급, 소속부대코드</p>
-                <p>• 소속 부대 코드에 따라 접근 권한 자동 설정</p>
-                <p>• 초기 비밀번호는 군번+생년월일 형식</p>
-              </div>
-            </div>
-            
-            <div className="flex justify-end gap-2 mt-6">
-              <button 
-                className="px-4 py-2 text-sm border border-border rounded hover:bg-muted/50 transition-colors"
-                onClick={() => setShowBulkUpload(false)}
-              >
-                취소
-              </button>
-              <button 
-                className="px-4 py-2 text-sm bg-foreground text-background rounded hover:opacity-80 transition-opacity"
-                onClick={handleBulkUpload}
-              >
-                업로드
-              </button>
-            </div>
-          </div>
-        </>
-      )}
+      {/* 사용자 추가 모달 */}
+      <AddModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        title="사용자 추가"
+        description="개별 등록 또는 엑셀 파일로 일괄 등록"
+        inputTypes={[
+          { id: 'single', label: '개별 등록', content: <UserForm /> },
+          { id: 'bulk', label: '일괄 등록', content: <BulkUploadForm onDownloadTemplate={handleDownloadTemplate} /> },
+        ]}
+        onSubmit={handleSubmit}
+        submitLabel="등록"
+      />
     </div>
   );
 }
