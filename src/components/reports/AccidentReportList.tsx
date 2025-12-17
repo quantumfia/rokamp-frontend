@@ -9,11 +9,7 @@ import {
   Search,
   Plus,
   Pencil,
-  Trash2,
-  AlertTriangle,
-  Clock,
-  CheckCircle2,
-  FileWarning
+  Trash2
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { jsPDF } from 'jspdf';
@@ -802,98 +798,36 @@ export function AccidentReportList({ onCreateNew }: AccidentReportListProps) {
     );
   }
 
-  // 통계 계산
-  const stats = {
-    total: MOCK_ACCIDENT_REPORTS.length,
-    thisWeek: MOCK_ACCIDENT_REPORTS.filter(r => {
-      const date = new Date(r.date);
-      const now = new Date();
-      const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      return date >= weekAgo;
-    }).length,
-    pending: MOCK_ACCIDENT_REPORTS.filter(r => r.status === 'pending' || r.status === 'reviewing').length,
-    highSeverity: MOCK_ACCIDENT_REPORTS.filter(r => r.severity === 'high').length,
-  };
+  // 이제 상세보기와 미리보기가 합쳐짐 (위에서 처리)
 
   // 목록 뷰
   return (
-    <div className="space-y-6">
-      {/* 통계 요약 카드 */}
-      <div className="grid grid-cols-4 gap-4">
-        <div className="group p-4 rounded-lg border border-border bg-card/50 hover:bg-card hover:border-border/80 transition-all">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground">전체 보고서</p>
-              <p className="text-2xl font-semibold text-foreground mt-1">{stats.total}</p>
-            </div>
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
-              <FileText className="w-5 h-5 text-primary" />
-            </div>
-          </div>
-        </div>
-        
-        <div className="group p-4 rounded-lg border border-border bg-card/50 hover:bg-card hover:border-border/80 transition-all">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground">이번 주</p>
-              <p className="text-2xl font-semibold text-foreground mt-1">{stats.thisWeek}</p>
-            </div>
-            <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-500/15 transition-colors">
-              <Clock className="w-5 h-5 text-blue-500" />
-            </div>
-          </div>
-        </div>
-        
-        <div className="group p-4 rounded-lg border border-border bg-card/50 hover:bg-card hover:border-border/80 transition-all">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground">처리 대기</p>
-              <p className="text-2xl font-semibold text-foreground mt-1">{stats.pending}</p>
-            </div>
-            <div className="w-10 h-10 rounded-lg bg-yellow-500/10 flex items-center justify-center group-hover:bg-yellow-500/15 transition-colors">
-              <FileWarning className="w-5 h-5 text-yellow-500" />
-            </div>
-          </div>
-        </div>
-        
-        <div className="group p-4 rounded-lg border border-border bg-card/50 hover:bg-card hover:border-border/80 transition-all">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground">긴급 사안</p>
-              <p className="text-2xl font-semibold text-foreground mt-1">{stats.highSeverity}</p>
-            </div>
-            <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center group-hover:bg-red-500/15 transition-colors">
-              <AlertTriangle className="w-5 h-5 text-red-500" />
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <div className="space-y-4">
       {/* 헤더 영역 - 검색 + 새 보고서 버튼 */}
       <div className="flex items-center justify-between">
-        <div className="relative w-72">
+        <div className="relative w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
-            placeholder="문서번호, 제목, 부대 검색..."
+            placeholder="보고서 검색..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-muted/30 border border-border rounded-lg text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:bg-muted/50 transition-all"
+            className="w-full pl-10 pr-4 py-2 bg-transparent border border-border rounded text-sm placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
           />
         </div>
         <button
           onClick={() => onCreateNew?.()}
-          className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors shadow-sm"
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded text-sm hover:opacity-90 transition-opacity"
         >
           <Plus className="w-4 h-4" />
-          새 보고서 작성
+          새 보고서 생성
         </button>
       </div>
 
       {/* 테이블 */}
-      <div className="rounded-lg border border-border overflow-hidden">
+      <div>
         {/* Header */}
-        <div className="grid grid-cols-[100px_1fr_140px_100px_100px_90px_50px] gap-4 px-4 py-3 text-xs font-medium text-muted-foreground bg-muted/30 border-b border-border">
+        <div className="grid grid-cols-[100px_1fr_120px_100px_100px_80px_50px] gap-4 py-3 text-xs text-muted-foreground border-y border-border">
           <div>문서번호</div>
           <div>제목</div>
           <div>부대</div>
@@ -904,19 +838,17 @@ export function AccidentReportList({ onCreateNew }: AccidentReportListProps) {
         </div>
 
         {/* Rows */}
-        <div className="divide-y divide-border/50">
+        <div className="divide-y divide-border">
           {filteredReports.map((report) => (
             <div 
               key={report.id} 
               onClick={() => setSelectedReport(report)}
-              className="grid grid-cols-[100px_1fr_140px_100px_100px_90px_50px] gap-4 px-4 py-3.5 items-center hover:bg-muted/40 transition-colors cursor-pointer group"
+              className="grid grid-cols-[100px_1fr_120px_100px_100px_80px_50px] gap-4 py-3 items-center hover:bg-muted/30 transition-colors cursor-pointer"
             >
               <div className="text-sm text-muted-foreground font-mono">
                 {report.id.replace('ACC-2024-', '')}
               </div>
-              <div className="text-sm font-medium truncate group-hover:text-primary transition-colors">
-                {report.title}
-              </div>
+              <div className="text-sm font-medium truncate">{report.title}</div>
               <div className="text-sm text-muted-foreground truncate">
                 {report.unit.split(' > ').pop()}
               </div>
@@ -926,21 +858,16 @@ export function AccidentReportList({ onCreateNew }: AccidentReportListProps) {
               <div className="text-sm text-muted-foreground tabular-nums">
                 {report.date}
               </div>
-              <div>
-                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${getStatusStyle(report.status)}`}>
-                  {report.status === 'completed' && <CheckCircle2 className="w-3 h-3" />}
-                  {report.status === 'pending' && <Clock className="w-3 h-3" />}
-                  {report.status === 'reviewing' && <Eye className="w-3 h-3" />}
-                  {getStatusLabel(report.status)}
-                </span>
+              <div className="text-sm text-muted-foreground">
+                {getStatusLabel(report.status)}
               </div>
               <div>
                 <button 
                   onClick={(e) => { e.stopPropagation(); setSelectedReport(report); }}
-                  className="p-1.5 hover:bg-muted rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                  className="p-1.5 hover:bg-muted rounded transition-colors"
                   title="상세보기"
                 >
-                  <Eye className="w-4 h-4 text-muted-foreground" />
+                  <Download className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
             </div>
@@ -949,10 +876,8 @@ export function AccidentReportList({ onCreateNew }: AccidentReportListProps) {
       </div>
 
       {filteredReports.length === 0 && (
-        <div className="text-center py-16 border border-dashed border-border rounded-lg">
-          <FileText className="w-10 h-10 text-muted-foreground/50 mx-auto mb-3" />
+        <div className="text-center py-12">
           <p className="text-sm text-muted-foreground">조건에 맞는 보고서가 없습니다.</p>
-          <p className="text-xs text-muted-foreground/70 mt-1">검색어를 변경하거나 새 보고서를 작성해보세요.</p>
         </div>
       )}
     </div>

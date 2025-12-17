@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { FileText, BarChart3 } from 'lucide-react';
 import { ReportGeneratorForm, ReportFormData } from '@/components/reports/ReportGeneratorForm';
 import { ReportPreview } from '@/components/reports/ReportPreview';
 import { StatisticsReportList } from '@/components/reports/StatisticsReportList';
@@ -100,8 +99,8 @@ ${data.actionsTaken || '  (조치 사항 기록 필요)'}
 };
 
 const TABS = [
-  { id: 'accident', label: '사고 보고서', icon: FileText },
-  { id: 'statistics', label: '통계 보고서', icon: BarChart3 },
+  { id: 'accident', label: '사고 보고서' },
+  { id: 'statistics', label: '통계 보고서' },
 ];
 
 export default function ReportsPage() {
@@ -134,28 +133,15 @@ export default function ReportsPage() {
   };
 
   return (
-    <div className="p-6 space-y-6 animate-page-enter relative">
-      {/* Subtle background glow */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div 
-          className="absolute top-0 right-1/4 w-[600px] h-[300px] opacity-[0.03]"
-          style={{
-            background: 'radial-gradient(ellipse at center, hsl(var(--primary)) 0%, transparent 70%)',
-          }}
-        />
-      </div>
+    <div className="p-6 space-y-6 animate-page-enter">
+      <PageHeader 
+        title="보고서" 
+        description="사고 보고서 및 통계 보고서 조회·작성" 
+      />
 
-      <div className="relative">
-        <PageHeader 
-          title="보고서" 
-          description="사고 보고서 및 통계 보고서 조회·작성" 
-        />
-
-        {!showGenerator && (
-          <div className="mt-6">
-            <TabNavigation tabs={TABS} activeTab={activeTab} onChange={setActiveTab} />
-          </div>
-        )}
+      {!showGenerator && (
+        <TabNavigation tabs={TABS} activeTab={activeTab} onChange={setActiveTab} />
+      )}
 
       {/* 사고 보고서 작성 폼 */}
       {showGenerator && (
@@ -192,16 +178,15 @@ export default function ReportsPage() {
         </div>
       )}
 
-        {/* 사고 보고서 목록 탭 */}
-        {!showGenerator && activeTab === 'accident' && (
-          isLoading ? <StatisticsReportListSkeleton /> : <AccidentReportList onCreateNew={() => setShowGenerator(true)} />
-        )}
+      {/* 사고 보고서 목록 탭 */}
+      {!showGenerator && activeTab === 'accident' && (
+        isLoading ? <StatisticsReportListSkeleton /> : <AccidentReportList onCreateNew={() => setShowGenerator(true)} />
+      )}
 
-        {/* 통계 보고서 조회 탭 */}
-        {!showGenerator && activeTab === 'statistics' && (
-          isLoading ? <StatisticsReportListSkeleton /> : <StatisticsReportList />
-        )}
-      </div>
+      {/* 통계 보고서 조회 탭 */}
+      {!showGenerator && activeTab === 'statistics' && (
+        isLoading ? <StatisticsReportListSkeleton /> : <StatisticsReportList />
+      )}
     </div>
   );
 }
