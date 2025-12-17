@@ -264,7 +264,7 @@ export function MapView({ className, onMarkerClick, selectedUnitId }: MapViewPro
       {isZoomed && (
         <button
           onClick={resetToDefaultView}
-          className="absolute top-3 right-3 z-[1000] flex items-center gap-1.5 px-2.5 py-1.5 bg-panel-dark/90 backdrop-blur-sm border border-sidebar-border rounded text-xs text-white hover:bg-panel-dark transition-colors"
+          className="absolute top-3 right-3 z-10 flex items-center gap-1.5 px-2.5 py-1.5 bg-panel-dark/90 backdrop-blur-sm border border-sidebar-border rounded text-xs text-white hover:bg-panel-dark transition-colors"
         >
           <Home className="w-3.5 h-3.5" />
           전체 보기
@@ -272,7 +272,7 @@ export function MapView({ className, onMarkerClick, selectedUnitId }: MapViewPro
       )}
 
       {/* Map Legend */}
-      <div className="absolute bottom-3 left-3 floating-panel p-2.5 z-[1000]">
+      <div className="absolute bottom-3 left-3 floating-panel p-2.5 z-10">
         <p className="text-[10px] font-medium text-panel-dark-foreground mb-1.5 uppercase tracking-wider">위험도</p>
         <div className="flex items-center gap-2 text-[10px]">
           <div className="flex items-center gap-1">
