@@ -424,7 +424,7 @@ export default function ChatbotPage() {
             </div>
 
             {/* Scrollable Messages */}
-            <div className="flex-1 overflow-y-auto pt-16 pb-36">
+            <div className="flex-1 min-h-0 overflow-y-auto pt-16 pb-36">
               <div className="max-w-3xl mx-auto px-4 py-4 space-y-6">
                 {messages.map((message) => (
                   <div
