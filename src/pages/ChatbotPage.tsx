@@ -1,13 +1,22 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, Shield, Car, Flame, Mountain } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
+import { Send, Sparkles, Shield, Car, Flame, Mountain, RotateCcw, ChevronDown, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ChatbotSkeleton } from '@/components/skeletons';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import armyLogo from '@/assets/army-logo.png';
 
 interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
+  sources?: string[];
   references?: Array<{
     title: string;
     source: string;
@@ -22,20 +31,43 @@ const SUGGESTED_QUESTIONS = [
   { icon: Mountain, text: '행군 중 저체온증 대처 방법은?', color: 'text-cyan-400' },
 ];
 
+const DOCUMENT_SOURCES = [
+  { id: 'all', label: '전체', description: '모든 문서에서 검색' },
+  { id: 'training', label: '훈련 일정', description: '훈련 계획 및 일정 정보' },
+  { id: 'safety-report', label: '안전 리포트', description: '안전 점검 및 보고서' },
+  { id: 'life-guide', label: '병영생활 안전가이드', description: '생활관 안전 수칙' },
+  { id: 'calendar', label: '안전 캘린더', description: '월별 안전 중점사항' },
+  { id: 'trend', label: '발생사고 경향분석', description: '사고 통계 및 분석' },
+  { id: 'news', label: '언론 기사', description: '관련 뉴스 및 기사' },
+  { id: 'law', label: '법률/규정', description: '법령 및 규정 문서' },
+];
+
 export default function ChatbotPage() {
+  const location = useLocation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isPageLoading, setIsPageLoading] = useState(true);
+  const [selectedSources, setSelectedSources] = useState<string[]>(['all']);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const hasConversation = messages.length > 0;
 
+  // 페이지 로딩 및 resetKey 감지
   useEffect(() => {
     const timer = setTimeout(() => setIsPageLoading(false), 800);
     return () => clearTimeout(timer);
   }, []);
+
+  // LNB에서 현재 페이지 클릭 시 리셋
+  useEffect(() => {
+    if (location.state?.resetKey) {
+      handleNewConversation();
+      // state 초기화 (뒤로가기 시 다시 리셋 방지)
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state?.resetKey]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -45,6 +77,37 @@ export default function ChatbotPage() {
     scrollToBottom();
   }, [messages]);
 
+  const handleNewConversation = () => {
+    setMessages([]);
+    setInput('');
+    setSelectedSources(['all']);
+    inputRef.current?.focus();
+  };
+
+  const handleSourceToggle = (sourceId: string) => {
+    if (sourceId === 'all') {
+      setSelectedSources(['all']);
+    } else {
+      setSelectedSources(prev => {
+        const withoutAll = prev.filter(s => s !== 'all');
+        if (withoutAll.includes(sourceId)) {
+          const newSources = withoutAll.filter(s => s !== sourceId);
+          return newSources.length === 0 ? ['all'] : newSources;
+        } else {
+          return [...withoutAll, sourceId];
+        }
+      });
+    }
+  };
+
+  const getSelectedSourceLabels = () => {
+    if (selectedSources.includes('all')) return '전체';
+    return selectedSources
+      .map(id => DOCUMENT_SOURCES.find(s => s.id === id)?.label)
+      .filter(Boolean)
+      .join(', ');
+  };
+
   const handleSend = async (text?: string) => {
     const messageText = text || input;
     if (!messageText.trim() || isLoading) return;
@@ -53,6 +116,7 @@ export default function ChatbotPage() {
       id: Date.now().toString(),
       role: 'user',
       content: messageText,
+      sources: selectedSources.includes('all') ? undefined : [...selectedSources],
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -60,7 +124,7 @@ export default function ChatbotPage() {
     setIsLoading(true);
 
     setTimeout(() => {
-      const response = getAIResponse(messageText);
+      const response = getAIResponse(messageText, userMessage.sources);
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
@@ -72,7 +136,12 @@ export default function ChatbotPage() {
     }, 1500);
   };
 
-  const getAIResponse = (question: string): { content: string; references: Array<{ title: string; source: string; url?: string }> } => {
+  const getAIResponse = (question: string, sources?: string[]): { content: string; references: Array<{ title: string; source: string; url?: string }> } => {
+    // 소스 필터링 로직 (실제로는 백엔드에서 처리)
+    const sourceNote = sources && sources.length > 0 
+      ? `\n\n_검색 범위: ${sources.map(id => DOCUMENT_SOURCES.find(s => s.id === id)?.label).join(', ')}_`
+      : '';
+
     if (question.includes('차량') || question.includes('동절기')) {
       return {
         content: `동절기 차량 사고 예방을 위한 핵심 대책을 안내드립니다.
@@ -91,7 +160,7 @@ export default function ChatbotPage() {
 
 **비상대비 장구류**
 • 필수: 삼각대, 손전등, 견인로프, 구급함
-• 동절기 추가: 스노우체인, 염화칼슘, 삽, 모래주머니`,
+• 동절기 추가: 스노우체인, 염화칼슘, 삽, 모래주머니${sourceNote}`,
         references: [
           { title: '육군 차량 운행 안전관리 규정', source: '육군본부 2024.03', url: '#' },
           { title: '동절기 교통사고 예방 대책', source: '국방부 안전정책과', url: '#' },
@@ -116,7 +185,7 @@ export default function ChatbotPage() {
 
 **비상상황 대응**
 • 낙오자 발생 시 즉시 훈련 중지 및 수색
-• 부상자 발생 시 응급처치 후 즉시 후송`,
+• 부상자 발생 시 응급처치 후 즉시 후송${sourceNote}`,
         references: [
           { title: '야간훈련 안전관리 지침', source: '육군훈련소 2024.06', url: '#' },
           { title: '훈련장 안전사고 예방 매뉴얼', source: '육군본부', url: '#' },
@@ -143,7 +212,7 @@ export default function ChatbotPage() {
 **화기 취급 시 준수사항**
 • 화기작업 전 소화기 비치 및 감시자 지정
 • 인화성 물질 5m 이내 화기작업 금지
-• 작업 종료 후 30분간 잔화 감시`,
+• 작업 종료 후 30분간 잔화 감시${sourceNote}`,
         references: [
           { title: '군 시설물 화재예방 규정', source: '국방부 2024.01', url: '#' },
           { title: '소방안전관리 업무편람', source: '육군 시설관리단', url: '#' },
@@ -169,7 +238,7 @@ export default function ChatbotPage() {
 **예방 대책**
 • 출발 전 충분한 수분·열량 섭취
 • 땀 배출 가능한 기능성 내의 착용
-• 휴식 시 즉시 방풍·보온 조치`,
+• 휴식 시 즉시 방풍·보온 조치${sourceNote}`,
         references: [
           { title: '한랭질환 응급처치 매뉴얼', source: '국군의무사령부 2024.11', url: '#' },
           { title: '동계 행군 안전관리 지침', source: '육군본부', url: '#' },
@@ -192,7 +261,7 @@ export default function ChatbotPage() {
 • 이상징후 발견 시 즉시 보고 및 작업 중지
 • 무리한 일정 강행 금지, 충분한 휴식 보장
 
-더 구체적인 질문이 있으시면 말씀해 주세요.`,
+더 구체적인 질문이 있으시면 말씀해 주세요.${sourceNote}`,
       references: [
         { title: '육군 안전관리 규정', source: '육군본부', url: '#' },
       ]
@@ -256,7 +325,58 @@ export default function ChatbotPage() {
             </div>
 
             {/* Input at bottom of welcome */}
-            <div className="w-full max-w-2xl">
+            <div className="w-full max-w-2xl space-y-3">
+              {/* Source Filter */}
+              <div className="flex items-center gap-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
+                      <span className="text-muted-foreground">검색 범위:</span>
+                      <span className="font-medium max-w-[150px] truncate">{getSelectedSourceLabels()}</span>
+                      <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-56">
+                    {DOCUMENT_SOURCES.map((source) => (
+                      <DropdownMenuCheckboxItem
+                        key={source.id}
+                        checked={selectedSources.includes(source.id) || (source.id === 'all' && selectedSources.includes('all'))}
+                        onCheckedChange={() => handleSourceToggle(source.id)}
+                      >
+                        <div>
+                          <p className="font-medium text-sm">{source.label}</p>
+                          <p className="text-xs text-muted-foreground">{source.description}</p>
+                        </div>
+                      </DropdownMenuCheckboxItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* Selected source chips */}
+                {!selectedSources.includes('all') && selectedSources.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {selectedSources.map(id => {
+                      const source = DOCUMENT_SOURCES.find(s => s.id === id);
+                      if (!source) return null;
+                      return (
+                        <span
+                          key={id}
+                          className="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full"
+                        >
+                          {source.label}
+                          <button
+                            onClick={() => handleSourceToggle(id)}
+                            className="hover:bg-primary/20 rounded-full p-0.5"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -279,7 +399,7 @@ export default function ChatbotPage() {
                   <Send className="w-4 h-4" />
                 </button>
               </form>
-              <p className="text-[11px] text-muted-foreground text-center mt-3">
+              <p className="text-[11px] text-muted-foreground text-center">
                 AI가 생성한 답변은 참고용이며, 정확한 규정은 원문을 확인하세요.
               </p>
             </div>
@@ -287,6 +407,28 @@ export default function ChatbotPage() {
         ) : (
           /* Conversation View */
           <>
+            {/* Header with New Conversation Button */}
+            <div className="shrink-0 flex items-center justify-between px-4 py-3 border-b border-border bg-background/80 backdrop-blur-sm">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <span className="text-sm font-medium text-foreground">대화 중</span>
+                {messages.length > 0 && (
+                  <span className="text-xs text-muted-foreground">
+                    · {Math.ceil(messages.length / 2)}개 질문
+                  </span>
+                )}
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleNewConversation}
+                className="h-8 text-xs gap-1.5 text-muted-foreground hover:text-foreground"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                새 대화
+              </Button>
+            </div>
+
             {/* Messages */}
             <div className="flex-1 overflow-y-auto">
               <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
@@ -311,10 +453,19 @@ export default function ChatbotPage() {
                           : 'text-foreground'
                       )}
                     >
+                      {/* User message source indicator */}
+                      {message.role === 'user' && message.sources && message.sources.length > 0 && (
+                        <div className="text-[10px] text-primary-foreground/70 mb-1">
+                          검색: {message.sources.map(id => DOCUMENT_SOURCES.find(s => s.id === id)?.label).join(', ')}
+                        </div>
+                      )}
                       <div className="whitespace-pre-wrap leading-relaxed">
                         {message.content.split('\n').map((line, i) => {
                           if (line.startsWith('**') && line.endsWith('**')) {
                             return <p key={i} className="font-semibold mt-4 mb-2 first:mt-0">{line.replace(/\*\*/g, '')}</p>;
+                          }
+                          if (line.startsWith('_') && line.endsWith('_')) {
+                            return <p key={i} className="text-xs text-muted-foreground mt-3 italic">{line.replace(/_/g, '')}</p>;
                           }
                           return <span key={i}>{line}{'\n'}</span>;
                         })}
@@ -361,7 +512,57 @@ export default function ChatbotPage() {
 
             {/* Input - Conversation Mode */}
             <div className="shrink-0 border-t border-border bg-background/80 backdrop-blur-sm">
-              <div className="max-w-3xl mx-auto px-4 py-4">
+              <div className="max-w-3xl mx-auto px-4 py-3 space-y-2">
+                {/* Source Filter in conversation */}
+                <div className="flex items-center gap-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 px-2">
+                        <span className="text-muted-foreground">범위:</span>
+                        <span className="font-medium max-w-[100px] truncate">{getSelectedSourceLabels()}</span>
+                        <ChevronDown className="w-3 h-3 text-muted-foreground" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-56">
+                      {DOCUMENT_SOURCES.map((source) => (
+                        <DropdownMenuCheckboxItem
+                          key={source.id}
+                          checked={selectedSources.includes(source.id) || (source.id === 'all' && selectedSources.includes('all'))}
+                          onCheckedChange={() => handleSourceToggle(source.id)}
+                        >
+                          <div>
+                            <p className="font-medium text-sm">{source.label}</p>
+                            <p className="text-xs text-muted-foreground">{source.description}</p>
+                          </div>
+                        </DropdownMenuCheckboxItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  {!selectedSources.includes('all') && selectedSources.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {selectedSources.slice(0, 3).map(id => {
+                        const source = DOCUMENT_SOURCES.find(s => s.id === id);
+                        if (!source) return null;
+                        return (
+                          <span
+                            key={id}
+                            className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-primary/10 text-primary text-[10px] rounded"
+                          >
+                            {source.label}
+                            <button onClick={() => handleSourceToggle(id)} className="hover:bg-primary/20 rounded p-0.5">
+                              <X className="w-2.5 h-2.5" />
+                            </button>
+                          </span>
+                        );
+                      })}
+                      {selectedSources.length > 3 && (
+                        <span className="text-[10px] text-muted-foreground">+{selectedSources.length - 3}</span>
+                      )}
+                    </div>
+                  )}
+                </div>
+
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
