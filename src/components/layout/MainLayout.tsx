@@ -25,6 +25,8 @@ export function MainLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const isDashboard = location.pathname === '/dashboard';
+  const isChatbot = location.pathname === '/chatbot';
+  const isFixedHeightMain = isDashboard || isChatbot;
 
   // 로그인 직후 공지사항 팝업 표시 (COM-002)
   useEffect(() => {
@@ -75,12 +77,12 @@ export function MainLayout() {
           isSidebarExpanded={isSidebarExpanded}
         />
 
-        <div className={isDashboard ? 'flex h-[calc(100vh-3rem)] min-h-0' : 'flex'}>
+        <div className={isFixedHeightMain ? 'flex h-[calc(100vh-3rem)] min-h-0' : 'flex'}>
           <LNB isExpanded={isSidebarExpanded} />
 
           <main
             className={
-              isDashboard
+              isFixedHeightMain
                 ? 'flex-1 min-w-0 min-h-0 overflow-hidden bg-background'
                 : 'flex-1 min-w-0 min-h-[calc(100vh-3rem)] overflow-x-hidden overflow-y-auto bg-background'
             }
