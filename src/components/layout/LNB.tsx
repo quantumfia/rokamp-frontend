@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   TrendingUp,
@@ -37,14 +37,24 @@ interface LNBProps {
 
 export function LNB({ isExpanded }: LNBProps) {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const renderMenuItem = (item: MenuItem) => {
     const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
     const Icon = item.icon;
 
+    const handleClick = (e: React.MouseEvent) => {
+      if (isActive) {
+        // 현재 페이지 클릭 시 state에 resetKey를 넣어 페이지 리셋 트리거
+        e.preventDefault();
+        navigate(item.path, { state: { resetKey: Date.now() } });
+      }
+    };
+
     const linkContent = (
       <NavLink
         to={item.path}
+        onClick={handleClick}
         className={cn(
           'flex items-center gap-2.5 h-9 px-2.5 rounded transition-all duration-150 group relative',
           isActive
