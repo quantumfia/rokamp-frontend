@@ -48,9 +48,9 @@ export function RiskSummaryPanel({ onUnitClick }: RiskSummaryPanelProps) {
   const safeCount = allUnits.filter(u => (u.risk || 0) < 50).length;
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-border">
+      <div className="shrink-0 px-4 py-3 border-b border-border">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-foreground">위험도 요약</h3>
           <span className="text-[10px] text-muted-foreground">전군</span>
@@ -58,13 +58,13 @@ export function RiskSummaryPanel({ onUnitClick }: RiskSummaryPanelProps) {
       </div>
 
       {/* Overall Risk */}
-      <div className="px-4 py-4 border-b border-border">
+      <div className="shrink-0 px-4 py-4 border-b border-border">
         <p className="text-[10px] text-muted-foreground mb-1">종합 위험도</p>
         <p className={`text-4xl font-bold tabular-nums ${overallRiskColor}`}>{overallRisk}%</p>
       </div>
 
       {/* Stats Row */}
-      <div className="grid grid-cols-3 border-b border-border">
+      <div className="shrink-0 grid grid-cols-3 border-b border-border">
         <div className="px-3 py-3 border-r border-border">
           <p className="text-[10px] text-muted-foreground mb-1">경고</p>
           <p className="text-xl font-bold text-status-error tabular-nums">{warningCount}</p>
@@ -80,7 +80,7 @@ export function RiskSummaryPanel({ onUnitClick }: RiskSummaryPanelProps) {
       </div>
 
       {/* Search Input */}
-      <div className="px-4 py-3 border-b border-border">
+      <div className="shrink-0 px-4 py-3 border-b border-border">
         <div className="relative">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
           <Input
@@ -93,14 +93,14 @@ export function RiskSummaryPanel({ onUnitClick }: RiskSummaryPanelProps) {
         </div>
       </div>
 
-      {/* Units List */}
-      <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-        <div className="px-4 py-2 bg-muted/30 border-b border-border shrink-0">
-          <p className="text-[10px] text-muted-foreground">
-            전체 부대 ({filteredUnits.length})
-          </p>
-        </div>
-        <div className="flex-1 overflow-y-auto divide-y divide-border/50">
+      {/* Units List - 남은 공간 채움 + 스크롤 */}
+      <div className="shrink-0 px-4 py-2 bg-muted/30 border-b border-border">
+        <p className="text-[10px] text-muted-foreground">
+          전체 부대 ({filteredUnits.length})
+        </p>
+      </div>
+      <div className="flex-1 overflow-y-auto min-h-0">
+        <div className="divide-y divide-border/50">
           {filteredUnits.map((unit) => (
             <button
               key={unit.id}
