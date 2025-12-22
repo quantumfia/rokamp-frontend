@@ -102,7 +102,7 @@ export function UnitCascadeSelect({
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder={level === 0 ? placeholder : '선택...'} />
                 </SelectTrigger>
-                <SelectContent className="max-h-60">
+                <SelectContent className="max-h-60 z-[300]">
                   {level === 0 && (
                     <SelectItem value="all">전체 부대</SelectItem>
                   )}
