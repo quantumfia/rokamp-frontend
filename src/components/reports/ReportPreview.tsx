@@ -1,5 +1,5 @@
 import { useState, useRef, useMemo } from 'react';
-import { Download, Copy, FileText, ChevronDown, Printer } from 'lucide-react';
+import { Download, Save, FileText, ChevronDown, Printer } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -60,11 +60,10 @@ export function ReportPreview({ content, onContentChange, reporterInfo }: Report
     return result.length > 0 ? result : [lines];
   }, [content]);
 
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(content);
+  const handleSave = () => {
     toast({
-      title: '복사 완료',
-      description: '보고서 내용이 클립보드에 복사되었습니다.',
+      title: '저장 완료',
+      description: '보고서가 저장되었습니다.',
     });
   };
 
@@ -248,11 +247,11 @@ export function ReportPreview({ content, onContentChange, reporterInfo }: Report
         {content && (
           <div className="flex gap-2">
             <button 
-              onClick={handleCopy}
+              onClick={handleSave}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs border border-border rounded hover:bg-muted/50 transition-colors"
             >
-              <Copy className="w-3.5 h-3.5" />
-              복사
+              <Save className="w-3.5 h-3.5" />
+              저장하기
             </button>
             <button 
               onClick={handlePrint}
