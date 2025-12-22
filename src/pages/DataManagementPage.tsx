@@ -136,12 +136,12 @@ function NewsFileUploadForm({
   return (
     <div className="space-y-4">
       <div>
-        <label className="block text-xs text-muted-foreground mb-1.5">기사 제목 *</label>
+        <label className="block text-xs text-muted-foreground mb-1.5">제목 *</label>
         <input
           type="text"
           value={newsTitle}
           onChange={(e) => onNewsTitleChange(e.target.value)}
-          placeholder="기사 제목을 입력하세요"
+          placeholder="제목을 입력하세요"
           className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
         />
       </div>
@@ -172,12 +172,12 @@ function NewsTextInputForm({
   return (
     <div className="space-y-4">
       <div>
-        <label className="block text-xs text-muted-foreground mb-1.5">기사 제목 *</label>
+        <label className="block text-xs text-muted-foreground mb-1.5">제목 *</label>
         <input
           type="text"
           value={newsTitle}
           onChange={(e) => onNewsTitleChange(e.target.value)}
-          placeholder="기사 제목을 입력하세요"
+          placeholder="제목을 입력하세요"
           className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
         />
       </div>
