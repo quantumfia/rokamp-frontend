@@ -332,8 +332,12 @@ export default function NoticeManagementPage() {
   };
 
   const handleDeleteClick = (notice: Notice) => {
+    setShowModal(false); // 먼저 상세보기 모달을 닫음
     setNoticeToDelete(notice);
-    setShowDeleteDialog(true);
+    // 약간의 지연 후 삭제 다이얼로그 열기 (모달 전환을 위해)
+    setTimeout(() => {
+      setShowDeleteDialog(true);
+    }, 150);
   };
 
   const handleConfirmDelete = () => {
@@ -342,10 +346,11 @@ export default function NoticeManagementPage() {
         title: '공지 삭제',
         description: '공지사항이 삭제되었습니다.',
       });
-      setNoticeToDelete(null);
     }
     setShowDeleteDialog(false);
-    handleCloseModal();
+    setNoticeToDelete(null);
+    setSelectedNotice(null);
+    resetForm();
   };
 
   const formatFileSize = (bytes: number) => {
