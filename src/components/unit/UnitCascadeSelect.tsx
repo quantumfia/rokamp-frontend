@@ -109,7 +109,7 @@ export function UnitCascadeSelect({
 
       {/* 하위 레벨: 군단, 사단 등 */}
       {subLevels.length > 0 && selections.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2 overflow-x-auto">
           {subLevels.map((level) => {
             const options = getLevelOptions(level);
             const currentValue = selections[level] || '';
