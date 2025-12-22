@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Download, Trash2 } from 'lucide-react';
 import { UnitCascadeSelect } from '@/components/unit/UnitCascadeSelect';
 import { getUnitById, getAllDescendants, getUnitFullName } from '@/data/armyUnits';
-import { ROLE_LABELS, UserRole } from '@/types/auth';
 import { toast } from '@/hooks/use-toast';
 import { UserManagementSkeleton } from '@/components/skeletons';
 import { PageHeader, ActionButton, AddModal, FileDropZone } from '@/components/common';
@@ -46,22 +45,22 @@ interface User {
 }
 
 const MOCK_USERS: User[] = [
-  { id: '1', militaryId: '18-702341', name: '김철수', rank: '대령', unitId: 'hq', password: '********', role: 'ROLE_HQ', status: 'active' },
-  { id: '2', militaryId: '17-681542', name: '이영희', rank: '준장', unitId: 'div-1', password: '********', role: 'ROLE_DIV', status: 'active' },
-  { id: '3', militaryId: '19-723185', name: '박민호', rank: '대령', unitId: 'div-3', password: '********', role: 'ROLE_DIV', status: 'active' },
-  { id: '4', militaryId: '20-751294', name: '최지훈', rank: '중령', unitId: 'bn-1-1', password: '********', role: 'ROLE_BN', status: 'active' },
-  { id: '5', militaryId: '21-782456', name: '정수민', rank: '중령', unitId: 'bn-1-2', password: '********', role: 'ROLE_BN', status: 'inactive' },
-  { id: '6', militaryId: '16-659823', name: '홍길동', rank: '중장', unitId: 'corps-1', password: '********', role: 'ROLE_DIV', status: 'active' },
-  { id: '7', militaryId: '22-803571', name: '김대위', rank: '대령', unitId: 'reg-11', password: '********', role: 'ROLE_BN', status: 'active' },
-  { id: '8', militaryId: '23-824693', name: '강특전', rank: '중령', unitId: 'bde-sf-1', password: '********', role: 'ROLE_BN', status: 'active' },
-  { id: '9', militaryId: '15-638712', name: '이작전', rank: '대장', unitId: 'goc', password: '********', role: 'ROLE_HQ', status: 'active' },
+  { id: '1', militaryId: '18-702341', name: '김철수', rank: '대령', unitId: 'hq', password: '********', role: 'ROLE_SUPER_ADMIN', status: 'active' },
+  { id: '2', militaryId: '17-681542', name: '이영희', rank: '준장', unitId: 'div-1', password: '********', role: 'ROLE_ADMIN', status: 'active' },
+  { id: '3', militaryId: '19-723185', name: '박민호', rank: '대령', unitId: 'div-3', password: '********', role: 'ROLE_ADMIN', status: 'active' },
+  { id: '4', militaryId: '20-751294', name: '최지훈', rank: '중령', unitId: 'bn-1-1', password: '********', role: 'ROLE_USER', status: 'active' },
+  { id: '5', militaryId: '21-782456', name: '정수민', rank: '중령', unitId: 'bn-1-2', password: '********', role: 'ROLE_USER', status: 'inactive' },
+  { id: '6', militaryId: '16-659823', name: '홍길동', rank: '중장', unitId: 'corps-1', password: '********', role: 'ROLE_ADMIN', status: 'active' },
+  { id: '7', militaryId: '22-803571', name: '김대위', rank: '대령', unitId: 'reg-11', password: '********', role: 'ROLE_USER', status: 'active' },
+  { id: '8', militaryId: '23-824693', name: '강특전', rank: '중령', unitId: 'bde-sf-1', password: '********', role: 'ROLE_USER', status: 'active' },
+  { id: '9', militaryId: '15-638712', name: '이작전', rank: '대장', unitId: 'goc', password: '********', role: 'ROLE_SUPER_ADMIN', status: 'active' },
 ];
 
 const RANKS = ['대장', '중장', '소장', '준장', '대령', '중령', '소령'];
 const ROLES = [
-  { value: 'ROLE_HQ', label: '본부 관리자' },
-  { value: 'ROLE_DIV', label: '사단급 관리자' },
-  { value: 'ROLE_BN', label: '대대급 관리자' },
+  { value: 'ROLE_SUPER_ADMIN', label: 'Super Admin' },
+  { value: 'ROLE_ADMIN', label: 'Admin' },
+  { value: 'ROLE_USER', label: 'User' },
 ];
 
 // 개별 등록 폼
@@ -169,7 +168,8 @@ export default function UserManagementPage() {
   const isLoading = usePageLoading(1000);
 
   const getRoleLabel = (role: string) => {
-    return ROLE_LABELS[role as UserRole] ?? role;
+    const found = ROLES.find(r => r.value === role);
+    return found?.label ?? role;
   };
 
   const handleSubmit = () => {
@@ -432,28 +432,27 @@ export default function UserManagementPage() {
               </div>
             </div>
             
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs text-muted-foreground mb-1.5">계급</label>
-                <select 
-                  value={editForm.rank || ''}
-                  onChange={(e) => setEditForm({ ...editForm, rank: e.target.value })}
-                  className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
-                >
-                  {RANKS.map(rank => (
-                    <option key={rank} value={rank}>{rank}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs text-muted-foreground mb-1.5">소속 부대</label>
-                <UnitCascadeSelect
-                  value={editForm.unitId || ''}
-                  onChange={(value) => setEditForm({ ...editForm, unitId: value })}
-                  placeholder="부대 선택"
-                  showFullPath={true}
-                />
-              </div>
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1.5">계급</label>
+              <select 
+                value={editForm.rank || ''}
+                onChange={(e) => setEditForm({ ...editForm, rank: e.target.value })}
+                className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+              >
+                {RANKS.map(rank => (
+                  <option key={rank} value={rank}>{rank}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1.5">소속 부대</label>
+              <UnitCascadeSelect
+                value={editForm.unitId || ''}
+                onChange={(value) => setEditForm({ ...editForm, unitId: value })}
+                placeholder="부대 선택"
+                showFullPath={true}
+              />
             </div>
 
             <div>
