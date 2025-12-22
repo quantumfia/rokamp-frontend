@@ -1,12 +1,21 @@
 import { useState, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, MapPin, Clock, AlertCircle, Users, Download } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MapPin, Clock, AlertCircle, Users, Download, Pencil, Trash2 } from 'lucide-react';
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, eachDayOfInterval, isSameDay, isToday } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { PageHeader, ActionButton, AddModal, FileDropZone } from '@/components/common';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
-
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 // 훈련 일정 타입
 interface TrainingSchedule {
   id: string;
@@ -135,12 +144,15 @@ const typeDotColors: Record<string, string> = {
 };
 
 // 일정 카드 컴포넌트
-function ScheduleCard({ schedule }: { schedule: TrainingSchedule }) {
+function ScheduleCard({ schedule, onClick }: { schedule: TrainingSchedule; onClick: () => void }) {
   return (
-    <div className={cn(
-      'p-2.5 rounded bg-card/50 border-l-2 hover:bg-card transition-colors cursor-pointer group',
-      typeAccentColors[schedule.type]
-    )}>
+    <div 
+      onClick={onClick}
+      className={cn(
+        'p-2.5 rounded bg-card/50 border-l-2 hover:bg-card transition-colors cursor-pointer group',
+        typeAccentColors[schedule.type]
+      )}
+    >
       <div className="flex items-start justify-between gap-1 mb-1.5">
         <span className="text-xs font-medium text-foreground line-clamp-2 leading-tight">
           {schedule.title}
@@ -167,7 +179,16 @@ function ScheduleCard({ schedule }: { schedule: TrainingSchedule }) {
 }
 
 // 일정 직접 입력 폼
-function ScheduleForm() {
+interface ScheduleFormProps {
+  schedule?: TrainingSchedule | null;
+  isEditing?: boolean;
+}
+
+function ScheduleForm({ schedule, isEditing = true }: ScheduleFormProps) {
+  const inputClass = isEditing
+    ? "w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+    : "w-full px-3 py-2 text-sm bg-muted/50 border border-border rounded-md text-foreground cursor-not-allowed";
+  
   return (
     <div className="space-y-4">
       <div>
@@ -175,7 +196,9 @@ function ScheduleForm() {
         <input
           type="text"
           placeholder="K-2 소총 영점사격"
-          className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+          defaultValue={schedule?.title || ''}
+          disabled={!isEditing}
+          className={inputClass}
         />
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -184,12 +207,18 @@ function ScheduleForm() {
           <input
             type="text"
             placeholder="제1보병사단"
-            className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+            defaultValue={schedule?.unit || ''}
+            disabled={!isEditing}
+            className={inputClass}
           />
         </div>
         <div>
           <label className="block text-xs text-muted-foreground mb-1.5">훈련 유형 *</label>
-          <select className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors">
+          <select 
+            defaultValue={schedule?.type || ''}
+            disabled={!isEditing}
+            className={inputClass}
+          >
             <option value="">선택</option>
             <option value="사격">사격</option>
             <option value="기동">기동</option>
@@ -205,21 +234,27 @@ function ScheduleForm() {
           <label className="block text-xs text-muted-foreground mb-1.5">날짜 *</label>
           <input
             type="date"
-            className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+            defaultValue={schedule ? format(schedule.date, 'yyyy-MM-dd') : ''}
+            disabled={!isEditing}
+            className={inputClass}
           />
         </div>
         <div>
           <label className="block text-xs text-muted-foreground mb-1.5">시작 시간</label>
           <input
             type="time"
-            className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+            defaultValue={schedule?.startTime || ''}
+            disabled={!isEditing}
+            className={inputClass}
           />
         </div>
         <div>
           <label className="block text-xs text-muted-foreground mb-1.5">종료 시간</label>
           <input
             type="time"
-            className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+            defaultValue={schedule?.endTime || ''}
+            disabled={!isEditing}
+            className={inputClass}
           />
         </div>
       </div>
@@ -229,7 +264,9 @@ function ScheduleForm() {
           <input
             type="text"
             placeholder="종합사격장"
-            className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+            defaultValue={schedule?.location || ''}
+            disabled={!isEditing}
+            className={inputClass}
           />
         </div>
         <div>
@@ -237,7 +274,9 @@ function ScheduleForm() {
           <input
             type="number"
             placeholder="120"
-            className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+            defaultValue={schedule?.participants || ''}
+            disabled={!isEditing}
+            className={inputClass}
           />
         </div>
       </div>
@@ -272,8 +311,12 @@ function ScheduleBulkUploadForm({ onDownloadTemplate }: { onDownloadTemplate: ()
 export default function ScheduleManagementPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showAddModal, setShowAddModal] = useState(false);
+  const [selectedSchedule, setSelectedSchedule] = useState<TrainingSchedule | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [scheduleToDelete, setScheduleToDelete] = useState<TrainingSchedule | null>(null);
   const isLoading = usePageLoading(800);
-
   // 현재 주의 시작일과 종료일
   const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 });
@@ -307,6 +350,51 @@ export default function ScheduleManagementPage() {
       description: '일정이 등록되었습니다.',
     });
     setShowAddModal(false);
+  };
+
+  const handleScheduleClick = (schedule: TrainingSchedule) => {
+    setSelectedSchedule(schedule);
+    setIsEditMode(false);
+    setShowDetailModal(true);
+  };
+
+  const handleEditClick = () => {
+    setIsEditMode(true);
+  };
+
+  const handleDetailSubmit = () => {
+    toast({
+      title: '수정 완료',
+      description: '일정이 수정되었습니다.',
+    });
+    setShowDetailModal(false);
+    setSelectedSchedule(null);
+    setIsEditMode(false);
+  };
+
+  const handleDeleteClick = () => {
+    setScheduleToDelete(selectedSchedule);
+    setShowDetailModal(false);
+    setTimeout(() => {
+      setShowDeleteDialog(true);
+    }, 100);
+  };
+
+  const handleConfirmDelete = () => {
+    toast({
+      title: '삭제 완료',
+      description: '일정이 삭제되었습니다.',
+    });
+    setShowDeleteDialog(false);
+    setScheduleToDelete(null);
+    setSelectedSchedule(null);
+    setIsEditMode(false);
+  };
+
+  const handleDetailModalClose = () => {
+    setShowDetailModal(false);
+    setSelectedSchedule(null);
+    setIsEditMode(false);
   };
 
   const handleDownloadTemplate = () => {
@@ -457,7 +545,7 @@ export default function ScheduleManagementPage() {
               >
                 {daySchedules.length > 0 ? (
                   daySchedules.map(schedule => (
-                    <ScheduleCard key={schedule.id} schedule={schedule} />
+                    <ScheduleCard key={schedule.id} schedule={schedule} onClick={() => handleScheduleClick(schedule)} />
                   ))
                 ) : (
                   <div className="h-full flex items-center justify-center">
@@ -499,6 +587,65 @@ export default function ScheduleManagementPage() {
         onSubmit={handleSubmit}
         submitLabel="등록"
       />
+
+      {/* 일정 상세/수정 모달 */}
+      <AddModal
+        isOpen={showDetailModal}
+        onClose={handleDetailModalClose}
+        title={isEditMode ? "일정 수정" : "일정 상세"}
+        description={selectedSchedule?.unit || ''}
+        inputTypes={[
+          { id: 'detail', label: '상세 정보', content: <ScheduleForm schedule={selectedSchedule} isEditing={isEditMode} /> },
+        ]}
+        onSubmit={isEditMode ? handleDetailSubmit : undefined}
+        submitLabel={isEditMode ? "저장" : undefined}
+        footerActions={
+          !isEditMode ? (
+            <div className="flex gap-2 mr-auto">
+              <button
+                onClick={handleEditClick}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+                수정
+              </button>
+              <button
+                onClick={handleDeleteClick}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 transition-colors"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                삭제
+              </button>
+            </div>
+          ) : undefined
+        }
+      />
+
+      {/* 삭제 확인 다이얼로그 */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>일정 삭제</AlertDialogTitle>
+            <AlertDialogDescription>
+              "{scheduleToDelete?.title}" 일정을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setShowDeleteDialog(false);
+              setScheduleToDelete(null);
+            }}>
+              취소
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleConfirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              삭제
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
