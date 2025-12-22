@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Download, Trash2 } from 'lucide-react';
+import { Download, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { UnitCascadeSelect } from '@/components/unit/UnitCascadeSelect';
 import { getUnitById, getAllDescendants, getUnitFullName } from '@/data/armyUnits';
 import { toast } from '@/hooks/use-toast';
@@ -166,6 +166,10 @@ export default function UserManagementPage() {
   const [editForm, setEditForm] = useState<Partial<User>>({});
   const [newUserForm, setNewUserForm] = useState<Partial<User>>({});
   const isLoading = usePageLoading(1000);
+  
+  // 페이지네이션 상태
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const getRoleLabel = (role: string) => {
     const found = ROLES.find(r => r.value === role);
@@ -297,6 +301,23 @@ export default function UserManagementPage() {
     return matchesSearch && matchesUnit;
   });
 
+  // 페이지네이션 계산
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+
+  // 검색/필터 변경 시 페이지 초기화
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
+  };
+
+  const handleUnitFilterChange = (value: string) => {
+    setSelectedUnitFilter(value);
+    setCurrentPage(1);
+  };
+
   if (isLoading) {
     return <UserManagementSkeleton />;
   }
@@ -337,7 +358,7 @@ export default function UserManagementPage() {
             <span className="text-xs text-muted-foreground">부대:</span>
             <UnitCascadeSelect
               value={selectedUnitFilter}
-              onChange={setSelectedUnitFilter}
+              onChange={handleUnitFilterChange}
               placeholder="전체"
               showFullPath={false}
             />
@@ -346,7 +367,7 @@ export default function UserManagementPage() {
         <input
           placeholder="이름, 군번, 부대 검색..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => handleSearchChange(e.target.value)}
           className="w-64 bg-transparent border border-border rounded px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
         />
       </div>
@@ -363,31 +384,91 @@ export default function UserManagementPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredUsers.map((user) => (
-            <TableRow 
-              key={user.id} 
-              className="cursor-pointer hover:bg-muted/50"
-              onClick={() => handleUserClick(user)}
-            >
-              <TableCell className="font-mono text-xs">{user.militaryId}</TableCell>
-              <TableCell className="text-sm font-medium">{user.name}</TableCell>
-              <TableCell className="text-sm text-muted-foreground">{user.rank}</TableCell>
-              <TableCell className="text-xs text-muted-foreground truncate max-w-[300px]" title={getUnitFullName(user.unitId)}>
-                {getUnitFullName(user.unitId)}
-              </TableCell>
-              <TableCell>
-                <button 
-                  onClick={(e) => handleDeleteClick(user, e)}
-                  className="p-1.5 hover:bg-destructive/10 rounded transition-colors group"
-                  title="삭제"
-                >
-                  <Trash2 className="w-4 h-4 text-muted-foreground group-hover:text-destructive" />
-                </button>
+          {paginatedUsers.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={5} className="text-center py-8 text-sm text-muted-foreground">
+                검색 결과가 없습니다.
               </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            paginatedUsers.map((user) => (
+              <TableRow 
+                key={user.id} 
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => handleUserClick(user)}
+              >
+                <TableCell className="font-mono text-xs">{user.militaryId}</TableCell>
+                <TableCell className="text-sm font-medium">{user.name}</TableCell>
+                <TableCell className="text-sm text-muted-foreground">{user.rank}</TableCell>
+                <TableCell className="text-xs text-muted-foreground truncate max-w-[300px]" title={getUnitFullName(user.unitId)}>
+                  {getUnitFullName(user.unitId)}
+                </TableCell>
+                <TableCell>
+                  <button 
+                    onClick={(e) => handleDeleteClick(user, e)}
+                    className="p-1.5 hover:bg-destructive/10 rounded transition-colors group"
+                    title="삭제"
+                  >
+                    <Trash2 className="w-4 h-4 text-muted-foreground group-hover:text-destructive" />
+                  </button>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
+
+      {/* 페이지네이션 */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between pt-4 border-t border-border">
+          <p className="text-xs text-muted-foreground">
+            {filteredUsers.length}명 중 {startIndex + 1}-{Math.min(endIndex, filteredUsers.length)}명 표시
+          </p>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+              className="flex items-center justify-center w-8 h-8 text-xs border border-border rounded hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronsLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="flex items-center justify-center w-8 h-8 text-xs border border-border rounded hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`flex items-center justify-center w-8 h-8 text-xs border rounded transition-colors ${
+                  currentPage === page
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "border-border hover:bg-muted"
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="flex items-center justify-center w-8 h-8 text-xs border border-border rounded hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+              className="flex items-center justify-center w-8 h-8 text-xs border border-border rounded hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronsRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 사용자 추가 모달 */}
       <AddModal
