@@ -18,7 +18,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
-import armyLogo from '@/assets/army-logo.png';
+import rokaLogo from '@/assets/roka-logo.svg';
 import { AddModal } from '@/components/common';
 
 interface StatReport {
@@ -893,13 +893,13 @@ export function StatisticsReportList({ showModal = false, onCloseModal }: Statis
               }}
             >
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 0 }}>
-                <img src={armyLogo} alt="" className="w-48 h-48 opacity-[0.05]" style={{ filter: 'grayscale(100%)' }} />
+                <img src={rokaLogo} alt="" className="w-48 h-48 opacity-[0.05]" style={{ filter: 'grayscale(100%)' }} />
               </div>
 
               <div className="relative z-10 flex flex-col h-full">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <img src={armyLogo} alt="육군본부" className="w-10 h-10" />
+                    <img src={rokaLogo} alt="육군본부" className="w-10 h-10" />
                     <div>
                       <p className="text-[9px] text-gray-500">대한민국 육군</p>
                       <p className="text-[11px] font-bold text-black">육군본부</p>
@@ -1009,7 +1009,7 @@ export function StatisticsReportList({ showModal = false, onCloseModal }: Statis
               }}
             >
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 0 }}>
-                <img src={armyLogo} alt="" className="w-48 h-48 opacity-[0.05]" style={{ filter: 'grayscale(100%)' }} />
+                <img src={rokaLogo} alt="" className="w-48 h-48 opacity-[0.05]" style={{ filter: 'grayscale(100%)' }} />
               </div>
 
               <div className="relative z-10 flex flex-col h-full">

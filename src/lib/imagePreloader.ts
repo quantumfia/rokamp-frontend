@@ -1,8 +1,8 @@
 // Critical images to preload
 import landingHero from '@/assets/landing-hero.png';
-import armyLogo from '@/assets/army-logo.png';
+import rokaLogo from '@/assets/roka-logo.svg';
 
-const criticalImages = [landingHero, armyLogo];
+const criticalImages = [landingHero, rokaLogo];
 
 export function preloadCriticalImages(): Promise<void[]> {
   return Promise.all(
