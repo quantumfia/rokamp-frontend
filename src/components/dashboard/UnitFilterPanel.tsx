@@ -8,7 +8,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { UnitChipSelect } from '@/components/unit/UnitChipSelect';
+import { UnitTreeSelect } from '@/components/unit/UnitTreeSelect';
 interface FilterOption {
   id: string;
   label: string;
@@ -132,11 +132,10 @@ export function UnitFilterPanel({ onFilterChange }: UnitFilterPanelProps) {
             <ChevronDown className={cn('w-4 h-4 text-muted-foreground transition-transform', openSections.unit && 'rotate-180')} />
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <div className="px-3 py-2">
-              <UnitChipSelect
+            <div className="px-1 py-2">
+              <UnitTreeSelect
                 value={filters.selectedUnit}
                 onChange={handleUnitChange}
-                placeholder="전체 부대"
               />
             </div>
           </CollapsibleContent>
