@@ -160,7 +160,7 @@ export default function DashboardPage() {
         <div
           className={cn(
             'shrink-0 border-l border-border bg-card overflow-hidden transition-all duration-300',
-            'hidden xl:block xl:w-72',
+            'hidden xl:block xl:w-[374px]',
           )}
         >
           {isLoading ? (
@@ -180,7 +180,7 @@ export default function DashboardPage() {
         <div
           className={cn(
             'shrink-0 border-l border-border bg-card overflow-hidden transition-all duration-300',
-            'hidden 2xl:block 2xl:w-[374px]',
+            'hidden 2xl:block 2xl:w-[560px]',
           )}
         >
           <NoticeListPanel />
