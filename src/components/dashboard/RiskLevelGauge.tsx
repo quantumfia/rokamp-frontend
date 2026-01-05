@@ -21,12 +21,12 @@ export function RiskLevelGauge({ level, label }: RiskLevelGaugeProps) {
   const needleAngle = -90 + (level - 0.5) * segmentAngle; // -90도부터 시작
   
   return (
-    <div className="flex flex-col items-center gap-1">
+    <div className="flex flex-col items-center gap-1.5">
       {/* 라벨 */}
-      <span className="text-[11px] font-medium text-muted-foreground">{label}</span>
+      <span className="text-xs font-medium text-muted-foreground">{label}</span>
       
       {/* 반원 게이지 */}
-      <div className="relative w-16 h-9">
+      <div className="relative w-20 h-11">
         <svg viewBox="0 0 100 55" className="w-full h-full">
           {/* 5개의 세그먼트 */}
           {[1, 2, 3, 4, 5].map((seg) => {
@@ -76,7 +76,7 @@ export function RiskLevelGauge({ level, label }: RiskLevelGaugeProps) {
 
 export function RiskLevelPanel() {
   return (
-    <div className="flex items-center gap-5 px-4 h-[60px]">
+    <div className="flex items-center gap-6 px-5 h-[78px]">
       <RiskLevelGauge level={4} label="실제상황" />
       <RiskLevelGauge level={5} label="훈련상황" />
     </div>
