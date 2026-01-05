@@ -46,7 +46,7 @@ export interface ArmyUnit {
 }
 
 // 부대별 위치 및 위험도 데이터 (민감 정보 제거: commander, personnel)
-const UNIT_LOCATIONS: Record<string, { lat: number; lng: number; risk: number; unitType?: UnitType; region?: string }> = {
+export const UNIT_LOCATIONS: Record<string, { lat: number; lng: number; risk: number; unitType?: UnitType; region?: string }> = {
   // 육군본부
   'hq': { lat: 37.48, lng: 127.04, risk: 25, unitType: 'HQ', region: '경기 계룡' },
   

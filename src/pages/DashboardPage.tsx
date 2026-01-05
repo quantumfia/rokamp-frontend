@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
-import { MapView } from '@/components/dashboard/MapView';
-import { RiskSummaryPanel } from '@/components/dashboard/RiskSummaryPanel';
-import { UnitDetailPanel } from '@/components/dashboard/UnitDetailPanel';
-import { TickerBar } from '@/components/dashboard/TickerBar';
+import { IncidentTicker } from '@/components/dashboard/IncidentTicker';
 import { StatusHeader } from '@/components/dashboard/StatusHeader';
+import { UnitFilterPanel, FilterState } from '@/components/dashboard/UnitFilterPanel';
+import { UnitListTable } from '@/components/dashboard/UnitListTable';
+import { UnitDetailPanel } from '@/components/dashboard/UnitDetailPanel';
 import { TrendChartsVertical } from '@/components/dashboard/TrendChartsVertical';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSearchContext } from '@/components/layout/MainLayout';
-import { X, List } from 'lucide-react';
+import { X, Filter, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import {
@@ -16,7 +16,6 @@ import {
   TrendChartsSkeleton,
   StatusHeaderSkeleton,
   TickerBarSkeleton,
-  MapSkeleton,
 } from '@/components/skeletons';
 
 export default function DashboardPage() {
@@ -24,9 +23,15 @@ export default function DashboardPage() {
   const searchContext = useSearchContext();
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [filters, setFilters] = useState<FilterState>({
+    divisions: [],
+    riskLevels: [],
+    unitTypes: [],
+  });
   
   // 반응형 패널 상태
   const [showLeftPanel, setShowLeftPanel] = useState(false);
+  const [showRightPanel, setShowRightPanel] = useState(false);
 
   // 초기 로딩 시뮬레이션
   useEffect(() => {
@@ -42,93 +47,108 @@ export default function DashboardPage() {
     }
   }, [searchContext?.selectedUnitFromSearch]);
 
-  const showTicker = true;
-
-  const handleMarkerClick = (unitId: string) => {
+  const handleUnitClick = (unitId: string) => {
     setSelectedUnitId(unitId);
-    setShowLeftPanel(false); // 모바일에서 부대 선택 시 좌측 패널 닫기
+    setShowLeftPanel(false);
   };
 
-  const handleBackToTrend = () => {
+  const handleCloseDetail = () => {
     setSelectedUnitId(null);
+  };
+
+  const handleIncidentDetail = () => {
+    // TODO: 사고 상세 페이지로 이동
+    console.log('사고 상세 보기');
   };
 
   return (
     <div className="h-full flex flex-col">
-      {/* Top Status Bar */}
+      {/* Top Status Bar - 날짜/시간 + 기상 */}
       <div className="shrink-0 border-b border-border bg-card/50">
         {isLoading ? <StatusHeaderSkeleton /> : <StatusHeader />}
       </div>
 
-      {/* Ticker Bar */}
-      {showTicker && (
-        <div className="shrink-0 border-b border-border">
-          {isLoading ? <TickerBarSkeleton /> : <TickerBar />}
-        </div>
-      )}
+      {/* 일일 사고 사례 */}
+      <div className="shrink-0 border-b border-border bg-muted/30">
+        {isLoading ? <TickerBarSkeleton /> : <IncidentTicker onClickDetail={handleIncidentDetail} />}
+      </div>
 
-      {/* Main Content */}
+      {/* Main Content - 3단 구조 */}
       <div className="flex-1 flex overflow-hidden relative">
-        {/* Left Panel - Risk Summary (Desktop: always visible, Mobile: overlay) */}
+        {/* Left Panel - 필터 (Desktop: always visible, Mobile: overlay) */}
         <div
           className={cn(
             'shrink-0 border-r border-border bg-card overflow-hidden transition-all duration-300',
-            // Desktop: 고정 너비
-            'hidden lg:block lg:w-72',
+            'hidden lg:block lg:w-56',
           )}
         >
-          {isLoading ? <RiskSummarySkeleton /> : <RiskSummaryPanel onUnitClick={handleMarkerClick} />}
+          {isLoading ? <RiskSummarySkeleton /> : <UnitFilterPanel onFilterChange={setFilters} />}
         </div>
 
         {/* Mobile Left Panel Overlay */}
         {showLeftPanel && (
           <div className="lg:hidden absolute inset-0 z-30 flex">
-            <div className="w-72 max-w-[85vw] bg-card border-r border-border overflow-hidden animate-slide-in-left">
+            <div className="w-64 max-w-[85vw] bg-card border-r border-border overflow-hidden animate-slide-in-left">
               <div className="flex items-center justify-between px-3 py-2 border-b border-border">
-                <span className="text-xs font-medium text-foreground">부대 목록</span>
+                <span className="text-xs font-medium text-foreground">필터</span>
                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowLeftPanel(false)}>
                   <X className="w-4 h-4" />
                 </Button>
               </div>
               <div className="h-[calc(100%-41px)] overflow-hidden">
-                <RiskSummaryPanel onUnitClick={handleMarkerClick} />
+                <UnitFilterPanel onFilterChange={setFilters} />
               </div>
             </div>
             <div className="flex-1 bg-black/50" onClick={() => setShowLeftPanel(false)} />
           </div>
         )}
 
-        {/* Center - Map */}
-        <div className="flex-1 relative bg-map-bg">
-          {isLoading ? (
-            <MapSkeleton />
-          ) : (
-            <MapView
-              className="absolute inset-0"
-              onMarkerClick={handleMarkerClick}
-              selectedUnitId={selectedUnitId}
-            />
-          )}
-
-          {/* Map overlay header - Mobile only */}
-          <div className="absolute top-3 left-3 lg:hidden pointer-events-none z-10">
+        {/* Center - 부대 목록 테이블 */}
+        <div className="flex-1 flex flex-col bg-background overflow-hidden">
+          {/* 모바일 툴바 */}
+          <div className="lg:hidden flex items-center gap-2 p-2 border-b border-border bg-card/50">
             <Button
-              variant="secondary"
+              variant="outline"
               size="sm"
-              className="pointer-events-auto h-8 bg-panel-dark/90 backdrop-blur-sm border border-sidebar-border text-white hover:bg-panel-dark"
+              className="h-8"
               onClick={() => setShowLeftPanel(true)}
             >
-              <List className="w-4 h-4 mr-1.5" />
-              부대 목록
+              <Filter className="w-4 h-4 mr-1.5" />
+              필터
             </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 xl:hidden"
+              onClick={() => setShowRightPanel(true)}
+            >
+              <BarChart3 className="w-4 h-4 mr-1.5" />
+              트렌드
+            </Button>
+          </div>
+
+          {/* 테이블 */}
+          <div className="flex-1 overflow-hidden">
+            {isLoading ? (
+              <div className="p-4 space-y-2">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="h-14 bg-muted/50 rounded animate-pulse" />
+                ))}
+              </div>
+            ) : (
+              <UnitListTable
+                onUnitClick={handleUnitClick}
+                selectedUnitId={selectedUnitId}
+                filters={filters}
+              />
+            )}
           </div>
         </div>
 
-        {/* Right Panel - 트렌드 차트 또는 부대 상세 (항상 표시) */}
+        {/* Right Panel - 트렌드 차트 또는 부대 상세 (Desktop) */}
         <div
           className={cn(
             'shrink-0 border-l border-border bg-card overflow-hidden transition-all duration-300',
-            // Desktop: 고정 너비
             'hidden xl:block xl:w-80',
           )}
         >
@@ -137,7 +157,7 @@ export default function DashboardPage() {
           ) : selectedUnitId ? (
             <UnitDetailPanel 
               unitId={selectedUnitId} 
-              onClose={handleBackToTrend}
+              onClose={handleCloseDetail}
               showBackButton
             />
           ) : (
@@ -145,16 +165,34 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Mobile/Tablet Right Panel Overlay */}
+        {/* Mobile/Tablet Right Panel Overlay - 부대 상세 */}
         {selectedUnitId && (
           <div className="xl:hidden absolute inset-0 z-30 flex justify-end">
-            <div className="flex-1 bg-black/50" onClick={handleBackToTrend} />
+            <div className="flex-1 bg-black/50" onClick={handleCloseDetail} />
             <div className="w-80 max-w-[90vw] bg-card border-l border-border overflow-hidden animate-slide-in-right">
               <UnitDetailPanel 
                 unitId={selectedUnitId} 
-                onClose={handleBackToTrend}
+                onClose={handleCloseDetail}
                 showBackButton
               />
+            </div>
+          </div>
+        )}
+
+        {/* Mobile/Tablet Right Panel Overlay - 트렌드 차트 */}
+        {showRightPanel && !selectedUnitId && (
+          <div className="xl:hidden absolute inset-0 z-30 flex justify-end">
+            <div className="flex-1 bg-black/50" onClick={() => setShowRightPanel(false)} />
+            <div className="w-80 max-w-[90vw] bg-card border-l border-border overflow-hidden animate-slide-in-right">
+              <div className="flex items-center justify-between px-3 py-2 border-b border-border">
+                <span className="text-xs font-medium text-foreground">트렌드 분석</span>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowRightPanel(false)}>
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+              <div className="h-[calc(100%-41px)] overflow-hidden">
+                <TrendChartsVertical />
+              </div>
             </div>
           </div>
         )}
