@@ -76,7 +76,7 @@ export function RiskLevelGauge({ level, label }: RiskLevelGaugeProps) {
 
 export function RiskLevelPanel() {
   return (
-    <div className="flex items-center gap-4 px-4 py-2">
+    <div className="flex items-center gap-5 px-4 h-[60px]">
       <RiskLevelGauge level={4} label="실제상황" />
       <RiskLevelGauge level={5} label="훈련상황" />
     </div>

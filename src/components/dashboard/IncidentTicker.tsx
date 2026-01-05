@@ -62,27 +62,27 @@ export function IncidentTicker({ onClickDetail }: IncidentTickerProps) {
   };
 
   return (
-    <div className="h-10 flex items-center px-4 gap-3">
+    <div className="h-[60px] flex items-center px-4 gap-3">
       {/* 라벨 */}
       <div className="flex items-center gap-1.5 shrink-0">
         <AlertCircle className={cn('w-4 h-4', getIconColor(currentIncident.type))} />
-        <span className="text-xs font-medium text-foreground">일일 사고 사례</span>
+        <span className="text-xs font-medium text-foreground whitespace-nowrap">일일 사고 사례</span>
       </div>
 
       {/* 구분선 */}
-      <div className="h-4 w-px bg-border shrink-0" />
+      <div className="h-8 w-px bg-border shrink-0" />
 
       {/* 사고 내용 */}
       <div 
         className={cn(
-          'flex-1 flex items-center gap-2 px-3 py-1.5 rounded-md border transition-all duration-300 cursor-pointer hover:opacity-80',
+          'flex-1 flex items-center gap-2 px-3 py-2 rounded-md border transition-all duration-300 cursor-pointer hover:opacity-80',
           getTypeStyle(currentIncident.type),
           isAnimating ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
         )}
         onClick={onClickDetail}
       >
-        <span className="text-xs font-medium">{currentIncident.unit}</span>
-        <span className="text-xs">{currentIncident.title}</span>
+        <span className="text-xs font-medium whitespace-nowrap">{currentIncident.unit}</span>
+        <span className="text-xs truncate">{currentIncident.title}</span>
       </div>
 
       {/* 상세보기 버튼 */}
