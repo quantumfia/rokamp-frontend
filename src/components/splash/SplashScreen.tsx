@@ -149,7 +149,7 @@ export function SplashScreen({ onComplete, skipSplash = false, onClickToContinue
         </h1>
         
         <p 
-          className={`text-2xl md:text-3xl font-semibold text-white/90 tracking-[0.15em] mb-4 transition-all duration-500 ${showLoginForm ? 'text-xl' : ''}`}
+          className={`text-2xl md:text-3xl text-white/90 tracking-[0.15em] mb-4 transition-all duration-500 ${showLoginForm ? 'text-xl' : ''}`}
           style={{
             textShadow: '0 0 30px hsl(210, 75%, 50%, 0.4)',
           }}
