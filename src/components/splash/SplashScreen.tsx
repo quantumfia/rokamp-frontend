@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import landingHero from '@/assets/landing-hero.png';
-import armyLogo from '@/assets/army-logo.png';
+import rokaLogo from '@/assets/roka-logo.svg';
 
 interface SplashScreenProps {
   onComplete: () => void;
@@ -134,7 +134,7 @@ export function SplashScreen({ onComplete, skipSplash = false, onClickToContinue
               filter: 'drop-shadow(0 0 40px hsl(210, 75%, 50%, 0.5))',
             }}
           >
-            <img src={armyLogo} alt="육군본부" className="w-24 h-24" />
+            <img src={rokaLogo} alt="육군본부" className="w-24 h-24" />
           </div>
         </div>
 

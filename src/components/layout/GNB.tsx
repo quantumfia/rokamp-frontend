@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, ChevronDown, LogOut, Key, User, Menu, Eye, EyeOff } from 'lucide-react';
-import armyLogo from '@/assets/army-logo.png';
+import rokaLogo from '@/assets/roka-logo.svg';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -106,7 +106,7 @@ export function GNB({ onNotificationClick, onSidebarToggle, isSidebarExpanded }:
             className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
           >
             <div className="flex items-center justify-center w-7 h-7">
-              <img src={armyLogo} alt="육군본부" className="w-7 h-7 object-contain" />
+              <img src={rokaLogo} alt="육군본부" className="w-7 h-7 object-contain" />
             </div>
             <div className="hidden sm:block">
               <h1 className="text-sm font-bold text-sidebar-foreground tracking-wider font-display">대한민국 육군</h1>
