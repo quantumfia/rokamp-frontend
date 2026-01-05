@@ -108,8 +108,8 @@
        Inspired by: GitHub, Discord, Figma
        ======================================== */
     
-    /* Base Colors - Deep navy with subtle blue undertone */
-    --background: 222 47% 8%;
+    /* Base Colors - Slightly lighter for content area contrast */
+    --background: 222 47% 11%;
     --foreground: 210 40% 98%;
 
     /* Card - Elevated surface */
