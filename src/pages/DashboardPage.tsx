@@ -159,7 +159,7 @@ export default function DashboardPage() {
         <div
           className={cn(
             'shrink-0 border-l border-border bg-card overflow-hidden transition-all duration-300',
-            'hidden xl:block xl:w-80',
+            'hidden xl:block xl:w-[480px]',
           )}
         >
           {isLoading ? (
