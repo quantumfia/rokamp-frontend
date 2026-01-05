@@ -138,15 +138,24 @@ export function SplashScreen({ onComplete, skipSplash = false, onClickToContinue
           </div>
         </div>
 
-        {/* Title */}
+        {/* Title - 대한민국 육군 중심으로 위계 변경 */}
         <h1 
-          className={`text-4xl md:text-5xl font-bold text-white tracking-[0.3em] mb-3 font-display transition-all duration-500 ${showLoginForm ? 'text-3xl' : ''}`}
+          className={`text-5xl md:text-6xl font-bold text-white tracking-[0.2em] mb-2 font-display transition-all duration-500 ${showLoginForm ? 'text-4xl' : ''}`}
           style={{
             textShadow: '0 0 40px hsl(210, 75%, 50%, 0.5)',
           }}
         >
-          ROKA-MP
+          대한민국 육군
         </h1>
+        
+        <p 
+          className={`text-2xl md:text-3xl font-semibold text-white/90 tracking-[0.15em] mb-4 transition-all duration-500 ${showLoginForm ? 'text-xl' : ''}`}
+          style={{
+            textShadow: '0 0 30px hsl(210, 75%, 50%, 0.4)',
+          }}
+        >
+          안전사고 예측 시스템
+        </p>
         
         <p 
           className="text-primary text-sm tracking-[0.3em] uppercase mb-2"
@@ -156,8 +165,9 @@ export function SplashScreen({ onComplete, skipSplash = false, onClickToContinue
         >
           Safety Accident Prediction System
         </p>
+        
         <p className="text-white/40 text-xs tracking-wider mb-10">
-          육군 안전사고 예측 시스템
+          군사경찰실
         </p>
 
         {/* Progress bar - always visible until login form shows */}
