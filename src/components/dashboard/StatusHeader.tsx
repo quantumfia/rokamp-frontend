@@ -66,37 +66,37 @@ export function StatusHeader() {
   const { date, time } = formatDateTime(currentTime);
 
   return (
-    <div className="flex items-center gap-4 px-4 py-2 text-xs">
+    <div className="flex items-center gap-3 px-4 py-3 h-[60px]">
       {/* 날짜/시간 */}
-      <div className="flex flex-col items-start gap-0.5">
-        <span className="text-muted-foreground text-[11px]">{date}</span>
-        <span className="font-mono font-semibold text-foreground tabular-nums text-sm">{time}</span>
+      <div className="flex flex-col justify-center gap-0.5 min-w-[100px]">
+        <span className="text-muted-foreground text-[11px] leading-tight">{date}</span>
+        <span className="font-mono font-semibold text-foreground tabular-nums text-base leading-tight">{time}</span>
       </div>
 
-      <div className="w-px h-8 bg-border" />
+      <div className="w-px h-10 bg-border" />
 
       {/* 오늘의 날씨 */}
-      <div className="flex flex-col items-center gap-0.5">
-        <span className="text-[10px] text-muted-foreground">오늘의 날씨</span>
-        <div className="flex items-center gap-1.5">
+      <div className="flex flex-col items-center justify-center gap-1">
+        <span className="text-[10px] text-muted-foreground leading-tight">오늘의 날씨</span>
+        <div className="flex items-center gap-2">
           <WeatherIcon condition={mockWeatherData.today.condition} />
-          <div className="flex items-center gap-1 text-xs">
-            <span className="text-red-500 font-medium">{mockWeatherData.today.high}°C</span>
-            <span className="text-blue-500 font-medium">{mockWeatherData.today.low}°C</span>
+          <div className="flex flex-col items-start">
+            <span className="text-red-500 font-medium text-xs leading-tight">{mockWeatherData.today.high}°C</span>
+            <span className="text-blue-500 font-medium text-xs leading-tight">{mockWeatherData.today.low}°C</span>
           </div>
         </div>
       </div>
 
-      <div className="w-px h-8 bg-border" />
+      <div className="w-px h-10 bg-border" />
 
       {/* 내일의 날씨 */}
-      <div className="flex flex-col items-center gap-0.5">
-        <span className="text-[10px] text-muted-foreground">내일의 날씨</span>
-        <div className="flex items-center gap-1.5">
+      <div className="flex flex-col items-center justify-center gap-1">
+        <span className="text-[10px] text-muted-foreground leading-tight">내일의 날씨</span>
+        <div className="flex items-center gap-2">
           <WeatherIcon condition={mockWeatherData.tomorrow.condition} />
-          <div className="flex items-center gap-1 text-xs">
-            <span className="text-red-500 font-medium">{mockWeatherData.tomorrow.high}°C</span>
-            <span className="text-blue-500 font-medium">{mockWeatherData.tomorrow.low}°C</span>
+          <div className="flex flex-col items-start">
+            <span className="text-red-500 font-medium text-xs leading-tight">{mockWeatherData.tomorrow.high}°C</span>
+            <span className="text-blue-500 font-medium text-xs leading-tight">{mockWeatherData.tomorrow.low}°C</span>
           </div>
         </div>
       </div>
