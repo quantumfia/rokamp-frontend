@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import armyLogo from '@/assets/army-logo.png';
+import rokaLogo from '@/assets/roka-logo.svg';
 
 // A4 비율: 210mm x 297mm (약 1:1.414)
 const A4_WIDTH_PX = 595; // 약 210mm at 72dpi
@@ -326,7 +326,7 @@ export function ReportPreview({ content, onContentChange, reporterInfo }: Report
                       style={{ zIndex: 0 }}
                     >
                       <img 
-                        src={armyLogo} 
+                        src={rokaLogo} 
                         alt="" 
                         className="w-48 h-48 opacity-[0.05]"
                         style={{ filter: 'grayscale(100%)' }}
@@ -341,7 +341,7 @@ export function ReportPreview({ content, onContentChange, reporterInfo }: Report
                           {/* 문서 헤더 - 기관 정보 */}
                           <div className="flex items-start justify-between mb-4">
                             <div className="flex items-center gap-2">
-                              <img src={armyLogo} alt="육군본부" className="w-10 h-10" />
+                              <img src={rokaLogo} alt="육군본부" className="w-10 h-10" />
                               <div>
                                 <p className="text-[9px] text-gray-500">대한민국 육군</p>
                                 <p className="text-[11px] font-bold text-black">육군본부</p>

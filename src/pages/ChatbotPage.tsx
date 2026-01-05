@@ -10,7 +10,7 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import armyLogo from "@/assets/army-logo.png";
+import rokaLogo from "@/assets/roka-logo.svg";
 
 interface Message {
   id: string;
@@ -293,7 +293,7 @@ export default function ChatbotPage() {
                   className="absolute -inset-8 rounded-full blur-2xl opacity-20"
                   style={{ background: "hsl(var(--primary))" }}
                 />
-                <img src={armyLogo} alt="ROKA-MP" className="w-16 h-16 relative" />
+                <img src={rokaLogo} alt="ROKA-MP" className="w-16 h-16 relative" />
               </div>
               <h1 className="text-2xl font-semibold text-foreground mb-2">대한민국 육군 Assistant</h1>
               <p className="text-sm text-muted-foreground text-center max-w-md">
