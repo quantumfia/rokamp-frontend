@@ -290,8 +290,8 @@ export default function ChatbotPage() {
             <div className="flex flex-col items-center mb-8">
               <div className="relative mb-4">
                 <div
-                  className="absolute -inset-8 rounded-full blur-2xl opacity-20"
-                  style={{ background: "hsl(var(--primary))" }}
+                  className="absolute -inset-8 rounded-full blur-2xl opacity-30"
+                  style={{ background: "hsl(45, 80%, 50%)" }}
                 />
                 <img src={rokaLogo} alt="ROKA-MP" className="w-16 h-16 relative" />
               </div>
