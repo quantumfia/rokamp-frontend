@@ -62,7 +62,7 @@ export function IncidentTicker({ onClickDetail }: IncidentTickerProps) {
   };
 
   return (
-    <div className="h-[60px] flex items-center px-4 gap-3">
+    <div className="h-[78px] flex items-center px-4 gap-3">
       {/* 라벨 */}
       <div className="flex items-center gap-1.5 shrink-0">
         <AlertCircle className={cn('w-4 h-4', getIconColor(currentIncident.type))} />

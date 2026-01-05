@@ -20,7 +20,7 @@ function formatDateTime(date: Date) {
 
 // 날씨 아이콘 컴포넌트
 function WeatherIcon({ condition }: { condition: string }) {
-  const iconClass = "w-5 h-5";
+  const iconClass = "w-7 h-7";
   
   switch (condition) {
     case 'sunny':
@@ -66,27 +66,27 @@ export function StatusHeader() {
   const { date, time } = formatDateTime(currentTime);
 
   return (
-    <div className="flex items-center gap-4 px-4 py-3 h-[60px] w-56">
+    <div className="flex items-center gap-6 px-5 py-4 h-[78px] w-64">
       {/* 오늘의 날씨 */}
-      <div className="flex-1 flex flex-col items-center justify-center gap-1">
-        <span className="text-[10px] text-muted-foreground leading-tight">오늘의 날씨</span>
-        <div className="flex items-center gap-2.5">
+      <div className="flex-1 flex flex-col items-center justify-center gap-1.5">
+        <span className="text-xs text-muted-foreground leading-tight">오늘의 날씨</span>
+        <div className="flex items-center gap-3">
           <WeatherIcon condition={mockWeatherData.today.condition} />
           <div className="flex flex-col items-start gap-0.5">
-            <span className="text-red-500 font-medium text-xs leading-tight">{mockWeatherData.today.high}°C</span>
-            <span className="text-blue-500 font-medium text-xs leading-tight">{mockWeatherData.today.low}°C</span>
+            <span className="text-red-500 font-medium text-sm leading-tight">{mockWeatherData.today.high}°C</span>
+            <span className="text-blue-500 font-medium text-sm leading-tight">{mockWeatherData.today.low}°C</span>
           </div>
         </div>
       </div>
 
       {/* 내일의 날씨 */}
-      <div className="flex-1 flex flex-col items-center justify-center gap-1">
-        <span className="text-[10px] text-muted-foreground leading-tight">내일의 날씨</span>
-        <div className="flex items-center gap-2.5">
+      <div className="flex-1 flex flex-col items-center justify-center gap-1.5">
+        <span className="text-xs text-muted-foreground leading-tight">내일의 날씨</span>
+        <div className="flex items-center gap-3">
           <WeatherIcon condition={mockWeatherData.tomorrow.condition} />
           <div className="flex flex-col items-start gap-0.5">
-            <span className="text-red-500 font-medium text-xs leading-tight">{mockWeatherData.tomorrow.high}°C</span>
-            <span className="text-blue-500 font-medium text-xs leading-tight">{mockWeatherData.tomorrow.low}°C</span>
+            <span className="text-red-500 font-medium text-sm leading-tight">{mockWeatherData.tomorrow.high}°C</span>
+            <span className="text-blue-500 font-medium text-sm leading-tight">{mockWeatherData.tomorrow.low}°C</span>
           </div>
         </div>
       </div>
