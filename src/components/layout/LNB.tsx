@@ -135,12 +135,12 @@ export function LNB({ isExpanded }: LNBProps) {
         ) : (
           <Tooltip delayDuration={0}>
             <TooltipTrigger asChild>
-              <button
+              <div
                 onClick={toggleTheme}
-                className="w-full flex items-center justify-center h-9 rounded text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-150"
+                className="w-full flex items-center justify-center h-9 rounded text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-150 cursor-pointer"
               >
                 {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              </button>
+              </div>
             </TooltipTrigger>
             <TooltipContent side="right" className="bg-sidebar border-sidebar-border text-sidebar-foreground">
               <p className="text-xs">{theme === 'dark' ? '라이트 모드' : '다크 모드'}</p>
