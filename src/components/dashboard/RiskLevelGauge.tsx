@@ -13,21 +13,59 @@ interface RiskLevel {
   label: string;
 }
 
-const COLORS = [
-  'hsl(142, 76%, 36%)', // 초록
-  'hsl(100, 60%, 45%)', // 연두
-  'hsl(48, 96%, 50%)',  // 노랑
-  'hsl(25, 95%, 53%)',  // 주황
-  'hsl(0, 84%, 60%)',   // 빨강
+// 5단계 기준 색상 (초록 → 연두 → 노랑 → 주황 → 빨강)
+const COLORS_5 = [
+  'hsl(142, 76%, 36%)', // 초록 - 안전
+  'hsl(90, 60%, 45%)',  // 연두 - 관심
+  'hsl(48, 96%, 50%)',  // 노랑 - 주의
+  'hsl(25, 95%, 53%)',  // 주황 - 경고
+  'hsl(0, 84%, 60%)',   // 빨강 - 위험
 ];
 
-const DEFAULT_LABELS = ['안전', '관심', '주의', '경고', '위험'];
+// 5단계 기준 라벨
+const LABELS_5 = ['안전', '관심', '주의', '경고', '위험'];
 
-const DEFAULT_RISK_LEVELS: RiskLevel[] = [
-  { min: 0, max: 29, color: COLORS[0], label: '안전' },
-  { min: 30, max: 59, color: COLORS[2], label: '주의' },
-  { min: 60, max: 100, color: COLORS[4], label: '위험' },
-];
+// 단계 수에 따른 색상 및 라벨 매핑
+function getColorsAndLabels(count: number): { colors: string[]; labels: string[] } {
+  switch (count) {
+    case 2:
+      return {
+        colors: [COLORS_5[0], COLORS_5[4]],
+        labels: ['안전', '위험'],
+      };
+    case 3:
+      return {
+        colors: [COLORS_5[0], COLORS_5[2], COLORS_5[4]],
+        labels: ['안전', '주의', '위험'],
+      };
+    case 4:
+      return {
+        colors: [COLORS_5[0], COLORS_5[1], COLORS_5[3], COLORS_5[4]],
+        labels: ['안전', '관심', '경고', '위험'],
+      };
+    case 5:
+    default:
+      return {
+        colors: COLORS_5,
+        labels: LABELS_5,
+      };
+  }
+}
+
+// 단계 수에 따른 기본 범위 생성
+function generateDefaultLevels(count: number): RiskLevel[] {
+  const { colors, labels } = getColorsAndLabels(count);
+  const step = Math.floor(100 / count);
+  
+  return labels.map((label, i) => ({
+    min: i === 0 ? 0 : i * step,
+    max: i === count - 1 ? 100 : (i + 1) * step - 1,
+    color: colors[i],
+    label,
+  }));
+}
+
+const DEFAULT_RISK_LEVELS: RiskLevel[] = generateDefaultLevels(3);
 
 // 위험도 설정 컨텍스트 (전역 상태)
 let globalRiskLevels = [...DEFAULT_RISK_LEVELS];
@@ -132,17 +170,21 @@ export function RiskScoreGauge({ score, label }: RiskScoreGaugeProps) {
   );
 }
 
+// 단계 수에 따라 색상과 라벨을 자동 재할당
+function reassignColorsAndLabels(levels: RiskLevel[]): RiskLevel[] {
+  const { colors, labels } = getColorsAndLabels(levels.length);
+  return levels.map((level, i) => ({
+    ...level,
+    color: colors[i],
+    label: labels[i],
+  }));
+}
+
 // 위험도 설정 팝오버
 function RiskSettingsPopover() {
   const { levels, setLevels } = useRiskLevels();
   const [tempLevels, setTempLevels] = useState<RiskLevel[]>(levels);
   const [isOpen, setIsOpen] = useState(false);
-  
-  const handleLabelChange = (index: number, label: string) => {
-    const newLevels = [...tempLevels];
-    newLevels[index] = { ...newLevels[index], label };
-    setTempLevels(newLevels);
-  };
   
   const handleMinChange = (index: number, value: string) => {
     const numValue = parseInt(value) || 0;
@@ -168,25 +210,32 @@ function RiskSettingsPopover() {
   
   const handleAddLevel = () => {
     if (tempLevels.length >= 5) return;
+    
+    const newCount = tempLevels.length + 1;
+    // 기존 범위 기반으로 새 레벨 삽입 (마지막 단계 앞에)
     const lastLevel = tempLevels[tempLevels.length - 1];
     const newMin = Math.floor((lastLevel.min + lastLevel.max) / 2) + 1;
     
     const newLevels = [...tempLevels];
     // 마지막 레벨의 max 조정
     newLevels[newLevels.length - 1] = { ...lastLevel, max: newMin - 1 };
-    // 새 레벨 추가
+    // 새 레벨 추가 (마지막에)
     newLevels.push({
       min: newMin,
       max: 100,
-      color: COLORS[Math.min(newLevels.length, COLORS.length - 1)],
-      label: DEFAULT_LABELS[Math.min(newLevels.length, DEFAULT_LABELS.length - 1)],
+      color: '',
+      label: '',
     });
-    setTempLevels(newLevels);
+    
+    // 색상과 라벨 자동 재할당
+    setTempLevels(reassignColorsAndLabels(newLevels));
   };
   
   const handleRemoveLevel = (index: number) => {
     if (tempLevels.length <= 2) return;
-    const newLevels = tempLevels.filter((_, i) => i !== index);
+    
+    let newLevels = tempLevels.filter((_, i) => i !== index);
+    
     // 범위 재조정
     if (index === 0 && newLevels.length > 0) {
       newLevels[0] = { ...newLevels[0], min: 0 };
@@ -196,12 +245,9 @@ function RiskSettingsPopover() {
       // 중간 삭제 시 이전 레벨의 max를 다음 레벨의 min-1로
       newLevels[index - 1] = { ...newLevels[index - 1], max: newLevels[index].min - 1 };
     }
-    // 색상 재할당
-    newLevels.forEach((level, i) => {
-      const colorIndex = Math.floor((i / (newLevels.length - 1)) * (COLORS.length - 1));
-      level.color = COLORS[colorIndex];
-    });
-    setTempLevels(newLevels);
+    
+    // 색상과 라벨 자동 재할당
+    setTempLevels(reassignColorsAndLabels(newLevels));
   };
   
   const handleApply = () => {
@@ -224,7 +270,7 @@ function RiskSettingsPopover() {
   };
   
   const handleReset = () => {
-    setTempLevels([...DEFAULT_RISK_LEVELS]);
+    setTempLevels(generateDefaultLevels(3));
   };
   
   useEffect(() => {
@@ -240,7 +286,7 @@ function RiskSettingsPopover() {
           <Settings2 className="w-3.5 h-3.5 text-muted-foreground" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-4" align="end">
+      <PopoverContent className="w-72 p-4" align="end">
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h4 className="text-sm font-semibold">위험도 단계 설정</h4>
@@ -257,13 +303,8 @@ function RiskSettingsPopover() {
                   style={{ backgroundColor: level.color }} 
                 />
                 
-                {/* 라벨 입력 */}
-                <Input
-                  value={level.label}
-                  onChange={(e) => handleLabelChange(idx, e.target.value)}
-                  className="w-16 h-7 text-xs px-2"
-                  placeholder="라벨"
-                />
+                {/* 라벨 (읽기 전용) */}
+                <span className="w-12 text-xs font-medium shrink-0">{level.label}</span>
                 
                 {/* Min 입력 */}
                 <Input
