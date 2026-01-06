@@ -1,4 +1,4 @@
-import { X, ArrowLeft, Cloud, Thermometer, Wind, Droplet, Calendar, AlertTriangle } from 'lucide-react';
+import { X, ArrowLeft, Cloud, Thermometer, Wind, Droplet, Calendar, AlertTriangle, Snowflake, FileWarning } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getUnitById, getUnitFullName, LEVEL_LABELS, UNIT_TYPE_LABELS } from '@/data/armyUnits';
 import { cn } from '@/lib/utils';
@@ -18,7 +18,14 @@ interface UnitDetailPanelHorizontalProps {
   showBackButton?: boolean;
 }
 
-// 훈련 일정 + 예측 위험 통합 리스트
+// 핵심 예보 요약
+const KEY_ALERTS = [
+  { id: '1', icon: 'snow', label: '한파특보', desc: '1/7~1/9', level: 'high' as const },
+  { id: '2', icon: 'warning', label: '낙상주의', desc: '빙판 결빙', level: 'medium' as const },
+  { id: '3', icon: 'file', label: '유사사례', desc: '1건 발생', level: 'low' as const },
+];
+
+// 상세 일정 리스트
 const MOCK_SCHEDULE_ITEMS: ScheduleItem[] = [
   { id: '1', type: 'training', title: 'K-2 소총 영점사격', subtitle: '09:00 - 12:00 · 종합사격장', date: '1/6 (월)' },
   { id: '2', type: 'risk', title: '폭설 예보로 인한 차량 전복 위험', level: 'high', date: '1/6 (월)' },
@@ -59,6 +66,24 @@ export function UnitDetailPanelHorizontal({ unitId, onClose, showBackButton = fa
     if (risk >= 25) return '관심';
     return '안전';
   };
+
+  const getAlertIcon = (icon: string) => {
+    switch (icon) {
+      case 'snow': return <Snowflake className="w-4 h-4" />;
+      case 'warning': return <AlertTriangle className="w-4 h-4" />;
+      case 'file': return <FileWarning className="w-4 h-4" />;
+      default: return <AlertTriangle className="w-4 h-4" />;
+    }
+  };
+
+  const getAlertStyle = (level: 'high' | 'medium' | 'low') => {
+    switch (level) {
+      case 'high': return 'bg-status-error/10 border-status-error/30 text-status-error';
+      case 'medium': return 'bg-status-warning/10 border-status-warning/30 text-status-warning';
+      default: return 'bg-muted/50 border-border text-muted-foreground';
+    }
+  };
+
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
@@ -130,10 +155,27 @@ export function UnitDetailPanelHorizontal({ unitId, onClose, showBackButton = fa
           </div>
         </div>
 
-        {/* 훈련 일정 + 예측 위험 통합 리스트 */}
+        {/* 핵심 예보 요약 카드 */}
+        <div className="grid grid-cols-3 gap-2">
+          {KEY_ALERTS.map((alert) => (
+            <div 
+              key={alert.id}
+              className={cn(
+                "flex flex-col items-center justify-center py-3 px-2 rounded-lg border text-center",
+                getAlertStyle(alert.level)
+              )}
+            >
+              {getAlertIcon(alert.icon)}
+              <span className="text-xs font-semibold mt-1.5">{alert.label}</span>
+              <span className="text-[10px] opacity-80">{alert.desc}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* 상세 일정 */}
         <div>
-          <p className="text-sm font-semibold text-foreground mb-3">훈련/위험 일정</p>
-          <div className="space-y-2 max-h-[240px] overflow-y-auto pr-1">
+          <p className="text-sm font-semibold text-foreground mb-3">상세 일정</p>
+          <div className="space-y-2 max-h-[200px] overflow-y-auto pr-1">
             {MOCK_SCHEDULE_ITEMS.map((item) => (
               <div 
                 key={item.id}
@@ -186,29 +228,6 @@ export function UnitDetailPanelHorizontal({ unitId, onClose, showBackButton = fa
                 <span className="shrink-0 text-xs text-muted-foreground">{item.date}</span>
               </div>
             ))}
-          </div>
-        </div>
-
-        {/* 예보/대비 섹션 */}
-        <div>
-          <p className="text-sm font-semibold text-foreground mb-3">예보/대비</p>
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2.5 px-3 py-2.5 bg-muted/40 rounded-lg">
-              <span className="shrink-0 text-[11px] font-medium text-muted-foreground w-14">기상</span>
-              <span className="text-sm text-foreground">1/7~1/9 한파특보 예상, 야외훈련 축소 및 동상 예방조치 시행</span>
-            </div>
-            <div className="flex items-center gap-2.5 px-3 py-2.5 bg-muted/40 rounded-lg">
-              <span className="shrink-0 text-[11px] font-medium text-muted-foreground w-14">유사사례</span>
-              <span className="text-sm text-foreground">GOP 철책 순찰 중 빙판 낙상사고 발생 (1군단, 1/5)</span>
-            </div>
-            <div className="flex items-center gap-2.5 px-3 py-2.5 bg-muted/40 rounded-lg">
-              <span className="shrink-0 text-[11px] font-medium text-muted-foreground w-14">훈련안전</span>
-              <span className="text-sm text-foreground">K-9 자주포 실사격 예정 (1/8), 포반원 안전거리 준수 재교육 필요</span>
-            </div>
-            <div className="flex items-center gap-2.5 px-3 py-2.5 bg-muted/40 rounded-lg">
-              <span className="shrink-0 text-[11px] font-medium text-muted-foreground w-14">정비안전</span>
-              <span className="text-sm text-foreground">정비창 차량 정비 중 중상해 사고 분석결과 공유 (정비사령부)</span>
-            </div>
           </div>
         </div>
       </div>
