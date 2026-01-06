@@ -109,35 +109,35 @@ interface RiskScoreGaugeProps {
 }
 
 export function RiskScoreGauge({ score, label }: RiskScoreGaugeProps) {
-  const { getLevelForScore, levels } = useRiskLevels();
+  const { getLevelForScore } = useRiskLevels();
   const currentLevel = getLevelForScore(score);
   
   // 전체 범위에서 현재 점수의 비율 계산 (0~100 → 0~1)
   const progress = score / 100;
-  const circumference = 2 * Math.PI * 38;
+  const circumference = 2 * Math.PI * 36;
   const strokeDashoffset = circumference - progress * circumference;
   
   return (
-    <div className="flex flex-col items-center gap-1">
+    <div className="flex flex-col items-center">
       {/* 원형 게이지 */}
-      <div className="relative w-16 h-16">
+      <div className="relative w-14 h-14">
         <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
           {/* 배경 원 */}
           <circle
             cx="50"
             cy="50"
-            r="38"
+            r="36"
             fill="none"
-            strokeWidth="8"
+            strokeWidth="10"
             stroke="hsl(220, 10%, 90%)"
           />
           {/* 진행 원 */}
           <circle
             cx="50"
             cy="50"
-            r="38"
+            r="36"
             fill="none"
-            strokeWidth="8"
+            strokeWidth="10"
             strokeLinecap="round"
             stroke={currentLevel.color}
             className="transition-all duration-500"
@@ -150,22 +150,19 @@ export function RiskScoreGauge({ score, label }: RiskScoreGaugeProps) {
         {/* 중앙 텍스트 */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span 
-            className="text-lg font-bold tabular-nums leading-none"
+            className="text-base font-bold tabular-nums leading-none"
             style={{ color: currentLevel.color }}
           >
             {Math.round(score)}
           </span>
           <span 
-            className="text-[9px] font-semibold mt-0.5"
+            className="text-[8px] font-medium mt-0.5"
             style={{ color: currentLevel.color }}
           >
             {currentLevel.label}
           </span>
         </div>
       </div>
-      
-      {/* 라벨 */}
-      <span className="text-[10px] font-medium text-muted-foreground">{label}</span>
     </div>
   );
 }
@@ -397,9 +394,14 @@ export function RiskLevelPanel() {
   const averageRiskScore = 67.3;
   
   return (
-    <div className="flex items-center justify-center gap-2 px-4 h-[78px] w-48">
-      <RiskScoreGauge score={averageRiskScore} label="사건/사고 위험도" />
-      <RiskSettingsPopover />
+    <div className="flex flex-col items-center justify-center h-[78px] w-44 px-3">
+      {/* 상단: 라벨 + 설정 아이콘 */}
+      <div className="flex items-center gap-1 mb-1">
+        <span className="text-[10px] font-medium text-muted-foreground">사건/사고 위험도</span>
+        <RiskSettingsPopover />
+      </div>
+      {/* 하단: 게이지 */}
+      <RiskScoreGauge score={averageRiskScore} label="" />
     </div>
   );
 }
