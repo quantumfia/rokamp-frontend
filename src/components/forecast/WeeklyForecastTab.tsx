@@ -187,19 +187,6 @@ export default function WeeklyForecastTab() {
                     </td>
                   ))}
                 </tr>
-                <tr>
-                  <td className="py-2 px-3 text-xs text-muted-foreground border-r border-border">발생비율</td>
-                  {WEEKLY_OVERVIEW.map((d) => (
-                    <td key={d.day} className="py-1.5 px-2 text-center border-r border-border last:border-r-0">
-                      <span className={cn(
-                        "text-[11px] font-medium",
-                        DAY_PATTERN_INSIGHT.highRiskDays.includes(d.day) ? "text-status-error" : "text-muted-foreground"
-                      )}>
-                        {d.stat}
-                      </span>
-                    </td>
-                  ))}
-                </tr>
               </tbody>
             </table>
           </div>
@@ -312,12 +299,6 @@ export default function WeeklyForecastTab() {
         </CardContent>
       </Card>
 
-      {/* 데이터 출처 */}
-      <div className="text-center py-2 bg-muted/30 rounded-md">
-        <p className="text-xs text-muted-foreground">
-          ※ 본 예보는 최근 10년간 동일 기간 사고 데이터를 기반으로 산출되었습니다.
-        </p>
-      </div>
     </div>
   );
 }

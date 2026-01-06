@@ -32,6 +32,13 @@ export default function ForecastPage() {
 
       {/* 경향 분석 탭 */}
       {activeTab === 'trends' && <TrendAnalysisTab />}
+
+      {/* 데이터 출처 명시 */}
+      <div className="text-center py-3 bg-muted/30 rounded-lg border border-border/50">
+        <p className="text-xs text-muted-foreground">
+          ※ 본 데이터는 최근 10년간 사고 데이터를 기반으로 분석한 결과입니다.
+        </p>
+      </div>
     </div>
   );
 }
