@@ -1,354 +1,344 @@
 import { useState } from 'react';
-import { Card } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { UnitCascadeSelect } from '@/components/unit/UnitCascadeSelect';
-import { AlertTriangle, TrendingUp, Wine, ChevronRight, X, Users, Clock, MapPin, Lightbulb } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { AlertTriangle, Calendar, ChevronRight, Shield, TrendingUp, Clock, MapPin, Users } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-// 요일 데이터
-const WEEKDAYS = [
-  { key: 'mon', label: '월', date: '1/6' },
-  { key: 'tue', label: '화', date: '1/7' },
-  { key: 'wed', label: '수', date: '1/8' },
-  { key: 'thu', label: '목', date: '1/9' },
-  { key: 'fri', label: '금', date: '1/10' },
-  { key: 'sat', label: '토', date: '1/11' },
-  { key: 'sun', label: '일', date: '1/12' },
+// 이번 주 TOP 위험요소 데이터
+const TOP_RISKS = [
+  {
+    id: 1,
+    rank: 1,
+    category: '군기사고',
+    type: '구타/폭행',
+    riskLevel: 'high',
+    probability: 78,
+    targetDay: '수요일',
+    targetTime: '야간 (22:00-06:00)',
+    targetRank: '이병, 일병',
+    targetLocation: '생활관',
+    reason: '주중 훈련 피로 누적 및 스트레스 증가',
+    prevention: ['야간 순찰 강화', '병사 면담 실시', '분대장 교육']
+  },
+  {
+    id: 2,
+    rank: 2,
+    category: '안전사고',
+    type: '차량사고',
+    riskLevel: 'high',
+    probability: 72,
+    targetDay: '금요일',
+    targetTime: '오후 (14:00-18:00)',
+    targetRank: '병장, 하사',
+    targetLocation: '외부 이동간',
+    reason: '주말 전 외출/외박 이동량 증가',
+    prevention: ['차량 점검 강화', '운전병 피로도 확인', '이동 계획 사전 검토']
+  },
+  {
+    id: 3,
+    rank: 3,
+    category: '군기사고',
+    type: '성폭력',
+    riskLevel: 'medium',
+    probability: 45,
+    targetDay: '토요일',
+    targetTime: '야간 (22:00-06:00)',
+    targetRank: '전 계급',
+    targetLocation: '생활관, 근무지',
+    reason: '주말 근무 인원 감소로 감독 취약',
+    prevention: ['주말 간부 순찰 강화', '신고 채널 안내', 'CCTV 모니터링']
+  },
+  {
+    id: 4,
+    rank: 4,
+    category: '안전사고',
+    type: '자살',
+    riskLevel: 'medium',
+    probability: 38,
+    targetDay: '월요일',
+    targetTime: '새벽 (04:00-06:00)',
+    targetRank: '이병',
+    targetLocation: '생활관',
+    reason: '주말 복귀 후 우울감 증가',
+    prevention: ['월요일 아침 면담', '고위험 병사 관찰', '비상연락망 점검']
+  },
+  {
+    id: 5,
+    rank: 5,
+    category: '군무이탈',
+    type: '군무이탈',
+    riskLevel: 'low',
+    probability: 25,
+    targetDay: '일요일',
+    targetTime: '야간 (18:00-22:00)',
+    targetRank: '일병, 상병',
+    targetLocation: '영내',
+    reason: '외박 복귀 지연 및 복귀 거부',
+    prevention: ['복귀 시간 사전 확인', '미복귀자 즉시 연락', '가족 연락처 확보']
+  }
 ];
 
-// 사고유형별 주간 예보 데이터 (실제 군 용어 체계)
-const WEEKLY_FORECAST_DATA = [
-  // 군기사고
-  { 
-    id: 1, category: '군기사고', type: '폭행사고',
-    weekly: [28, 32, 30, 35, 42, 58, 52],
-    detail: { ranks: ['상병', '일병', '병장'], workType: '휴식중, 취침시간', location: '영내 생활관', timeSlot: '22:00~02:00', prevention: '분대장 면담 강화, 야간 순찰 확대' }
-  },
-  { 
-    id: 2, category: '군기사고', type: '일반강력',
-    weekly: [8, 10, 9, 12, 18, 22, 20],
-    detail: { ranks: ['상병', '병장'], workType: '외출/휴가중', location: '영외 유흥가', timeSlot: '야간', prevention: '외출/휴가 시 주의사항 교육' }
-  },
-  { 
-    id: 3, category: '군기사고', type: '자살사고',
-    weekly: [5, 6, 7, 6, 8, 10, 12],
-    detail: { ranks: ['이병', '일병'], workType: '휴식중', location: '영내 생활관/화장실', timeSlot: '야간/새벽', prevention: '관심병사 집중관리, 정신건강 상담' }
-  },
-  { 
-    id: 4, category: '군기사고', type: '경제범죄',
-    weekly: [12, 15, 14, 16, 18, 14, 10],
-    detail: { ranks: ['병장', '하사'], workType: '일반근무, 휴식중', location: '영내 사무실/생활관', timeSlot: '평일 근무시간', prevention: '재정 상담 활성화, 도박 예방교육' }
-  },
-  { 
-    id: 5, category: '군기사고', type: '성범죄',
-    weekly: [10, 12, 11, 15, 25, 35, 32],
-    detail: { ranks: ['일병', '상병'], workType: '휴가중, 개인정비', location: '영외', timeSlot: '주말 야간', prevention: '성범죄 예방교육, 외출 시 주의사항 전파' }
-  },
-  { 
-    id: 6, category: '군기사고', type: '음주운전',
-    weekly: [8, 10, 12, 15, 38, 55, 48],
-    detail: { ranks: ['중사', '하사'], workType: '휴가중, 외출후', location: '영외 노상', timeSlot: '금~일 야간', prevention: '복귀 전 음주 확인, 대리운전 안내' }
-  },
-  { 
-    id: 7, category: '군기사고', type: '대상관',
-    weekly: [5, 6, 7, 8, 6, 4, 3],
-    detail: { ranks: ['일병', '상병'], workType: '일반근무', location: '영내 사무실/생활관', timeSlot: '근무시간', prevention: '상급자 리더십 교육, 소통 강화' }
-  },
-  { 
-    id: 8, category: '군기사고', type: '불법도박',
-    weekly: [6, 8, 7, 9, 12, 18, 20],
-    detail: { ranks: ['상병', '병장'], workType: '휴식중, 개인정비', location: '영내 생활관', timeSlot: '야간/주말', prevention: '불법도박 예방교육, 휴대폰 사용지도' }
-  },
-  { 
-    id: 9, category: '군기사고', type: '기타',
-    weekly: [4, 5, 4, 6, 8, 10, 8],
-    detail: { ranks: ['전 계급'], workType: '다양', location: '다양', timeSlot: '다양', prevention: '상황별 맞춤 지도' }
-  },
-  // 안전사고
-  { 
-    id: 10, category: '안전사고', type: '교통사고',
-    weekly: [18, 20, 22, 25, 45, 38, 52],
-    detail: { ranks: ['중사', '상사', '하사'], workType: '출퇴근, 휴가이동', location: '영외 도로', timeSlot: '금요일 오후, 일요일 저녁', prevention: '안전운전 교육, 장거리 이동 시 휴식' }
-  },
-  { 
-    id: 11, category: '안전사고', type: '화재사고',
-    weekly: [3, 4, 5, 4, 6, 8, 6],
-    detail: { ranks: ['전 계급'], workType: '일반근무, 휴식중', location: '영내 취사장/생활관', timeSlot: '식사시간', prevention: '화기취급 주의, 소화기 점검' }
-  },
-  { 
-    id: 12, category: '안전사고', type: '총기오발',
-    weekly: [2, 3, 4, 3, 2, 1, 1],
-    detail: { ranks: ['이병', '일병'], workType: '경계근무, 사격훈련', location: '영내 GOP/사격장', timeSlot: '경계/훈련시간', prevention: '총기안전수칙 교육, 탄약관리 철저' }
-  },
-  { 
-    id: 13, category: '안전사고', type: '추락충격',
-    weekly: [5, 7, 8, 6, 5, 3, 2],
-    detail: { ranks: ['이병', '일병'], workType: '훈련중, 작업중', location: '영내 훈련장/시설', timeSlot: '훈련시간', prevention: '안전장구 착용 철저, 안전요원 배치' }
-  },
-  { 
-    id: 14, category: '안전사고', type: '기타',
-    weekly: [3, 4, 3, 5, 6, 5, 4],
-    detail: { ranks: ['전 계급'], workType: '다양', location: '다양', timeSlot: '다양', prevention: '상황별 안전수칙 준수' }
-  },
-  // 군무이탈
-  { 
-    id: 15, category: '군무이탈', type: '군무이탈',
-    weekly: [8, 10, 9, 11, 15, 12, 18],
-    detail: { ranks: ['이병', '일병'], workType: '휴식중, 훈련중', location: '영내', timeSlot: '주중 오후, 주말', prevention: '신병 관심병사 면담 강화' }
-  },
+// 요일별 핵심 주의사항
+const DAILY_ALERTS = [
+  { day: '월', label: '월요일', alerts: ['주말 복귀 후 심리 상태 점검', '아침 면담 실시'], riskLevel: 'medium' },
+  { day: '화', label: '화요일', alerts: ['정상 근무'], riskLevel: 'low' },
+  { day: '수', label: '수요일', alerts: ['야간 순찰 강화', '병사 스트레스 관리'], riskLevel: 'high' },
+  { day: '목', label: '목요일', alerts: ['훈련 안전 점검'], riskLevel: 'low' },
+  { day: '금', label: '금요일', alerts: ['차량 점검 강화', '외출/외박 이동 관리'], riskLevel: 'high' },
+  { day: '토', label: '토요일', alerts: ['주말 근무자 순찰', '감독 강화'], riskLevel: 'medium' },
+  { day: '일', label: '일요일', alerts: ['외박 복귀 관리', '미복귀자 연락'], riskLevel: 'medium' },
 ];
 
-// 위험도 색상 함수
-const getRiskBgClass = (value: number) => {
-  if (value >= 50) return 'bg-status-error/80 text-white';
-  if (value >= 30) return 'bg-status-warning/80 text-foreground';
-  if (value >= 15) return 'bg-status-warning/30 text-foreground';
-  return 'bg-muted/30 text-muted-foreground';
+// 주간 요약 통계
+const WEEKLY_SUMMARY = {
+  totalRisks: 5,
+  highRiskDays: 2,
+  mainCategory: '군기사고',
+  comparedToLastWeek: '+12%'
 };
 
-const getRiskLevel = (value: number) => {
-  if (value >= 50) return '경고';
-  if (value >= 30) return '주의';
-  return '안전';
+const getRiskBadgeStyle = (level: string) => {
+  switch (level) {
+    case 'high':
+      return 'bg-status-error/10 text-status-error border-status-error/20';
+    case 'medium':
+      return 'bg-status-warning/10 text-status-warning border-status-warning/20';
+    case 'low':
+      return 'bg-status-success/10 text-status-success border-status-success/20';
+    default:
+      return 'bg-muted text-muted-foreground';
+  }
+};
+
+const getRiskLabel = (level: string) => {
+  switch (level) {
+    case 'high': return '높음';
+    case 'medium': return '보통';
+    case 'low': return '낮음';
+    default: return '-';
+  }
+};
+
+const getDayRiskStyle = (level: string) => {
+  switch (level) {
+    case 'high':
+      return 'border-status-error/30 bg-status-error/5';
+    case 'medium':
+      return 'border-status-warning/30 bg-status-warning/5';
+    case 'low':
+      return 'border-border bg-card';
+    default:
+      return 'border-border bg-card';
+  }
 };
 
 export default function WeeklyForecastTab() {
-  const [selectedUnitId, setSelectedUnitId] = useState<string>('');
-  const [selectedType, setSelectedType] = useState<typeof WEEKLY_FORECAST_DATA[0] | null>(null);
-
-  // 전체 주간 위험도 계산 (각 요일별 평균)
-  const weeklyAverage = WEEKDAYS.map((_, dayIndex) => {
-    const sum = WEEKLY_FORECAST_DATA.reduce((acc, item) => acc + item.weekly[dayIndex], 0);
-    return Math.round(sum / WEEKLY_FORECAST_DATA.length);
-  });
-
-  // 최고 위험 요일
-  const maxRiskDay = weeklyAverage.indexOf(Math.max(...weeklyAverage));
-  const maxRiskValue = Math.max(...weeklyAverage);
-
-  // 최고 위험 유형 (주간 평균 기준)
-  const typeAverages = WEEKLY_FORECAST_DATA.map(item => ({
-    ...item,
-    avg: Math.round(item.weekly.reduce((a, b) => a + b, 0) / 7)
-  })).sort((a, b) => b.avg - a.avg);
-
-  // 카테고리별 그룹화
-  const categories = ['군기사고', '안전사고', '군무이탈'];
+  const [expandedRisk, setExpandedRisk] = useState<number | null>(1);
 
   return (
     <div className="space-y-6">
-      {/* 상단 요약 */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="p-4 border-border">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-muted-foreground">주간 평균 위험도</span>
-            <AlertTriangle className="h-4 w-4 text-status-warning" />
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-foreground">
-              {Math.round(weeklyAverage.reduce((a, b) => a + b, 0) / 7)}%
-            </span>
-          </div>
-          <Progress value={Math.round(weeklyAverage.reduce((a, b) => a + b, 0) / 7)} className="h-1.5 mt-2" />
-        </Card>
-
-        <Card className="p-4 border-border">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-muted-foreground">최고 위험 요일</span>
-            <TrendingUp className="h-4 w-4 text-status-error" />
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-status-error">
-              {WEEKDAYS[maxRiskDay].label}요일
-            </span>
-            <span className="text-sm text-muted-foreground">({WEEKDAYS[maxRiskDay].date})</span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">평균 {maxRiskValue}% 위험</p>
-        </Card>
-
-        <Card className="p-4 border-border">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-muted-foreground">최고 위험 유형</span>
-            <Wine className="h-4 w-4 text-status-error" />
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-foreground">{typeAverages[0].type}</span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">주간 평균 {typeAverages[0].avg}%</p>
-        </Card>
-      </div>
-
-      {/* 부대 선택 */}
-      <div className="flex items-center gap-4">
-        <span className="text-sm font-medium text-foreground">부대 선택</span>
-        <UnitCascadeSelect
-          value={selectedUnitId}
-          onChange={setSelectedUnitId}
-          placeholder="전체 부대"
-          showFullPath={true}
-          inline={true}
-        />
-      </div>
-
-      {/* 주간 예보 테이블 */}
-      <div className="border border-border rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-muted/50">
-                <th className="py-2 px-3 text-left font-medium text-foreground border-r border-border w-24">구분</th>
-                <th className="py-2 px-3 text-left font-medium text-foreground border-r border-border w-24">유형</th>
-                {WEEKDAYS.map((day) => (
-                  <th key={day.key} className="py-2 px-2 text-center font-medium text-foreground border-r border-border last:border-r-0 min-w-[60px]">
-                    <div>{day.label}</div>
-                    <div className="text-[10px] text-muted-foreground font-normal">{day.date}</div>
-                  </th>
-                ))}
-                <th className="py-2 px-2 text-center font-medium text-foreground w-10"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {categories.map((category, catIndex) => {
-                const categoryItems = WEEKLY_FORECAST_DATA.filter(item => item.category === category);
-                return categoryItems.map((item, itemIndex) => (
-                  <tr 
-                    key={item.id} 
-                    className={`border-b border-border last:border-b-0 hover:bg-muted/20 cursor-pointer transition-colors ${selectedType?.id === item.id ? 'bg-primary/5' : ''}`}
-                    onClick={() => setSelectedType(selectedType?.id === item.id ? null : item)}
-                  >
-                    {itemIndex === 0 && (
-                      <td 
-                        className="py-2 px-3 text-xs font-medium text-muted-foreground border-r border-border bg-muted/30 align-middle"
-                        rowSpan={categoryItems.length}
-                      >
-                        {category}
-                      </td>
-                    )}
-                    <td className="py-2 px-3 text-sm font-medium text-foreground border-r border-border">
-                      {item.type}
-                    </td>
-                    {item.weekly.map((value, dayIndex) => (
-                      <td key={dayIndex} className="py-1.5 px-1 text-center border-r border-border last:border-r-0">
-                        <div className={`inline-block px-2 py-1 rounded text-xs font-medium min-w-[40px] ${getRiskBgClass(value)}`}>
-                          {value}%
-                        </div>
-                      </td>
-                    ))}
-                    <td className="py-2 px-2 text-center">
-                      <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform ${selectedType?.id === item.id ? 'rotate-90' : ''}`} />
-                    </td>
-                  </tr>
-                ));
-              })}
-            </tbody>
-            {/* 합계 행 */}
-            <tfoot>
-              <tr className="bg-muted/50 border-t-2 border-foreground/20">
-                <td colSpan={2} className="py-2 px-3 text-sm font-medium text-foreground border-r border-border">
-                  일별 평균
-                </td>
-                {weeklyAverage.map((avg, index) => (
-                  <td key={index} className="py-1.5 px-1 text-center border-r border-border last:border-r-0">
-                    <div className={`inline-block px-2 py-1 rounded text-xs font-bold min-w-[40px] ${getRiskBgClass(avg)}`}>
-                      {avg}%
-                    </div>
-                  </td>
-                ))}
-                <td></td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      </div>
-
-      {/* 선택된 유형 상세 정보 */}
-      {selectedType && (
-        <Card className="p-4 border-primary/30 bg-primary/5 animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="flex items-start justify-between mb-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">{selectedType.category}</span>
-                <span className="text-xs text-muted-foreground">›</span>
-                <span className="text-sm font-semibold text-foreground">{selectedType.type}</span>
+      {/* 주간 요약 헤더 */}
+      <div className="grid grid-cols-4 gap-4">
+        <Card className="border-border">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <AlertTriangle className="w-5 h-5 text-primary" />
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                주간 평균 {Math.round(selectedType.weekly.reduce((a, b) => a + b, 0) / 7)}% | 
-                최고 {Math.max(...selectedType.weekly)}% ({WEEKDAYS[selectedType.weekly.indexOf(Math.max(...selectedType.weekly))].label}요일)
-              </p>
+              <div>
+                <p className="text-xs text-muted-foreground">주간 위험요소</p>
+                <p className="text-xl font-semibold">{WEEKLY_SUMMARY.totalRisks}건</p>
+              </div>
             </div>
-            <button 
-              onClick={(e) => { e.stopPropagation(); setSelectedType(null); }}
-              className="p-1 hover:bg-muted rounded"
+          </CardContent>
+        </Card>
+        
+        <Card className="border-border">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-status-error/10">
+                <Calendar className="w-5 h-5 text-status-error" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">고위험 요일</p>
+                <p className="text-xl font-semibold">{WEEKLY_SUMMARY.highRiskDays}일</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="border-border">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-status-warning/10">
+                <Shield className="w-5 h-5 text-status-warning" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">주요 위험 분류</p>
+                <p className="text-xl font-semibold">{WEEKLY_SUMMARY.mainCategory}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="border-border">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-muted">
+                <TrendingUp className="w-5 h-5 text-muted-foreground" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">전주 대비</p>
+                <p className="text-xl font-semibold text-status-error">{WEEKLY_SUMMARY.comparedToLastWeek}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* 요일별 주의사항 */}
+      <Card className="border-border">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-medium">요일별 핵심 주의사항</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-7 gap-2">
+            {DAILY_ALERTS.map((day) => (
+              <div
+                key={day.day}
+                className={cn(
+                  "p-3 rounded-lg border text-center",
+                  getDayRiskStyle(day.riskLevel)
+                )}
+              >
+                <p className="text-sm font-medium mb-1">{day.label}</p>
+                <Badge 
+                  variant="outline" 
+                  className={cn("text-[10px] mb-2", getRiskBadgeStyle(day.riskLevel))}
+                >
+                  {getRiskLabel(day.riskLevel)}
+                </Badge>
+                <div className="space-y-1">
+                  {day.alerts.map((alert, idx) => (
+                    <p key={idx} className="text-[10px] text-muted-foreground leading-tight">
+                      {alert}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* TOP 위험요소 리스트 */}
+      <div>
+        <h2 className="text-sm font-medium mb-3">이번 주 TOP 위험요소</h2>
+        <div className="space-y-2">
+          {TOP_RISKS.map((risk) => (
+            <Card 
+              key={risk.id}
+              className={cn(
+                "border-border cursor-pointer transition-all",
+                expandedRisk === risk.id && "ring-1 ring-primary/20"
+              )}
+              onClick={() => setExpandedRisk(expandedRisk === risk.id ? null : risk.id)}
             >
-              <X className="h-4 w-4 text-muted-foreground" />
-            </button>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="flex items-start gap-2">
-              <Users className="h-4 w-4 text-muted-foreground mt-0.5" />
-              <div>
-                <p className="text-[10px] text-muted-foreground">취약 계급</p>
-                <p className="text-sm text-foreground">{selectedType.detail.ranks.join(', ')}</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <Clock className="h-4 w-4 text-muted-foreground mt-0.5" />
-              <div>
-                <p className="text-[10px] text-muted-foreground">근무형태</p>
-                <p className="text-sm text-foreground">{selectedType.detail.workType}</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
-              <div>
-                <p className="text-[10px] text-muted-foreground">발생장소</p>
-                <p className="text-sm text-foreground">{selectedType.detail.location}</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <Clock className="h-4 w-4 text-muted-foreground mt-0.5" />
-              <div>
-                <p className="text-[10px] text-muted-foreground">취약 시간</p>
-                <p className="text-sm text-foreground">{selectedType.detail.timeSlot}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-4 flex items-start gap-2 bg-background rounded-md p-3 border border-border">
-            <Lightbulb className="h-4 w-4 text-primary mt-0.5" />
-            <div>
-              <p className="text-xs text-primary font-medium">예방 대책</p>
-              <p className="text-sm text-foreground">{selectedType.detail.prevention}</p>
-            </div>
-          </div>
-        </Card>
-      )}
-
-      {/* 범례 */}
-      <div className="flex items-center justify-center gap-6 text-xs">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-5 rounded bg-status-error/80"></div>
-          <span className="text-muted-foreground">경고 (50%↑)</span>
+              <CardContent className="p-4">
+                {/* 요약 행 */}
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted text-sm font-semibold">
+                    {risk.rank}
+                  </div>
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Badge variant="outline" className="text-[10px]">
+                        {risk.category}
+                      </Badge>
+                      <span className="font-medium">{risk.type}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {risk.targetDay} · {risk.targetTime} · {risk.targetRank}
+                    </p>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <p className="text-xs text-muted-foreground">위험도</p>
+                      <p className="text-lg font-semibold">{risk.probability}%</p>
+                    </div>
+                    <Badge 
+                      variant="outline" 
+                      className={cn("min-w-[48px] justify-center", getRiskBadgeStyle(risk.riskLevel))}
+                    >
+                      {getRiskLabel(risk.riskLevel)}
+                    </Badge>
+                    <ChevronRight className={cn(
+                      "w-4 h-4 text-muted-foreground transition-transform",
+                      expandedRisk === risk.id && "rotate-90"
+                    )} />
+                  </div>
+                </div>
+                
+                {/* 상세 정보 */}
+                {expandedRisk === risk.id && (
+                  <div className="mt-4 pt-4 border-t border-border">
+                    <div className="grid grid-cols-2 gap-6">
+                      {/* 위험 상세 */}
+                      <div className="space-y-3">
+                        <h4 className="text-xs font-medium text-muted-foreground">위험 상세</h4>
+                        <div className="space-y-2">
+                          <div className="flex items-start gap-2">
+                            <Calendar className="w-4 h-4 text-muted-foreground mt-0.5" />
+                            <div>
+                              <p className="text-xs text-muted-foreground">주요 발생 요일/시간</p>
+                              <p className="text-sm">{risk.targetDay} {risk.targetTime}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <Users className="w-4 h-4 text-muted-foreground mt-0.5" />
+                            <div>
+                              <p className="text-xs text-muted-foreground">취약 계급</p>
+                              <p className="text-sm">{risk.targetRank}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <MapPin className="w-4 h-4 text-muted-foreground mt-0.5" />
+                            <div>
+                              <p className="text-xs text-muted-foreground">주요 발생 장소</p>
+                              <p className="text-sm">{risk.targetLocation}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <Clock className="w-4 h-4 text-muted-foreground mt-0.5" />
+                            <div>
+                              <p className="text-xs text-muted-foreground">위험 요인</p>
+                              <p className="text-sm">{risk.reason}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* 예방 대책 */}
+                      <div className="space-y-3">
+                        <h4 className="text-xs font-medium text-muted-foreground">예방 대책</h4>
+                        <ul className="space-y-2">
+                          {risk.prevention.map((item, idx) => (
+                            <li key={idx} className="flex items-center gap-2 text-sm">
+                              <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))}
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-5 rounded bg-status-warning/80"></div>
-          <span className="text-muted-foreground">주의 (30~49%)</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-5 rounded bg-status-warning/30"></div>
-          <span className="text-muted-foreground">관심 (15~29%)</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-5 rounded bg-muted/50"></div>
-          <span className="text-muted-foreground">안전 (~14%)</span>
-        </div>
-      </div>
-
-      {/* 데이터 출처 */}
-      <div className="text-center py-2 bg-muted/30 rounded-md">
-        <p className="text-xs text-muted-foreground">
-          본 데이터는 10년치 데이터를 바탕으로 분석한 결과입니다.
-        </p>
       </div>
     </div>
   );
