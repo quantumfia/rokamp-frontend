@@ -62,9 +62,21 @@ export function IncidentTicker({ onClickDetail }: IncidentTickerProps) {
   };
 
   return (
-    <div className="h-[78px] relative flex items-center px-4">
-      {/* 메인 행: 카드 + 상세보기 (세로 중앙) */}
-      <div className="flex items-center gap-3 w-full">
+    <div className="h-[78px] relative flex flex-col px-4 py-2">
+      {/* 상단: 타이틀 + 상세보기 버튼 */}
+      <div className="flex items-center justify-between mb-1.5">
+        <span className="text-xs font-semibold text-foreground">일일사고사례</span>
+        <button 
+          onClick={onClickDetail}
+          className="flex items-center gap-0.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <span>상세보기</span>
+          <ChevronRight className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
+      {/* 메인 행: 아이콘 + 카드 */}
+      <div className="flex items-center gap-3 flex-1">
         {/* 아이콘 */}
         <AlertCircle className={cn('w-4 h-4 shrink-0', getIconColor(currentIncident.type))} />
 
@@ -80,19 +92,10 @@ export function IncidentTicker({ onClickDetail }: IncidentTickerProps) {
           <span className="text-xs font-medium whitespace-nowrap">{currentIncident.unit}</span>
           <span className="text-xs truncate">{currentIncident.title}</span>
         </div>
-
-        {/* 상세보기 버튼 */}
-        <button 
-          onClick={onClickDetail}
-          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors shrink-0"
-        >
-          <span>상세보기</span>
-          <ChevronRight className="w-3.5 h-3.5" />
-        </button>
       </div>
 
-      {/* 인디케이터 (하단 고정, 레이아웃에 영향 없음) */}
-      <div className="absolute bottom-2 left-0 right-0 flex items-center justify-center gap-1.5">
+      {/* 인디케이터 (하단 고정) */}
+      <div className="absolute bottom-1.5 left-0 right-0 flex items-center justify-center gap-1.5">
         {MOCK_INCIDENTS.map((_, idx) => (
           <button
             key={idx}
