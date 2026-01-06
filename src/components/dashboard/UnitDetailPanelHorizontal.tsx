@@ -256,18 +256,25 @@ export function UnitDetailPanelHorizontal({ unitId, onClose, showBackButton = fa
               {MOCK_RISK_FACTORS.map((factor) => (
                 <div 
                   key={factor.id} 
-                  className={`px-3 py-2.5 rounded-lg border ${getFactorColor(factor.level)}`}
+                  className="flex items-center gap-3 py-2"
                 >
-                  <div className="flex items-start gap-2">
-                    <span className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-semibold ${
-                      factor.level === 'high' ? 'bg-status-error text-white' :
-                      factor.level === 'medium' ? 'bg-status-warning text-black' :
-                      'bg-status-success text-white'
-                    }`}>
-                      {getFactorLabel(factor.level)}
-                    </span>
-                    <span className="text-xs leading-relaxed">{factor.description}</span>
+                  <div className={cn(
+                    "w-1 h-8 rounded-full shrink-0",
+                    factor.level === 'high' ? 'bg-status-error' :
+                    factor.level === 'medium' ? 'bg-status-warning' :
+                    'bg-status-success'
+                  )} />
+                  <div className="flex-1 min-w-0">
+                    <span className="text-sm text-foreground">{factor.description}</span>
                   </div>
+                  <span className={cn(
+                    "text-xs font-medium shrink-0",
+                    factor.level === 'high' ? 'text-status-error' :
+                    factor.level === 'medium' ? 'text-status-warning' :
+                    'text-status-success'
+                  )}>
+                    {getFactorLabel(factor.level)}
+                  </span>
                 </div>
               ))}
             </div>
