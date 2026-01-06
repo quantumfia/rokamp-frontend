@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
+import { canAccessMenu } from '@/lib/rbac';
+import { useAuth } from '@/contexts/AuthContext';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface MenuItem {
@@ -45,6 +47,11 @@ export function LNB({ isExpanded }: LNBProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
+  const { user } = useAuth();
+
+  // 역할별 메뉴 필터링
+  const filteredMainMenu = MAIN_MENU_ITEMS.filter(item => canAccessMenu(user?.role, item.id));
+  const filteredAdminMenu = ADMIN_MENU_ITEMS.filter(item => canAccessMenu(user?.role, item.id));
 
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
@@ -109,16 +116,18 @@ export function LNB({ isExpanded }: LNBProps) {
         {isExpanded && (
           <p className="text-[10px] text-sidebar-muted uppercase tracking-wider px-2.5 mb-2">메인</p>
         )}
-        {MAIN_MENU_ITEMS.map(renderMenuItem)}
+        {filteredMainMenu.map(renderMenuItem)}
 
-        {/* Divider */}
-        <div className={cn('border-t border-sidebar-border', isExpanded ? 'my-3 mx-2' : 'my-3')} />
+        {/* Divider - 관리 메뉴가 있을 때만 표시 */}
+        {filteredAdminMenu.length > 0 && (
+          <div className={cn('border-t border-sidebar-border', isExpanded ? 'my-3 mx-2' : 'my-3')} />
+        )}
 
         {/* Admin Menu */}
-        {isExpanded && (
+        {filteredAdminMenu.length > 0 && isExpanded && (
           <p className="text-[10px] text-sidebar-muted uppercase tracking-wider px-2.5 mb-2">관리</p>
         )}
-        {ADMIN_MENU_ITEMS.map(renderMenuItem)}
+        {filteredAdminMenu.map(renderMenuItem)}
       </nav>
 
       {/* Footer with Theme Toggle */}
