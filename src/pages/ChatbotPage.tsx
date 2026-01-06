@@ -289,19 +289,24 @@ export default function ChatbotPage() {
   }
 
   return (
-    <div className="h-full flex flex-col bg-background relative overflow-hidden">
-      {/* Subtle background effect */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] opacity-[0.03]"
-          style={{
-            background: "radial-gradient(ellipse at center, hsl(var(--primary)) 0%, transparent 70%)",
-          }}
-        />
-      </div>
+    <div className="h-full flex bg-background relative overflow-hidden">
+      {/* Chat Area */}
+      <div className={cn(
+        "flex-1 flex flex-col relative overflow-hidden transition-all duration-300",
+        isDocumentPanelOpen ? "mr-[480px]" : ""
+      )}>
+        {/* Subtle background effect */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div
+            className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] opacity-[0.03]"
+            style={{
+              background: "radial-gradient(ellipse at center, hsl(var(--primary)) 0%, transparent 70%)",
+            }}
+          />
+        </div>
 
-      {/* Content */}
-      <div className="relative flex-1 flex flex-col min-h-0">
+        {/* Content */}
+        <div className="relative flex-1 flex flex-col min-h-0">
         {!hasConversation ? (
           /* Welcome Screen */
           <div className="flex-1 flex flex-col px-4 animate-page-enter">
@@ -677,7 +682,8 @@ export default function ChatbotPage() {
               </div>
             </div>
           </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Document Viewer Panel */}

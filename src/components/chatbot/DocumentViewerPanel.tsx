@@ -101,7 +101,7 @@ export function DocumentViewerPanel({ isOpen, onClose, document }: DocumentViewe
   return (
     <div
       className={cn(
-        "fixed top-0 right-0 h-full bg-background border-l border-border shadow-xl z-50 transition-all duration-300 flex flex-col",
+        "absolute top-0 right-0 h-full bg-background border-l border-border shadow-xl z-50 transition-all duration-300 flex flex-col",
         isOpen ? "w-[480px] translate-x-0" : "w-0 translate-x-full"
       )}
     >
