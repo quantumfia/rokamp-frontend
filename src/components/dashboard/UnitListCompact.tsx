@@ -9,6 +9,8 @@ import {
   getUnitById, 
   getAllDescendants 
 } from '@/data/armyUnits';
+import { useAuth } from '@/contexts/AuthContext';
+import { getAccessibleUnitIds } from '@/lib/rbac';
 import type { FilterState } from './UnitFilterPanel';
 
 interface UnitListCompactProps {
@@ -21,10 +23,10 @@ interface UnitListCompactProps {
 type SortField = 'name' | 'risk';
 type SortDirection = 'asc' | 'desc';
 
-// 모든 부대 (CATEGORY 제외)
-const getDisplayUnits = () => {
+// 역할 기반 필터링된 부대 목록 반환
+const getDisplayUnits = (accessibleIds: Set<string>) => {
   return ARMY_UNITS
-    .filter((unit) => unit.level !== 'CATEGORY')
+    .filter((unit) => unit.level !== 'CATEGORY' && accessibleIds.has(unit.id))
     .map((unit) => {
       const location = UNIT_LOCATIONS[unit.id];
       const baseRisk = location?.risk ?? Math.floor(Math.random() * 60) + 10;
@@ -44,10 +46,17 @@ export function UnitListCompact({
   filters,
   searchQuery = ''
 }: UnitListCompactProps) {
+  const { user } = useAuth();
   const [sortField, setSortField] = useState<SortField>('risk');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
-  const allUnits = useMemo(() => getDisplayUnits(), []);
+  // 역할 기반 접근 가능한 부대 ID
+  const accessibleIds = useMemo(() => {
+    const ids = getAccessibleUnitIds(user?.role, user?.unitId);
+    return new Set(ids);
+  }, [user?.role, user?.unitId]);
+
+  const allUnits = useMemo(() => getDisplayUnits(accessibleIds), [accessibleIds]);
 
   // 필터 및 검색 적용
   const filteredUnits = useMemo(() => {
@@ -187,6 +196,9 @@ export function UnitListCompact({
       {/* 푸터 */}
       <div className="px-4 py-3 text-sm text-muted-foreground">
         총 <span className="font-medium text-foreground">{sortedUnits.length}</span>개 부대
+        {user?.role !== 'ROLE_HQ' && (
+          <span className="ml-1">(접근 가능)</span>
+        )}
       </div>
     </div>
   );

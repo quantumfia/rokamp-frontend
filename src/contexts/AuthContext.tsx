@@ -29,6 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       name: '테스트 사용자',
       rank: '대령',
       unit: '육군본부 군사경찰실',
+      unitId: 'hq', // 육군본부
       role: 'ROLE_HQ',
     };
     
@@ -55,16 +56,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         name: '김본부',
         rank: '대령',
         unit: '육군본부 군사경찰실',
+        unitId: 'hq',
       },
       'ROLE_DIV': {
         name: '이사단',
         rank: '준장',
         unit: '제1보병사단',
+        unitId: 'corps-1-div-1', // 제1군단 > 제1보병사단
       },
       'ROLE_BN': {
         name: '박대대',
         rank: '중령',
-        unit: '제1보병사단 제1연대 제1대대',
+        unit: '제1보병사단 제11연대 제1대대',
+        unitId: 'corps-1-div-1-reg-11-bn-1', // 가상의 대대 ID (실제 데이터에 없으면 상위 부대로 처리)
       },
     };
 

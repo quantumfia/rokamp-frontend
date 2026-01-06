@@ -1,11 +1,15 @@
-import { useState, useEffect } from 'react';
-import { ChevronRight, ChevronDown, Check } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { ChevronRight, ChevronDown, Check, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { getChildUnits, getUnitPath, ArmyUnit } from '@/data/armyUnits';
+import { getChildUnits, getUnitPath, ArmyUnit, ARMY_UNITS } from '@/data/armyUnits';
+import { useAuth } from '@/contexts/AuthContext';
+import { getSelectableUnitsForRole, getAccessibleUnitIds } from '@/lib/rbac';
 
 interface UnitTreeSelectProps {
   value?: string;
   onChange: (unitId: string) => void;
+  // 역할 기반 필터링 사용 여부 (기본: true)
+  useRoleFilter?: boolean;
 }
 
 interface TreeNodeProps {
@@ -13,15 +17,20 @@ interface TreeNodeProps {
   level: number;
   selectedId: string;
   expandedIds: Set<string>;
+  accessibleIds: Set<string>;
   onSelect: (unitId: string) => void;
   onToggle: (unitId: string) => void;
 }
 
-function TreeNode({ unit, level, selectedId, expandedIds, onSelect, onToggle }: TreeNodeProps) {
-  const children = getChildUnits(unit.id);
+function TreeNode({ unit, level, selectedId, expandedIds, accessibleIds, onSelect, onToggle }: TreeNodeProps) {
+  // 접근 가능한 하위 부대만 표시
+  const children = getChildUnits(unit.id).filter(child => accessibleIds.has(child.id));
   const hasChildren = children.length > 0;
   const isExpanded = expandedIds.has(unit.id);
   const isSelected = selectedId === unit.id;
+  const isAccessible = accessibleIds.has(unit.id);
+
+  if (!isAccessible) return null;
 
   return (
     <div>
@@ -75,6 +84,7 @@ function TreeNode({ unit, level, selectedId, expandedIds, onSelect, onToggle }: 
               level={level + 1}
               selectedId={selectedId}
               expandedIds={expandedIds}
+              accessibleIds={accessibleIds}
               onSelect={onSelect}
               onToggle={onToggle}
             />
@@ -85,9 +95,31 @@ function TreeNode({ unit, level, selectedId, expandedIds, onSelect, onToggle }: 
   );
 }
 
-export function UnitTreeSelect({ value = '', onChange }: UnitTreeSelectProps) {
+export function UnitTreeSelect({ value = '', onChange, useRoleFilter = true }: UnitTreeSelectProps) {
+  const { user } = useAuth();
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [selectedId, setSelectedId] = useState<string>(value);
+
+  // 역할 기반 접근 가능한 부대 ID 목록
+  const { accessibleIds, isFixed, userUnitName } = useMemo(() => {
+    if (!useRoleFilter || !user) {
+      return { 
+        accessibleIds: new Set(ARMY_UNITS.map(u => u.id)), 
+        isFixed: false,
+        userUnitName: ''
+      };
+    }
+
+    const { units, isFixed } = getSelectableUnitsForRole(user.role, user.unitId);
+    const ids = getAccessibleUnitIds(user.role, user.unitId);
+    const userUnit = ARMY_UNITS.find(u => u.id === user.unitId);
+    
+    return { 
+      accessibleIds: new Set(ids), 
+      isFixed,
+      userUnitName: userUnit?.name || user.unit
+    };
+  }, [user, useRoleFilter]);
 
   // value가 변경되면 해당 경로를 자동으로 펼침
   useEffect(() => {
@@ -105,7 +137,16 @@ export function UnitTreeSelect({ value = '', onChange }: UnitTreeSelectProps) {
     }
   }, [value]);
 
+  // 대대급(BN)은 자동으로 자기 부대 선택
+  useEffect(() => {
+    if (isFixed && user?.unitId && selectedId !== user.unitId) {
+      setSelectedId(user.unitId);
+      onChange(user.unitId);
+    }
+  }, [isFixed, user?.unitId]);
+
   const handleSelect = (unitId: string) => {
+    if (isFixed) return; // 고정된 경우 선택 변경 불가
     setSelectedId(unitId);
     onChange(unitId);
   };
@@ -123,33 +164,63 @@ export function UnitTreeSelect({ value = '', onChange }: UnitTreeSelectProps) {
   };
 
   const handleClearSelection = () => {
+    if (isFixed) return; // 고정된 경우 초기화 불가
     setSelectedId('');
     onChange('');
   };
 
-  // 최상위 부대 목록
-  const topLevelUnits = getChildUnits(null);
+  // 최상위 부대 목록 (접근 가능한 것만)
+  const topLevelUnits = useMemo(() => {
+    if (!useRoleFilter || user?.role === 'ROLE_HQ') {
+      return getChildUnits(null);
+    }
+    
+    // DIV/BN은 자기 부대가 루트가 됨
+    if (user?.unitId) {
+      const userUnit = ARMY_UNITS.find(u => u.id === user.unitId);
+      return userUnit ? [userUnit] : [];
+    }
+    
+    return [];
+  }, [user, useRoleFilter]);
+
+  // 대대급(BN)은 고정된 부대만 표시
+  if (isFixed) {
+    return (
+      <div className="space-y-2">
+        <div className="flex items-center gap-2 py-2 px-3 rounded-md bg-muted/50 border border-border">
+          <Lock className="w-4 h-4 text-muted-foreground" />
+          <span className="text-sm text-foreground">{userUnitName}</span>
+        </div>
+        <p className="text-xs text-muted-foreground px-1">
+          대대급 사용자는 소속 부대만 조회할 수 있습니다.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-2">
-      {/* 전체 부대 옵션 */}
-      <div
-        className={cn(
-          "flex items-center gap-2 py-1.5 px-2 rounded-md cursor-pointer transition-colors",
-          selectedId === '' 
-            ? "bg-primary/10 text-primary" 
-            : "hover:bg-muted/50 text-foreground"
-        )}
-        onClick={handleClearSelection}
-      >
-        <span className="w-4.5" />
-        <span className={cn("text-sm flex-1", selectedId === '' && "font-medium")}>
-          전체 부대
-        </span>
-        {selectedId === '' && (
-          <Check className="w-4 h-4 text-primary" />
-        )}
-      </div>
+      {/* 전체 부대 옵션 (HQ만) */}
+      {user?.role === 'ROLE_HQ' && (
+        <div
+          className={cn(
+            "flex items-center gap-2 py-1.5 px-2 rounded-md cursor-pointer transition-colors",
+            selectedId === '' 
+              ? "bg-primary/10 text-primary" 
+              : "hover:bg-muted/50 text-foreground"
+          )}
+          onClick={handleClearSelection}
+        >
+          <span className="w-4.5" />
+          <span className={cn("text-sm flex-1", selectedId === '' && "font-medium")}>
+            전체 부대 (전군)
+          </span>
+          {selectedId === '' && (
+            <Check className="w-4 h-4 text-primary" />
+          )}
+        </div>
+      )}
 
       {/* 부대 트리 */}
       <div className="space-y-0.5">
@@ -160,11 +231,19 @@ export function UnitTreeSelect({ value = '', onChange }: UnitTreeSelectProps) {
             level={0}
             selectedId={selectedId}
             expandedIds={expandedIds}
+            accessibleIds={accessibleIds}
             onSelect={handleSelect}
             onToggle={handleToggle}
           />
         ))}
       </div>
+      
+      {/* 역할별 안내 */}
+      {user?.role === 'ROLE_DIV' && (
+        <p className="text-xs text-muted-foreground px-1 pt-1 border-t border-border">
+          사단급 관리자는 예하 부대만 조회할 수 있습니다.
+        </p>
+      )}
     </div>
   );
 }

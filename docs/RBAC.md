@@ -165,28 +165,61 @@
 
 ---
 
-## 구현 시 참고사항
+## 구현 상세
 
-### 데이터 필터링 원칙
+### 부대 데이터 필터링
+
+역할과 소속 부대에 따라 접근 가능한 부대 범위가 자동으로 필터링됩니다.
 
 ```typescript
-// 역할별 부대 필터링 로직 예시
-function getAccessibleUnits(userRole: UserRole, userUnit: string): string[] {
-  switch (userRole) {
-    case 'ROLE_HQ':
-      return getAllUnits(); // 전군
-    case 'ROLE_DIV':
-      return getSubordinateUnits(userUnit); // 예하 부대
-    case 'ROLE_BN':
-      return [userUnit]; // 본인 부대만
-  }
+// src/lib/rbac.ts
+
+// 하위 부대 ID 조회
+function getSubordinateUnitIds(unitId: string): string[]
+
+// 상위 부대 체인 조회
+function getParentUnitChain(unitId: string): string[]
+
+// 역할별 접근 가능 부대 ID 목록
+function getAccessibleUnitIds(role: UserRole, userUnitId: string): string[]
+// - ROLE_HQ: 전체 부대
+// - ROLE_DIV: 소속 부대 + 예하 부대
+// - ROLE_BN: 소속 부대만
+
+// 역할별 접근 가능 부대 객체 목록
+function getAccessibleUnits(role: UserRole, userUnitId: string): ArmyUnit[]
+
+// 특정 부대 접근 가능 여부 확인
+function canAccessUnit(role: UserRole, userUnitId: string, targetUnitId: string): boolean
+
+// 부대 선택기용 (역할별 선택 가능 범위)
+function getSelectableUnitsForRole(role: UserRole, userUnitId: string): { 
+  units: ArmyUnit[]; 
+  isFixed: boolean;  // BN급은 고정(선택 불가)
+}
+```
+
+### 사용 예시
+
+```typescript
+// 대시보드 부대 리스트
+const { user } = useAuth();
+const accessibleIds = getAccessibleUnitIds(user?.role, user?.unitId);
+const filteredUnits = ARMY_UNITS.filter(u => accessibleIds.includes(u.id));
+
+// 부대 선택 드롭다운
+const { units, isFixed } = getSelectableUnitsForRole(user?.role, user?.unitId);
+if (isFixed) {
+  // 대대급: 선택 불가, 고정 표시
+} else {
+  // HQ/DIV: 접근 가능 범위 내 선택 가능
 }
 ```
 
 ### 페이지 접근 제어
 
 ```typescript
-// 역할별 페이지 접근 권한
+// src/lib/rbac.ts
 const PAGE_ACCESS: Record<string, UserRole[]> = {
   '/dashboard': ['ROLE_HQ', 'ROLE_DIV', 'ROLE_BN'],
   '/forecast': ['ROLE_HQ', 'ROLE_DIV', 'ROLE_BN'],
@@ -203,14 +236,32 @@ const PAGE_ACCESS: Record<string, UserRole[]> = {
 ### LNB 메뉴 필터링
 
 ```typescript
-// 역할별 메뉴 필터링
+// src/lib/rbac.ts
 const MENU_ACCESS: Record<string, UserRole[]> = {
+  'dashboard': ['ROLE_HQ', 'ROLE_DIV', 'ROLE_BN'],
+  'forecast': ['ROLE_HQ', 'ROLE_DIV', 'ROLE_BN'],
+  'chatbot': ['ROLE_HQ', 'ROLE_DIV', 'ROLE_BN'],
+  'reports': ['ROLE_HQ', 'ROLE_DIV', 'ROLE_BN'],
   'notice': ['ROLE_HQ', 'ROLE_DIV'],
   'schedule': ['ROLE_HQ', 'ROLE_DIV', 'ROLE_BN'],
   'data': ['ROLE_HQ'],
   'users': ['ROLE_HQ', 'ROLE_DIV'],
   'settings': ['ROLE_HQ'],
 };
+```
+
+### 세부 권한 (페이지 내 기능별)
+
+```typescript
+// 콘텐츠 수정/삭제 권한
+function canEditContent(role: UserRole, authorName: string, currentUserName: string): boolean
+function canDeleteContent(role: UserRole, authorName: string, currentUserName: string): boolean
+
+// 역할 변경 권한 (HQ만)
+function canChangeUserRole(role: UserRole): boolean
+
+// 콘텐츠 생성 권한
+function canCreateContent(role: UserRole, pageType: 'notice' | 'schedule' | 'report' | 'user'): boolean
 ```
 
 ---
