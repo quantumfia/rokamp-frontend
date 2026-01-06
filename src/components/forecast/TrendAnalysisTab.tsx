@@ -109,9 +109,42 @@ const getChangeColor = (current: number, previous: number) => {
 
 export default function TrendAnalysisTab() {
   const [periodType, setPeriodType] = useState<'weekly' | 'monthly'>('weekly');
+  const [dateRange, setDateRange] = useState<'1m' | '3m' | '6m' | '1y'>('3m');
+
+  const getDateRangeLabel = (range: string) => {
+    switch (range) {
+      case '1m': return '최근 1개월';
+      case '3m': return '최근 3개월';
+      case '6m': return '최근 6개월';
+      case '1y': return '최근 1년';
+      default: return '';
+    }
+  };
 
   return (
     <div className="space-y-6">
+      {/* 기간 선택 필터 */}
+      <div className="flex items-center justify-end gap-2">
+        <span className="text-xs text-muted-foreground">분석 기간:</span>
+        <div className="flex gap-1">
+          {(['1m', '3m', '6m', '1y'] as const).map((range) => (
+            <button
+              key={range}
+              onClick={() => setDateRange(range)}
+              className={cn(
+                "px-3 py-1.5 text-xs rounded-md border transition-colors",
+                dateRange === range
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-background border-border hover:bg-muted"
+              )}
+            >
+              {getDateRangeLabel(range)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+
       {/* 전년 대비 요약 */}
       <div className="grid grid-cols-4 gap-4">
         <Card className="border-border">
