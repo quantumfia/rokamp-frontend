@@ -35,7 +35,8 @@ import { Button } from '@/components/ui/button';
 
 interface User {
   id: string;
-  militaryId: string;
+  accountId: string;      // 로그인용 계정 ID (IP 기반 관리, 이관 가능)
+  militaryId: string;     // 군번 (실제 사용자 고유 식별)
   name: string;
   rank: string;
   unitId: string;
@@ -45,18 +46,18 @@ interface User {
 }
 
 const MOCK_USERS: User[] = [
-  { id: '1', militaryId: '18-702341', name: '김철수', rank: '대령', unitId: 'hq', password: '********', role: 'ROLE_SUPER_ADMIN', status: 'active' },
-  { id: '2', militaryId: '17-681542', name: '이영희', rank: '준장', unitId: 'corps-1-div-1', password: '********', role: 'ROLE_ADMIN', status: 'active' },
-  { id: '3', militaryId: '19-723185', name: '박민호', rank: '대령', unitId: 'corps-5-div-3', password: '********', role: 'ROLE_ADMIN', status: 'active' },
-  { id: '4', militaryId: '20-751294', name: '최지훈', rank: '중령', unitId: 'corps-1-div-9', password: '********', role: 'ROLE_USER', status: 'active' },
-  { id: '5', militaryId: '21-782456', name: '정수민', rank: '중령', unitId: 'corps-1-div-25', password: '********', role: 'ROLE_USER', status: 'inactive' },
-  { id: '6', militaryId: '16-659823', name: '홍길동', rank: '중장', unitId: 'corps-1', password: '********', role: 'ROLE_ADMIN', status: 'active' },
-  { id: '7', militaryId: '22-803571', name: '김대위', rank: '대령', unitId: 'corps-2-div-7', password: '********', role: 'ROLE_USER', status: 'active' },
-  { id: '8', militaryId: '23-824693', name: '강특전', rank: '중령', unitId: 'swc-bde-sf-1', password: '********', role: 'ROLE_USER', status: 'active' },
-  { id: '9', militaryId: '15-638712', name: '이작전', rank: '대장', unitId: 'goc', password: '********', role: 'ROLE_SUPER_ADMIN', status: 'active' },
-  { id: '10', militaryId: '19-745821', name: '송준혁', rank: '소령', unitId: 'corps-3-div-12', password: '********', role: 'ROLE_USER', status: 'active' },
-  { id: '11', militaryId: '20-768432', name: '윤서연', rank: '중령', unitId: 'corps-2-div-15', password: '********', role: 'ROLE_ADMIN', status: 'active' },
-  { id: '12', militaryId: '21-791543', name: '장민석', rank: '소령', unitId: 'corps-3-div-21', password: '********', role: 'ROLE_USER', status: 'inactive' },
+  { id: '1', accountId: 'HQ-001', militaryId: '18-702341', name: '김철수', rank: '대령', unitId: 'hq', password: '********', role: 'ROLE_SUPER_ADMIN', status: 'active' },
+  { id: '2', accountId: 'C1D1-001', militaryId: '17-681542', name: '이영희', rank: '준장', unitId: 'corps-1-div-1', password: '********', role: 'ROLE_ADMIN', status: 'active' },
+  { id: '3', accountId: 'C5D3-001', militaryId: '19-723185', name: '박민호', rank: '대령', unitId: 'corps-5-div-3', password: '********', role: 'ROLE_ADMIN', status: 'active' },
+  { id: '4', accountId: 'C1D9-001', militaryId: '20-751294', name: '최지훈', rank: '중령', unitId: 'corps-1-div-9', password: '********', role: 'ROLE_USER', status: 'active' },
+  { id: '5', accountId: 'C1D25-001', militaryId: '21-782456', name: '정수민', rank: '중령', unitId: 'corps-1-div-25', password: '********', role: 'ROLE_USER', status: 'inactive' },
+  { id: '6', accountId: 'C1-001', militaryId: '16-659823', name: '홍길동', rank: '중장', unitId: 'corps-1', password: '********', role: 'ROLE_ADMIN', status: 'active' },
+  { id: '7', accountId: 'C2D7-001', militaryId: '22-803571', name: '김대위', rank: '대령', unitId: 'corps-2-div-7', password: '********', role: 'ROLE_USER', status: 'active' },
+  { id: '8', accountId: 'SWC-001', militaryId: '23-824693', name: '강특전', rank: '중령', unitId: 'swc-bde-sf-1', password: '********', role: 'ROLE_USER', status: 'active' },
+  { id: '9', accountId: 'GOC-001', militaryId: '15-638712', name: '이작전', rank: '대장', unitId: 'goc', password: '********', role: 'ROLE_SUPER_ADMIN', status: 'active' },
+  { id: '10', accountId: 'C3D12-001', militaryId: '19-745821', name: '송준혁', rank: '소령', unitId: 'corps-3-div-12', password: '********', role: 'ROLE_USER', status: 'active' },
+  { id: '11', accountId: 'C2D15-001', militaryId: '20-768432', name: '윤서연', rank: '중령', unitId: 'corps-2-div-15', password: '********', role: 'ROLE_ADMIN', status: 'active' },
+  { id: '12', accountId: 'C3D21-001', militaryId: '21-791543', name: '장민석', rank: '소령', unitId: 'corps-3-div-21', password: '********', role: 'ROLE_USER', status: 'inactive' },
 ];
 
 const RANKS = ['대장', '중장', '소장', '준장', '대령', '중령', '소령'];
@@ -72,6 +73,17 @@ function UserForm({ form, onChange }: { form: Partial<User>; onChange: (form: Pa
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
         <div>
+          <label className="block text-xs text-muted-foreground mb-1.5">계정 ID *</label>
+          <input
+            type="text"
+            placeholder="HQ-001"
+            value={form.accountId || ''}
+            onChange={(e) => onChange({ ...form, accountId: e.target.value })}
+            className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+          />
+          <p className="text-[10px] text-muted-foreground mt-1">IP 기반 로그인용 계정</p>
+        </div>
+        <div>
           <label className="block text-xs text-muted-foreground mb-1.5">군번 *</label>
           <input
             type="text"
@@ -80,7 +92,10 @@ function UserForm({ form, onChange }: { form: Partial<User>; onChange: (form: Pa
             onChange={(e) => onChange({ ...form, militaryId: e.target.value })}
             className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
           />
+          <p className="text-[10px] text-muted-foreground mt-1">실제 사용자 식별용</p>
         </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-xs text-muted-foreground mb-1.5">이름 *</label>
           <input
@@ -91,9 +106,6 @@ function UserForm({ form, onChange }: { form: Partial<User>; onChange: (form: Pa
             className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
           />
         </div>
-      </div>
-      {/* 계급 + 소속부대 첫번째 선택 */}
-      <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-xs text-muted-foreground mb-1.5">계급 *</label>
           <select 
@@ -107,16 +119,16 @@ function UserForm({ form, onChange }: { form: Partial<User>; onChange: (form: Pa
             ))}
           </select>
         </div>
-        <div>
-          <label className="block text-xs text-muted-foreground mb-1.5">소속 부대 *</label>
-          <UnitCascadeSelect
-            value={form.unitId || ''}
-            onChange={(value) => onChange({ ...form, unitId: value })}
-            placeholder="부대 선택"
-            showFullPath={true}
-            spanFullWidth={true}
-          />
-        </div>
+      </div>
+      <div>
+        <label className="block text-xs text-muted-foreground mb-1.5">소속 부대 *</label>
+        <UnitCascadeSelect
+          value={form.unitId || ''}
+          onChange={(value) => onChange({ ...form, unitId: value })}
+          placeholder="부대 선택"
+          showFullPath={true}
+          spanFullWidth={true}
+        />
       </div>
       <div>
         <label className="block text-xs text-muted-foreground mb-1.5">비밀번호 *</label>
@@ -128,8 +140,9 @@ function UserForm({ form, onChange }: { form: Partial<User>; onChange: (form: Pa
           className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
         />
       </div>
-      <div className="text-[11px] text-muted-foreground pt-2">
-        • 비밀번호는 8자 이상, 영문/숫자/특수문자를 포함해야 합니다.
+      <div className="text-[11px] text-muted-foreground pt-2 space-y-0.5">
+        <p>• 비밀번호는 8자 이상, 영문/숫자/특수문자를 포함해야 합니다.</p>
+        <p>• 계정 이관 시 군번을 변경하여 새 사용자를 등록하세요.</p>
       </div>
     </div>
   );
@@ -182,7 +195,7 @@ export default function UserManagementPage() {
   };
 
   const handleSubmit = () => {
-    if (!newUserForm.militaryId || !newUserForm.name || !newUserForm.rank || !newUserForm.unitId || !newUserForm.password) {
+    if (!newUserForm.accountId || !newUserForm.militaryId || !newUserForm.name || !newUserForm.rank || !newUserForm.unitId || !newUserForm.password) {
       toast({
         title: '입력 오류',
         description: '모든 필수 항목을 입력해주세요.',
@@ -193,12 +206,13 @@ export default function UserManagementPage() {
     
     const newUser: User = {
       id: Date.now().toString(),
+      accountId: newUserForm.accountId,
       militaryId: newUserForm.militaryId,
       name: newUserForm.name,
       rank: newUserForm.rank,
       unitId: newUserForm.unitId,
       password: newUserForm.password,
-      role: 'ROLE_BN',
+      role: 'ROLE_USER',
       status: 'active',
     };
     
@@ -212,11 +226,11 @@ export default function UserManagementPage() {
   };
 
   const handleDownloadTemplate = () => {
-    const headers = ['군번', '이름', '계급', '소속부대코드', '비밀번호', '권한', '상태'];
+    const headers = ['계정ID', '군번', '이름', '계급', '소속부대코드', '비밀번호', '권한', '상태'];
     const exampleRows = [
-      ['18-702341', '김철수', '대령', 'hq', 'Password123!', 'ROLE_HQ', '활성'],
-      ['17-681542', '이영희', '준장', 'div-1', 'Password123!', 'ROLE_DIV', '활성'],
-      ['19-723185', '박민호', '대령', 'div-3', 'Password123!', 'ROLE_DIV', '비활성'],
+      ['HQ-001', '18-702341', '김철수', '대령', 'hq', 'Password123!', 'ROLE_ADMIN', '활성'],
+      ['C1D1-001', '17-681542', '이영희', '준장', 'corps-1-div-1', 'Password123!', 'ROLE_ADMIN', '활성'],
+      ['C5D3-001', '19-723185', '박민호', '대령', 'corps-5-div-3', 'Password123!', 'ROLE_USER', '비활성'],
     ];
 
     // BOM 추가 (한글 깨짐 방지)
@@ -303,6 +317,7 @@ export default function UserManagementPage() {
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
       user.name.includes(searchQuery) ||
+      user.accountId.includes(searchQuery) ||
       user.militaryId.includes(searchQuery) ||
       getUnitById(user.unitId)?.name.includes(searchQuery);
     
@@ -382,7 +397,7 @@ export default function UserManagementPage() {
           </div>
         </div>
         <input
-          placeholder="이름, 군번, 부대 검색..."
+          placeholder="이름, 계정 ID, 군번, 부대 검색..."
           value={searchQuery}
           onChange={(e) => handleSearchChange(e.target.value)}
           className="w-64 bg-transparent border border-border rounded px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
@@ -393,6 +408,7 @@ export default function UserManagementPage() {
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead className="text-xs w-24">계정 ID</TableHead>
             <TableHead className="text-xs w-24">군번</TableHead>
             <TableHead className="text-xs w-20">이름</TableHead>
             <TableHead className="text-xs w-16">계급</TableHead>
@@ -403,7 +419,7 @@ export default function UserManagementPage() {
         <TableBody>
           {paginatedUsers.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={5} className="text-center py-8 text-sm text-muted-foreground">
+              <TableCell colSpan={6} className="text-center py-8 text-sm text-muted-foreground">
                 검색 결과가 없습니다.
               </TableCell>
             </TableRow>
@@ -414,10 +430,11 @@ export default function UserManagementPage() {
                 className="cursor-pointer hover:bg-muted/50"
                 onClick={() => handleUserClick(user)}
               >
+                <TableCell className="font-mono text-xs text-primary">{user.accountId}</TableCell>
                 <TableCell className="font-mono text-xs">{user.militaryId}</TableCell>
                 <TableCell className="text-sm font-medium">{user.name}</TableCell>
                 <TableCell className="text-sm text-muted-foreground">{user.rank}</TableCell>
-                <TableCell className="text-xs text-muted-foreground truncate max-w-[300px]" title={getUnitFullName(user.unitId)}>
+                <TableCell className="text-xs text-muted-foreground truncate max-w-[250px]" title={getUnitFullName(user.unitId)}>
                   {getUnitFullName(user.unitId)}
                 </TableCell>
                 <TableCell>
@@ -509,6 +526,22 @@ export default function UserManagementPage() {
           </DialogHeader>
           
           <div className="space-y-4 py-4 overflow-x-auto">
+            {/* 계정 ID */}
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1.5">계정 ID</label>
+              {isEditMode ? (
+                <input
+                  type="text"
+                  value={editForm.accountId || ''}
+                  onChange={(e) => setEditForm({ ...editForm, accountId: e.target.value })}
+                  className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+                />
+              ) : (
+                <p className="px-3 py-2 text-sm bg-muted/50 border border-border rounded-md font-mono text-primary">{selectedUser?.accountId}</p>
+              )}
+              <p className="text-[10px] text-muted-foreground mt-1">IP 기반 로그인용 계정 (이관 가능)</p>
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs text-muted-foreground mb-1.5">군번</label>
@@ -520,8 +553,9 @@ export default function UserManagementPage() {
                     className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
                   />
                 ) : (
-                  <p className="px-3 py-2 text-sm bg-muted/50 border border-border rounded-md">{selectedUser?.militaryId}</p>
+                  <p className="px-3 py-2 text-sm bg-muted/50 border border-border rounded-md font-mono">{selectedUser?.militaryId}</p>
                 )}
+                <p className="text-[10px] text-muted-foreground mt-1">실제 사용자 식별용</p>
               </div>
               <div>
                 <label className="block text-xs text-muted-foreground mb-1.5">이름</label>
