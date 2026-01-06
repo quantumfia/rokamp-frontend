@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, FileText } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface Notice {
@@ -51,10 +51,7 @@ export function DashboardNoticeList() {
     <div className="h-full flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-border">
-        <div className="flex items-center gap-2">
-          <FileText className="w-4 h-4 text-primary" />
-          <h3 className="text-sm font-semibold text-foreground">공지사항</h3>
-        </div>
+        <h3 className="text-sm font-semibold text-foreground">공지사항</h3>
         <Button 
           variant="ghost" 
           size="sm" 
