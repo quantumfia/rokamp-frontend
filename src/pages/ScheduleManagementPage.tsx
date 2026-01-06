@@ -6,6 +6,8 @@ import { PageHeader, ActionButton, AddModal, FileDropZone } from '@/components/c
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { getAccessibleUnits } from '@/lib/rbac';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -309,6 +311,7 @@ function ScheduleBulkUploadForm({ onDownloadTemplate }: { onDownloadTemplate: ()
 }
 
 export default function ScheduleManagementPage() {
+  const { user } = useAuth();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState<TrainingSchedule | null>(null);
@@ -317,6 +320,23 @@ export default function ScheduleManagementPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [scheduleToDelete, setScheduleToDelete] = useState<TrainingSchedule | null>(null);
   const isLoading = usePageLoading(800);
+
+  // 역할 기반 접근 가능 부대 목록
+  const accessibleUnits = useMemo(() => {
+    return getAccessibleUnits(user?.role, user?.unitId);
+  }, [user?.role, user?.unitId]);
+
+  // 역할 기반 필터링된 일정
+  const filteredSchedules = useMemo(() => {
+    // HQ는 전체 일정 접근 가능
+    if (user?.role === 'ROLE_HQ') return SCHEDULES;
+    
+    // DIV/BN은 접근 가능한 부대의 일정만
+    return SCHEDULES.filter(schedule => 
+      accessibleUnits.some(unit => schedule.unit.includes(unit.name))
+    );
+  }, [user?.role, accessibleUnits]);
+
   // 현재 주의 시작일과 종료일
   const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 });
@@ -327,14 +347,14 @@ export default function ScheduleManagementPage() {
   const goToNextWeek = () => setCurrentDate(addWeeks(currentDate, 1));
   const goToToday = () => setCurrentDate(new Date());
 
-  // 해당 날짜의 일정 필터링
+  // 해당 날짜의 일정 필터링 (역할 기반 필터 적용)
   const getSchedulesForDate = (date: Date) => {
-    return SCHEDULES.filter(schedule => isSameDay(schedule.date, date));
+    return filteredSchedules.filter(schedule => isSameDay(schedule.date, date));
   };
 
-  // 주간 통계
+  // 주간 통계 (역할 기반 필터 적용)
   const weekStats = useMemo(() => {
-    const weekSchedules = SCHEDULES.filter(s => 
+    const weekSchedules = filteredSchedules.filter(s => 
       s.date >= weekStart && s.date <= weekEnd
     );
     return {
@@ -342,7 +362,7 @@ export default function ScheduleManagementPage() {
       highRisk: weekSchedules.filter(s => s.riskLevel === 'high').length,
       totalParticipants: weekSchedules.reduce((sum, s) => sum + s.participants, 0),
     };
-  }, [weekStart, weekEnd]);
+  }, [filteredSchedules, weekStart, weekEnd]);
 
   const handleSubmit = () => {
     toast({

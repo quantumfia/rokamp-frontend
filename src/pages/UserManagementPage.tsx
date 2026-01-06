@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Download, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Pencil } from 'lucide-react';
 import { UnitCascadeSelect } from '@/components/unit/UnitCascadeSelect';
 import { getUnitById, getAllDescendants, getUnitFullName } from '@/data/armyUnits';
@@ -7,7 +7,7 @@ import { UserManagementSkeleton } from '@/components/skeletons';
 import { PageHeader, ActionButton, AddModal, FileDropZone } from '@/components/common';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { useAuth } from '@/contexts/AuthContext';
-import { canChangeUserRole } from '@/lib/rbac';
+import { canChangeUserRole, getAccessibleUnits } from '@/lib/rbac';
 import {
   Table,
   TableBody,
@@ -190,6 +190,11 @@ export default function UserManagementPage() {
   
   // 역할 변경 권한 확인
   const canEditRole = canChangeUserRole(currentUser?.role);
+
+  // 역할 기반 접근 가능 부대 목록
+  const accessibleUnits = useMemo(() => {
+    return getAccessibleUnits(currentUser?.role, currentUser?.unitId);
+  }, [currentUser?.role, currentUser?.unitId]);
   
   // 페이지네이션 상태
   const [currentPage, setCurrentPage] = useState(1);
@@ -320,22 +325,33 @@ export default function UserManagementPage() {
     }
   };
 
-  const filteredUsers = users.filter((user) => {
-    const matchesSearch =
-      user.name.includes(searchQuery) ||
-      user.accountId.includes(searchQuery) ||
-      user.militaryId.includes(searchQuery) ||
-      getUnitById(user.unitId)?.name.includes(searchQuery);
-    
-    let matchesUnit = true;
-    if (selectedUnitFilter && selectedUnitFilter !== 'all') {
-      const descendants = getAllDescendants(selectedUnitFilter);
-      const descendantIds = descendants.map(u => u.id);
-      matchesUnit = user.unitId === selectedUnitFilter || descendantIds.includes(user.unitId);
-    }
-    
-    return matchesSearch && matchesUnit;
-  });
+  const filteredUsers = useMemo(() => {
+    return users.filter((user) => {
+      // 역할 기반 부대 필터링: HQ는 전체, DIV는 예하 부대 사용자만
+      const hasAccess = currentUser?.role === 'ROLE_HQ' || 
+        accessibleUnits.some(unit => {
+          const userUnit = getUnitById(user.unitId);
+          return userUnit && (user.unitId === unit.id || userUnit.name.includes(unit.name));
+        });
+      
+      if (!hasAccess) return false;
+
+      const matchesSearch =
+        user.name.includes(searchQuery) ||
+        user.accountId.includes(searchQuery) ||
+        user.militaryId.includes(searchQuery) ||
+        getUnitById(user.unitId)?.name.includes(searchQuery);
+      
+      let matchesUnit = true;
+      if (selectedUnitFilter && selectedUnitFilter !== 'all') {
+        const descendants = getAllDescendants(selectedUnitFilter);
+        const descendantIds = descendants.map(u => u.id);
+        matchesUnit = user.unitId === selectedUnitFilter || descendantIds.includes(user.unitId);
+      }
+      
+      return matchesSearch && matchesUnit;
+    });
+  }, [users, currentUser?.role, accessibleUnits, searchQuery, selectedUnitFilter]);
 
   // 페이지네이션 계산
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
