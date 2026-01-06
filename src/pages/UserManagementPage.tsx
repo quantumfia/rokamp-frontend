@@ -384,19 +384,19 @@ export default function UserManagementPage() {
         }
       />
 
-      {/* 통계 요약 */}
+      {/* 통계 요약 - 접근 가능한 사용자 기준 */}
       <div className="grid grid-cols-3 gap-6">
         <div>
           <p className="text-xs text-muted-foreground">전체 사용자</p>
-          <p className="text-2xl font-semibold text-foreground mt-1">{users.length}</p>
+          <p className="text-2xl font-semibold text-foreground mt-1">{filteredUsers.length}</p>
         </div>
         <div>
           <p className="text-xs text-muted-foreground">활성 계정</p>
-          <p className="text-2xl font-semibold text-foreground mt-1">{users.filter(u => u.status === 'active').length}</p>
+          <p className="text-2xl font-semibold text-foreground mt-1">{filteredUsers.filter(u => u.status === 'active').length}</p>
         </div>
         <div>
           <p className="text-xs text-muted-foreground">소속 부대</p>
-          <p className="text-2xl font-semibold text-foreground mt-1">{new Set(users.map(u => u.unitId)).size}</p>
+          <p className="text-2xl font-semibold text-foreground mt-1">{new Set(filteredUsers.map(u => u.unitId)).size}</p>
         </div>
       </div>
 
