@@ -36,23 +36,23 @@ import { cn } from '@/lib/utils';
 
 // 감사 로그 Mock 데이터
 const AUDIT_LOGS = [
-  { id: 1, visitorId: '24-503994', userName: '김철수', rank: '대령', ip: '10.10.1.100', action: '로그인', target: '-', timestamp: '2024-12-14 09:15:23', status: 'success' },
-  { id: 2, visitorId: '22-481523', userName: '이영희', rank: '소령', ip: '10.10.2.55', action: '보고서 조회', target: '12월 2주차 통계보고서', timestamp: '2024-12-14 09:12:45', status: 'success' },
-  { id: 3, visitorId: '24-503994', userName: '김철수', rank: '대령', ip: '10.10.1.100', action: '사용자 생성', target: '23-824693', timestamp: '2024-12-14 08:55:12', status: 'success' },
-  { id: 4, visitorId: '-', userName: '-', rank: '-', ip: '192.168.1.50', action: '로그인 시도', target: '-', timestamp: '2024-12-14 08:30:05', status: 'failed' },
-  { id: 5, visitorId: '21-392847', userName: '박민수', rank: '중령', ip: '10.10.3.22', action: '데이터 조회', target: '제1사단 위험도', timestamp: '2024-12-14 08:22:18', status: 'success' },
-  { id: 6, visitorId: '24-503994', userName: '김철수', rank: '대령', ip: '10.10.1.100', action: '공지사항 등록', target: '동절기 안전수칙', timestamp: '2024-12-13 17:45:30', status: 'success' },
-  { id: 7, visitorId: '22-481523', userName: '이영희', rank: '소령', ip: '10.10.2.55', action: '로그아웃', target: '-', timestamp: '2024-12-13 17:30:00', status: 'success' },
-  { id: 8, visitorId: '21-392847', userName: '박민수', rank: '중령', ip: '10.10.3.22', action: '로그인', target: '-', timestamp: '2024-12-13 14:20:15', status: 'success' },
-  { id: 9, visitorId: '23-567821', userName: '최정훈', rank: '대위', ip: '10.10.4.88', action: '보고서 생성', target: '12월 1주차 사고보고서', timestamp: '2024-12-13 11:45:22', status: 'success' },
-  { id: 10, visitorId: '-', userName: '-', rank: '-', ip: '172.16.5.100', action: '로그인 시도', target: '-', timestamp: '2024-12-13 10:15:33', status: 'failed' },
-  { id: 11, visitorId: '24-503994', userName: '김철수', rank: '대령', ip: '10.10.1.100', action: '권한 변경', target: '22-481523', timestamp: '2024-12-12 16:30:45', status: 'success' },
-  { id: 12, visitorId: '22-481523', userName: '이영희', rank: '소령', ip: '10.10.2.55', action: '데이터 조회', target: '제2사단 통계', timestamp: '2024-12-12 15:22:10', status: 'success' },
-  { id: 13, visitorId: '20-284756', userName: '정대호', rank: '중위', ip: '10.10.5.33', action: '로그인', target: '-', timestamp: '2024-12-12 14:10:05', status: 'success' },
-  { id: 14, visitorId: '20-284756', userName: '정대호', rank: '중위', ip: '10.10.5.33', action: '예보 조회', target: '12월 3주차 예보', timestamp: '2024-12-12 14:15:30', status: 'success' },
-  { id: 15, visitorId: '23-567821', userName: '최정훈', rank: '대위', ip: '10.10.4.88', action: '로그아웃', target: '-', timestamp: '2024-12-12 13:00:00', status: 'success' },
-  { id: 16, visitorId: '21-392847', userName: '박민수', rank: '중령', ip: '10.10.3.22', action: '공지사항 수정', target: '겨울철 훈련 유의사항', timestamp: '2024-12-11 17:45:12', status: 'success' },
-  { id: 17, visitorId: '-', userName: '-', rank: '-', ip: '192.168.100.5', action: '로그인 시도', target: '-', timestamp: '2024-12-11 09:05:55', status: 'failed' },
+  { id: 1, accountId: 'HQ-001', militaryId: '18-702341', userName: '김철수', rank: '대령', ip: '10.10.1.100', action: '로그인', target: '-', timestamp: '2024-12-14 09:15:23', status: 'success' },
+  { id: 2, accountId: 'C1D1-001', militaryId: '17-681542', userName: '이영희', rank: '소령', ip: '10.10.2.55', action: '보고서 조회', target: '12월 2주차 통계보고서', timestamp: '2024-12-14 09:12:45', status: 'success' },
+  { id: 3, accountId: 'HQ-001', militaryId: '18-702341', userName: '김철수', rank: '대령', ip: '10.10.1.100', action: '사용자 생성', target: 'SWC-001', timestamp: '2024-12-14 08:55:12', status: 'success' },
+  { id: 4, accountId: '-', militaryId: '-', userName: '-', rank: '-', ip: '192.168.1.50', action: '로그인 시도', target: '-', timestamp: '2024-12-14 08:30:05', status: 'failed' },
+  { id: 5, accountId: 'C3D12-001', militaryId: '21-392847', userName: '박민수', rank: '중령', ip: '10.10.3.22', action: '데이터 조회', target: '제1사단 위험도', timestamp: '2024-12-14 08:22:18', status: 'success' },
+  { id: 6, accountId: 'HQ-001', militaryId: '18-702341', userName: '김철수', rank: '대령', ip: '10.10.1.100', action: '공지사항 등록', target: '동절기 안전수칙', timestamp: '2024-12-13 17:45:30', status: 'success' },
+  { id: 7, accountId: 'C1D1-001', militaryId: '17-681542', userName: '이영희', rank: '소령', ip: '10.10.2.55', action: '로그아웃', target: '-', timestamp: '2024-12-13 17:30:00', status: 'success' },
+  { id: 8, accountId: 'C3D12-001', militaryId: '21-392847', userName: '박민수', rank: '중령', ip: '10.10.3.22', action: '로그인', target: '-', timestamp: '2024-12-13 14:20:15', status: 'success' },
+  { id: 9, accountId: 'C2D7-001', militaryId: '23-567821', userName: '최정훈', rank: '대위', ip: '10.10.4.88', action: '보고서 생성', target: '12월 1주차 사고보고서', timestamp: '2024-12-13 11:45:22', status: 'success' },
+  { id: 10, accountId: '-', militaryId: '-', userName: '-', rank: '-', ip: '172.16.5.100', action: '로그인 시도', target: '-', timestamp: '2024-12-13 10:15:33', status: 'failed' },
+  { id: 11, accountId: 'HQ-001', militaryId: '18-702341', userName: '김철수', rank: '대령', ip: '10.10.1.100', action: '권한 변경', target: 'C1D1-001', timestamp: '2024-12-12 16:30:45', status: 'success' },
+  { id: 12, accountId: 'C1D1-001', militaryId: '17-681542', userName: '이영희', rank: '소령', ip: '10.10.2.55', action: '데이터 조회', target: '제2사단 통계', timestamp: '2024-12-12 15:22:10', status: 'success' },
+  { id: 13, accountId: 'C1D9-001', militaryId: '20-284756', userName: '정대호', rank: '중위', ip: '10.10.5.33', action: '로그인', target: '-', timestamp: '2024-12-12 14:10:05', status: 'success' },
+  { id: 14, accountId: 'C1D9-001', militaryId: '20-284756', userName: '정대호', rank: '중위', ip: '10.10.5.33', action: '예보 조회', target: '12월 3주차 예보', timestamp: '2024-12-12 14:15:30', status: 'success' },
+  { id: 15, accountId: 'C2D7-001', militaryId: '23-567821', userName: '최정훈', rank: '대위', ip: '10.10.4.88', action: '로그아웃', target: '-', timestamp: '2024-12-12 13:00:00', status: 'success' },
+  { id: 16, accountId: 'C3D12-001', militaryId: '21-392847', userName: '박민수', rank: '중령', ip: '10.10.3.22', action: '공지사항 수정', target: '겨울철 훈련 유의사항', timestamp: '2024-12-11 17:45:12', status: 'success' },
+  { id: 17, accountId: '-', militaryId: '-', userName: '-', rank: '-', ip: '192.168.100.5', action: '로그인 시도', target: '-', timestamp: '2024-12-11 09:05:55', status: 'failed' },
 ];
 
 // 허용 IP 대역 타입 및 초기 데이터
@@ -109,10 +109,10 @@ export default function SystemSettingsPage() {
     });
   };
 
-  const handleForceLogout = (visitorId: string, userName: string) => {
+  const handleForceLogout = (accountId: string, userName: string) => {
     toast({
       title: '강제 로그아웃',
-      description: `${userName} 사용자의 세션을 종료했습니다.`,
+      description: `${userName} 사용자의 세션을 종료했습니다. (계정: ${accountId})`,
     });
   };
 
@@ -206,7 +206,8 @@ export default function SystemSettingsPage() {
   // 감사 로그 필터링 및 페이지네이션
   const filteredLogs = AUDIT_LOGS.filter((log) =>
     log.userName.includes(logSearchQuery) || 
-    log.visitorId.includes(logSearchQuery) ||
+    log.accountId.includes(logSearchQuery) ||
+    log.militaryId.includes(logSearchQuery) ||
     log.action.includes(logSearchQuery) ||
     log.ip.includes(logSearchQuery)
   );
@@ -430,7 +431,7 @@ export default function SystemSettingsPage() {
           <div className="flex-1 max-w-sm relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="군번, 이름 또는 IP 주소 검색..."
+              placeholder="계정 ID, 군번, 이름 또는 IP 주소 검색..."
               className="pl-9 bg-background"
               value={logSearchQuery}
               onChange={(e) => handleLogSearchChange(e.target.value)}
@@ -456,8 +457,9 @@ export default function SystemSettingsPage() {
           <TableHeader>
             <TableRow>
               <TableHead className="text-xs w-36">일시</TableHead>
+              <TableHead className="text-xs w-24">계정 ID</TableHead>
               <TableHead className="text-xs w-24">군번</TableHead>
-              <TableHead className="text-xs w-32 whitespace-nowrap">이름/계급</TableHead>
+              <TableHead className="text-xs w-28 whitespace-nowrap">이름/계급</TableHead>
               <TableHead className="text-xs w-28">IP 주소</TableHead>
               <TableHead className="text-xs">수행 작업</TableHead>
               <TableHead className="text-xs">대상</TableHead>
@@ -468,7 +470,7 @@ export default function SystemSettingsPage() {
           <TableBody>
             {paginatedLogs.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                   검색 결과가 없습니다.
                 </TableCell>
               </TableRow>
@@ -476,7 +478,8 @@ export default function SystemSettingsPage() {
               paginatedLogs.map((log) => (
                 <TableRow key={log.id}>
                   <TableCell className="text-xs text-muted-foreground tabular-nums">{log.timestamp}</TableCell>
-                  <TableCell className="font-mono text-xs">{log.visitorId}</TableCell>
+                  <TableCell className="font-mono text-xs text-primary">{log.accountId}</TableCell>
+                  <TableCell className="font-mono text-xs">{log.militaryId}</TableCell>
                   <TableCell className="text-sm">
                     {log.userName !== '-' ? `${log.userName} ${log.rank}` : '-'}
                   </TableCell>
@@ -494,7 +497,7 @@ export default function SystemSettingsPage() {
                   <TableCell className="text-center">
                     {log.status === 'success' && log.action === '로그인' && (
                       <button 
-                        onClick={() => handleForceLogout(log.visitorId, log.userName)}
+                        onClick={() => handleForceLogout(log.accountId, log.userName)}
                         className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                       >
                         세션 종료
