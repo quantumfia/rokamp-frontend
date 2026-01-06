@@ -3,17 +3,17 @@ import { IncidentTicker } from '@/components/dashboard/IncidentTicker';
 import { StatusHeader } from '@/components/dashboard/StatusHeader';
 import { RiskLevelPanel } from '@/components/dashboard/RiskLevelGauge';
 import { UnitFilterPanel, FilterState } from '@/components/dashboard/UnitFilterPanel';
-import { UnitListTable } from '@/components/dashboard/UnitListTable';
-import { UnitDetailPanel } from '@/components/dashboard/UnitDetailPanel';
-import { TrendChartsVertical } from '@/components/dashboard/TrendChartsVertical';
+import { UnitListCompact } from '@/components/dashboard/UnitListCompact';
+import { UnitDetailPanelHorizontal } from '@/components/dashboard/UnitDetailPanelHorizontal';
+import { TrendAnalysisPanel } from '@/components/dashboard/TrendAnalysisPanel';
+import { DashboardNoticeList } from '@/components/dashboard/DashboardNoticeList';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSearchContext } from '@/components/layout/MainLayout';
-import { X, Filter, BarChart3 } from 'lucide-react';
+import { X, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import {
   RiskSummarySkeleton,
-  UnitDetailSkeleton,
   TrendChartsSkeleton,
   StatusHeaderSkeleton,
   TickerBarSkeleton,
@@ -28,10 +28,10 @@ export default function DashboardPage() {
     selectedUnit: '',
     riskLevels: [],
   });
+  const [searchQuery, setSearchQuery] = useState('');
   
   // 반응형 패널 상태
   const [showLeftPanel, setShowLeftPanel] = useState(false);
-  const [showRightPanel, setShowRightPanel] = useState(false);
 
   // 초기 로딩 시뮬레이션
   useEffect(() => {
@@ -57,7 +57,6 @@ export default function DashboardPage() {
   };
 
   const handleIncidentDetail = () => {
-    // TODO: 사고 상세 페이지로 이동
     console.log('사고 상세 보기');
   };
 
@@ -83,9 +82,9 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Main Content - 2단 구조 (테이블 + 트렌드) */}
+      {/* Main Content - 좌측 부대 리스트 + 우측 (상단 트렌드/상세 + 하단 공지) */}
       <div className="flex-1 flex overflow-hidden relative">
-        {/* Left Panel - 필터 (항상 오버레이로만 표시) */}
+        {/* Left Panel - 필터 (오버레이) */}
         {showLeftPanel && (
           <div className="absolute inset-0 z-30 flex">
             <div className="w-64 max-w-[85vw] bg-card border-r border-border overflow-hidden animate-slide-in-left">
@@ -103,8 +102,8 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Center - 부대 목록 테이블 */}
-        <div className="flex-1 flex flex-col bg-background overflow-hidden">
+        {/* Left Section - 부대 리스트 (전체의 50%) */}
+        <div className="w-1/2 flex flex-col border-r border-border bg-background overflow-hidden">
           {/* 필터 버튼 툴바 */}
           <div className="flex items-center gap-2 p-2 border-b border-border bg-card/50">
             <Button
@@ -118,7 +117,7 @@ export default function DashboardPage() {
             </Button>
           </div>
 
-          {/* 테이블 */}
+          {/* 부대 리스트 */}
           <div className="flex-1 overflow-hidden">
             {isLoading ? (
               <div className="p-4 space-y-2">
@@ -127,48 +126,39 @@ export default function DashboardPage() {
                 ))}
               </div>
             ) : (
-              <UnitListTable
+              <UnitListCompact
                 onUnitClick={handleUnitClick}
                 selectedUnitId={selectedUnitId}
                 filters={filters}
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
               />
             )}
           </div>
         </div>
 
-        {/* Right Panel - 트렌드 차트 또는 부대 상세 (항상 표시) */}
-        <div
-          className={cn(
-            'shrink-0 border-l border-border bg-card overflow-hidden transition-all duration-300',
-            'hidden md:block md:w-80 xl:w-[480px]',
-          )}
-        >
-          {isLoading ? (
-            <TrendChartsSkeleton />
-          ) : selectedUnitId ? (
-            <UnitDetailPanel 
-              unitId={selectedUnitId} 
-              onClose={handleCloseDetail}
-              showBackButton
-            />
-          ) : (
-            <TrendChartsVertical />
-          )}
-        </div>
-
-        {/* Mobile Right Panel Overlay - 부대 상세 */}
-        {selectedUnitId && (
-          <div className="md:hidden absolute inset-0 z-30 flex justify-end">
-            <div className="flex-1 bg-black/50" onClick={handleCloseDetail} />
-            <div className="w-80 max-w-[90vw] bg-card border-l border-border overflow-hidden animate-slide-in-right">
-              <UnitDetailPanel 
+        {/* Right Section - 트렌드/상세 + 공지사항 (전체의 50%) */}
+        <div className="w-1/2 flex flex-col overflow-hidden">
+          {/* 상단 - 트렌드 분석 또는 부대 상세 */}
+          <div className="h-1/2 border-b border-border overflow-hidden">
+            {isLoading ? (
+              <TrendChartsSkeleton />
+            ) : selectedUnitId ? (
+              <UnitDetailPanelHorizontal 
                 unitId={selectedUnitId} 
                 onClose={handleCloseDetail}
                 showBackButton
               />
-            </div>
+            ) : (
+              <TrendAnalysisPanel />
+            )}
           </div>
-        )}
+
+          {/* 하단 - 공지사항 리스트 */}
+          <div className="h-1/2 overflow-hidden">
+            <DashboardNoticeList />
+          </div>
+        </div>
       </div>
     </div>
   );
