@@ -84,14 +84,19 @@ export default function SystemSettingsPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [ipToDelete, setIpToDelete] = useState<AllowedIP | null>(null);
   
+  // IP 검색 및 페이지네이션
+  const [ipSearchQuery, setIpSearchQuery] = useState('');
+  const [ipCurrentPage, setIpCurrentPage] = useState(1);
+  const ipItemsPerPage = 5;
+  
   // 감사 로그 필터
   const [logSearchQuery, setLogSearchQuery] = useState('');
   const [logDateFrom, setLogDateFrom] = useState('');
   const [logDateTo, setLogDateTo] = useState('');
   
-  // 페이지네이션
+  // 감사 로그 페이지네이션
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 5;
 
   const handleExportLogs = () => {
     toast({
@@ -179,14 +184,28 @@ export default function SystemSettingsPage() {
     setIpToDelete(null);
   };
 
+  // IP 필터링 및 페이지네이션
+  const filteredIPs = allowedIPs.filter((ip) =>
+    ip.ip.includes(ipSearchQuery) || 
+    ip.desc.includes(ipSearchQuery)
+  );
+  const ipTotalPages = Math.ceil(filteredIPs.length / ipItemsPerPage);
+  const ipStartIndex = (ipCurrentPage - 1) * ipItemsPerPage;
+  const ipEndIndex = ipStartIndex + ipItemsPerPage;
+  const paginatedIPs = filteredIPs.slice(ipStartIndex, ipEndIndex);
+
+  const handleIpSearchChange = (value: string) => {
+    setIpSearchQuery(value);
+    setIpCurrentPage(1);
+  };
+
+  // 감사 로그 필터링 및 페이지네이션
   const filteredLogs = AUDIT_LOGS.filter((log) =>
     log.userName.includes(logSearchQuery) || 
     log.visitorId.includes(logSearchQuery) ||
     log.action.includes(logSearchQuery) ||
     log.ip.includes(logSearchQuery)
   );
-
-  // 페이지네이션 계산
   const totalPages = Math.ceil(filteredLogs.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -208,79 +227,186 @@ export default function SystemSettingsPage() {
         description="시스템 보안 정책 및 접속 이력 관리"
       />
 
-      {/* 보안 정책 요약 + IP 제어 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* 보안 정책 요약 */}
-        <section className="border border-border rounded-lg p-4">
-          <h2 className="text-sm font-medium mb-3">보안 정책</h2>
-          <div className="text-xs text-muted-foreground space-y-1.5">
-            <p>• 비밀번호: 8자 이상, 대문자/특수문자/숫자 필수, 90일 주기 변경</p>
-            <p>• 세션: 30분 타임아웃, 로그인 실패 5회 시 계정 잠금</p>
-            <p>• 감사: 모든 접속/조회/변경 이력 365일 보관</p>
-          </div>
-          <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border">
-            정책 변경이 필요한 경우 시스템 관리팀에 문의하세요.
-          </p>
-        </section>
+      {/* 보안 정책 요약 */}
+      <section className="border border-border rounded-lg p-4">
+        <h2 className="text-sm font-medium mb-3">보안 정책</h2>
+        <div className="text-xs text-muted-foreground space-y-1.5">
+          <p>• 비밀번호: 8자 이상, 대문자/특수문자/숫자 필수, 90일 주기 변경</p>
+          <p>• 세션: 30분 타임아웃, 로그인 실패 5회 시 계정 잠금</p>
+          <p>• 감사: 모든 접속/조회/변경 이력 365일 보관</p>
+        </div>
+        <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border">
+          정책 변경이 필요한 경우 시스템 관리팀에 문의하세요.
+        </p>
+      </section>
 
-        {/* IP 접근 제어 */}
-        <section className="border border-border rounded-lg p-4">
-          <div className="flex items-center justify-between mb-3">
+      {/* IP 접근 제어 - 테이블 형태 */}
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Globe className="w-4 h-4 text-muted-foreground" />
+            <div>
+              <h2 className="text-sm font-semibold text-foreground">IP 접근 제어</h2>
+              <p className="text-xs text-muted-foreground">허용된 IP 대역 관리</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleAddIP}
+              disabled={!ipWhitelistEnabled}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              IP 추가
+            </Button>
             <div className="flex items-center gap-2">
-              <Globe className="w-4 h-4 text-muted-foreground" />
-              <h2 className="text-sm font-medium">IP 접근 제어</h2>
-            </div>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleAddIP}
-                disabled={!ipWhitelistEnabled}
-                className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                추가
-              </button>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">화이트리스트</span>
-                <Switch 
-                  checked={ipWhitelistEnabled}
-                  onCheckedChange={setIpWhitelistEnabled}
-                />
-              </div>
+              <span className="text-xs text-muted-foreground">화이트리스트</span>
+              <Switch 
+                checked={ipWhitelistEnabled}
+                onCheckedChange={setIpWhitelistEnabled}
+              />
             </div>
           </div>
-          <div className={cn(
-            "space-y-1.5 transition-opacity",
-            !ipWhitelistEnabled && "opacity-50"
-          )}>
-            {allowedIPs.map((item) => (
-              <div key={item.id} className="flex items-center justify-between group text-xs">
-                <div className="flex items-center gap-2">
-                  <code className="font-mono bg-muted px-1.5 py-0.5 rounded">{item.ip}</code>
-                  <span className="text-muted-foreground">{item.desc}</span>
-                </div>
-                {ipWhitelistEnabled && (
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={() => handleEditIP(item)}
-                      className="p-1 hover:bg-muted rounded transition-colors"
-                      title="수정"
-                    >
-                      <Pencil className="w-3 h-3 text-muted-foreground" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteClick(item)}
-                      className="p-1 hover:bg-muted rounded transition-colors"
-                      title="삭제"
-                    >
-                      <Trash2 className="w-3 h-3 text-muted-foreground" />
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))}
+        </div>
+
+        {/* IP 검색 */}
+        <div className={cn(
+          "transition-opacity",
+          !ipWhitelistEnabled && "opacity-50 pointer-events-none"
+        )}>
+          <div className="flex gap-3 py-3 border-y border-border">
+            <div className="flex-1 max-w-sm relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="IP 대역 또는 설명 검색..."
+                className="pl-9 bg-background"
+                value={ipSearchQuery}
+                onChange={(e) => handleIpSearchChange(e.target.value)}
+              />
+            </div>
           </div>
-        </section>
-      </div>
+
+          {/* IP 테이블 */}
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-xs w-48">IP 대역</TableHead>
+                <TableHead className="text-xs">설명</TableHead>
+                <TableHead className="text-xs w-24 text-center">관리</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {paginatedIPs.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">
+                    {ipSearchQuery ? '검색 결과가 없습니다.' : '등록된 IP가 없습니다.'}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                paginatedIPs.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell className="font-mono text-sm">{item.ip}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{item.desc}</TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        <button
+                          onClick={() => handleEditIP(item)}
+                          className="p-1.5 hover:bg-muted rounded transition-colors"
+                          title="수정"
+                        >
+                          <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteClick(item)}
+                          className="p-1.5 hover:bg-muted rounded transition-colors"
+                          title="삭제"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 text-muted-foreground" />
+                        </button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+
+          {/* IP 페이지네이션 */}
+          {ipTotalPages > 1 && (
+            <div className="flex items-center justify-between pt-4">
+              <p className="text-sm text-muted-foreground">
+                총 {filteredIPs.length}건 중 {ipStartIndex + 1}-{Math.min(ipEndIndex, filteredIPs.length)}건
+              </p>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setIpCurrentPage(1)}
+                  disabled={ipCurrentPage === 1}
+                >
+                  <ChevronsLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setIpCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={ipCurrentPage === 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                
+                {Array.from({ length: ipTotalPages }, (_, i) => i + 1)
+                  .filter(page => {
+                    if (ipTotalPages <= 5) return true;
+                    if (page === 1 || page === ipTotalPages) return true;
+                    if (Math.abs(page - ipCurrentPage) <= 1) return true;
+                    return false;
+                  })
+                  .map((page, index, array) => {
+                    const showEllipsis = index > 0 && page - array[index - 1] > 1;
+                    return (
+                      <div key={page} className="flex items-center">
+                        {showEllipsis && (
+                          <span className="px-2 text-muted-foreground">...</span>
+                        )}
+                        <Button
+                          variant={ipCurrentPage === page ? "default" : "outline"}
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => setIpCurrentPage(page)}
+                        >
+                          {page}
+                        </Button>
+                      </div>
+                    );
+                  })}
+                
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setIpCurrentPage(prev => Math.min(ipTotalPages, prev + 1))}
+                  disabled={ipCurrentPage === ipTotalPages}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setIpCurrentPage(ipTotalPages)}
+                  disabled={ipCurrentPage === ipTotalPages}
+                >
+                  <ChevronsRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* 감사 로그 */}
       <section className="space-y-4">
