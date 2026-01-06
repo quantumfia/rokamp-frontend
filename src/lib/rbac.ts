@@ -1,4 +1,5 @@
 import { UserRole } from '@/types/auth';
+import { ARMY_UNITS, ArmyUnit } from '@/data/armyUnits';
 
 // 페이지별 접근 권한
 export const PAGE_ACCESS: Record<string, UserRole[]> = {
@@ -59,6 +60,129 @@ export const ROLE_SCOPE_LABELS: Record<UserRole, string> = {
   'ROLE_DIV': '예하 부대',
   'ROLE_BN': '본인 부대',
 };
+
+// ============================================
+// 부대 데이터 필터링 (역할별)
+// ============================================
+
+/**
+ * 특정 부대의 모든 하위 부대 ID를 반환 (자신 포함)
+ */
+export function getSubordinateUnitIds(unitId: string): string[] {
+  const result: string[] = [unitId];
+  
+  const findChildren = (parentId: string) => {
+    const children = ARMY_UNITS.filter(u => u.parentId === parentId);
+    for (const child of children) {
+      result.push(child.id);
+      findChildren(child.id);
+    }
+  };
+  
+  findChildren(unitId);
+  return result;
+}
+
+/**
+ * 특정 부대의 상위 부대 체인을 반환 (자신 포함)
+ */
+export function getParentUnitChain(unitId: string): string[] {
+  const result: string[] = [];
+  let currentId: string | null = unitId;
+  
+  while (currentId) {
+    result.push(currentId);
+    const unit = ARMY_UNITS.find(u => u.id === currentId);
+    currentId = unit?.parentId ?? null;
+  }
+  
+  return result;
+}
+
+/**
+ * 역할과 소속 부대에 따라 접근 가능한 부대 ID 목록 반환
+ * - ROLE_HQ: 전체 부대
+ * - ROLE_DIV: 소속 부대 + 예하 부대
+ * - ROLE_BN: 소속 부대만
+ */
+export function getAccessibleUnitIds(role: UserRole | undefined, userUnitId: string | undefined): string[] {
+  if (!role || !userUnitId) return [];
+  
+  switch (role) {
+    case 'ROLE_HQ':
+      // 전체 부대
+      return ARMY_UNITS.map(u => u.id);
+    
+    case 'ROLE_DIV':
+      // 소속 부대 + 예하 부대
+      return getSubordinateUnitIds(userUnitId);
+    
+    case 'ROLE_BN':
+      // 소속 부대만
+      return [userUnitId];
+    
+    default:
+      return [];
+  }
+}
+
+/**
+ * 역할과 소속 부대에 따라 접근 가능한 ArmyUnit 목록 반환
+ */
+export function getAccessibleUnits(role: UserRole | undefined, userUnitId: string | undefined): ArmyUnit[] {
+  const accessibleIds = getAccessibleUnitIds(role, userUnitId);
+  return ARMY_UNITS.filter(u => accessibleIds.includes(u.id));
+}
+
+/**
+ * 특정 부대가 접근 가능한지 확인
+ */
+export function canAccessUnit(role: UserRole | undefined, userUnitId: string | undefined, targetUnitId: string): boolean {
+  if (!role || !userUnitId) return false;
+  
+  const accessibleIds = getAccessibleUnitIds(role, userUnitId);
+  return accessibleIds.includes(targetUnitId);
+}
+
+/**
+ * 부대 선택기용: 역할에 따라 선택 가능한 부대 트리 필터링
+ * - ROLE_HQ: 전체 트리
+ * - ROLE_DIV: 소속 부대 기준 하위 트리
+ * - ROLE_BN: 소속 부대만 (선택 불가, 고정)
+ */
+export function getSelectableUnitsForRole(
+  role: UserRole | undefined, 
+  userUnitId: string | undefined
+): { units: ArmyUnit[]; isFixed: boolean } {
+  if (!role || !userUnitId) {
+    return { units: [], isFixed: true };
+  }
+  
+  switch (role) {
+    case 'ROLE_HQ':
+      return { 
+        units: ARMY_UNITS, 
+        isFixed: false 
+      };
+    
+    case 'ROLE_DIV':
+      return { 
+        units: getAccessibleUnits(role, userUnitId), 
+        isFixed: false 
+      };
+    
+    case 'ROLE_BN':
+      // 대대급은 자기 부대만 볼 수 있고 변경 불가
+      const ownUnit = ARMY_UNITS.find(u => u.id === userUnitId);
+      return { 
+        units: ownUnit ? [ownUnit] : [], 
+        isFixed: true 
+      };
+    
+    default:
+      return { units: [], isFixed: true };
+  }
+}
 
 // ============================================
 // 세부 권한 (페이지 내 기능별)

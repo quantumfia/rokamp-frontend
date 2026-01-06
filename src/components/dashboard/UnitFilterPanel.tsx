@@ -145,8 +145,7 @@ export function UnitFilterPanel({ onFilterChange }: UnitFilterPanelProps) {
       {/* 요약 */}
       <div className="px-4 py-3 border-t border-border bg-muted/30">
         <div className="text-xs text-muted-foreground">
-          전체 <span className="font-medium text-foreground">30</span>개 부대 중{' '}
-          <span className="font-medium text-foreground">30</span>개 표시
+          역할에 따라 조회 가능한 부대가 필터링됩니다.
         </div>
       </div>
     </div>
