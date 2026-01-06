@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { IncidentTicker } from '@/components/dashboard/IncidentTicker';
 import { StatusHeader } from '@/components/dashboard/StatusHeader';
-import { RiskLevelPanel } from '@/components/dashboard/RiskLevelGauge';
 import { UnitFilterPanel, FilterState } from '@/components/dashboard/UnitFilterPanel';
 import { UnitListCompact } from '@/components/dashboard/UnitListCompact';
 import { UnitDetailPanelHorizontal } from '@/components/dashboard/UnitDetailPanelHorizontal';
@@ -9,10 +9,11 @@ import { TrendAnalysisPanel } from '@/components/dashboard/TrendAnalysisPanel';
 import { DashboardNoticeList } from '@/components/dashboard/DashboardNoticeList';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSearchContext } from '@/components/layout/MainLayout';
-import { X, Filter, Search } from 'lucide-react';
+import { X, Filter, Search, User, LogOut } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   RiskSummarySkeleton,
   TrendChartsSkeleton,
@@ -21,7 +22,8 @@ import {
 } from '@/components/skeletons';
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const searchContext = useSearchContext();
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -76,9 +78,35 @@ export default function DashboardPage() {
             {isLoading ? <TickerBarSkeleton /> : <IncidentTicker onClickDetail={handleIncidentDetail} />}
           </div>
           
-          {/* 섹션 3: 위험도 게이지 */}
-          <div className="shrink-0 hidden md:flex items-center">
-            <RiskLevelPanel />
+          {/* 섹션 3: 사용자 정보 */}
+          <div className="shrink-0 hidden md:flex items-center px-4 py-2 gap-3">
+            <Avatar className="h-12 w-12">
+              <AvatarImage src="/placeholder.svg" alt="사용자" />
+              <AvatarFallback className="bg-primary/10 text-primary text-lg font-semibold">홍</AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col">
+              <span className="text-sm font-medium text-foreground">대령 홍길동 님 반갑습니다.</span>
+              <div className="flex items-center gap-2 mt-1">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+                  onClick={() => navigate('/system-settings')}
+                >
+                  <User className="w-3 h-3 mr-1" />
+                  마이페이지
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+                  onClick={() => logout?.()}
+                >
+                  <LogOut className="w-3 h-3 mr-1" />
+                  로그아웃
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
