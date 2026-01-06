@@ -8,10 +8,11 @@ interface TickerItem {
 }
 
 const MOCK_TICKER_ITEMS: TickerItem[] = [
-  { id: '1', message: '제7사단 3연대 사격훈련 중 안전사고 징후 감지', type: 'alert', time: '14:32' },
-  { id: '2', message: '기상청 한파주의보 발령 - 전 부대 동파 예방 조치 필요', type: 'warning', time: '14:28' },
-  { id: '3', message: '제3사단 구역 적설량 증가 - 차량 기동 주의', type: 'info', time: '14:15' },
-  { id: '4', message: '제1사단 11연대 야간훈련 정상 종료', type: 'info', time: '14:00' },
+  { id: '1', message: '제3보병사단 보급로 빙판 미끄러짐 사고 - 운전병 경상, 차량 파손', type: 'alert', time: '08:45' },
+  { id: '2', message: '기상청 한파경보 발령 - 전 부대 동파 예방 및 한랭질환 주의', type: 'warning', time: '07:00' },
+  { id: '3', message: '제22보병사단 GOP 동상 환자 발생 - 의무대 후송 치료 중', type: 'alert', time: '06:20' },
+  { id: '4', message: '제1기갑여단 생활관 전열기 과부하 - 연기 발생 후 조기 진화', type: 'warning', time: '22:15' },
+  { id: '5', message: '제5보병사단 혹한기 훈련 안전점검 정상 완료', type: 'info', time: '18:30' },
 ];
 
 export function TickerBar() {

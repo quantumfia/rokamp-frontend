@@ -14,12 +14,12 @@ interface IncidentItem {
 }
 
 const ALL_INCIDENTS: IncidentItem[] = [
-  { id: '1', title: '교통사고로 후송치료 중', unit: '1사단 일병', unitId: 'corps-1-div-1', type: 'accident', date: '2026-01-05' },
-  { id: '2', title: '사격훈련 중 안전사고 징후 감지', unit: '제7사단 3연대', unitId: 'corps-7-div-8', type: 'warning', date: '2026-01-05' },
-  { id: '3', title: '동파 예방 조치 필요', unit: '전 부대', unitId: 'hq', type: 'warning', date: '2026-01-05' },
-  { id: '4', title: '야간훈련 정상 종료', unit: '제1사단 11연대', unitId: 'corps-1-div-1', type: 'info', date: '2026-01-05' },
-  { id: '5', title: '차량 정비 중 경미한 부상', unit: '수도기계화보병사단', unitId: 'corps-7-div-mech-cap', type: 'accident', date: '2026-01-05' },
-  { id: '6', title: '혹한기 훈련 안전점검 완료', unit: '제3군단', unitId: 'corps-3', type: 'info', date: '2026-01-05' },
+  { id: '1', title: '군용 차량 빙판길 미끄러짐, 운전병 경상', unit: '제3보병사단', unitId: 'corps-3-div-3', type: 'accident', date: '2026-01-05' },
+  { id: '2', title: 'GOP 경계근무 중 동상 발생, 의무대 후송', unit: '제22보병사단', unitId: 'corps-7-div-22', type: 'accident', date: '2026-01-04' },
+  { id: '3', title: '생활관 전열기 과부하로 연기 발생, 조기 진화', unit: '제1기갑여단', unitId: 'corps-1-div-1-bde-1', type: 'warning', date: '2026-01-03' },
+  { id: '4', title: '전 부대 동파 예방 특별점검 시행', unit: '전 부대', unitId: 'hq', type: 'warning', date: '2026-01-03' },
+  { id: '5', title: '정비창 중량물 낙하, 정비병 골절상 후송', unit: '제8기계화사단', unitId: 'corps-7-div-mech-8', type: 'accident', date: '2026-01-02' },
+  { id: '6', title: '혹한기 완전군장 행군 안전점검 완료', unit: '제5보병사단', unitId: 'corps-5-div-5', type: 'info', date: '2026-01-01' },
 ];
 
 interface IncidentTickerProps {
