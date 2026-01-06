@@ -172,20 +172,16 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
     onClose();
   };
 
-  const handleViewAll = () => {
-    onClose();
-    navigate('/notice');
-  };
 
   const handleViewMaterials = () => {
     window.open('https://portal.cstec.kr/auth/login', '_blank');
   };
 
-  // 필터링된 공지사항 (5개로 제한)
+  // 필터링된 공지사항 (6개로 제한)
   const filteredNotices = (activeFilter === '전체' 
     ? MOCK_NOTICES 
     : MOCK_NOTICES.filter(notice => notice.tag === activeFilter)
-  ).slice(0, 5);
+  ).slice(0, 6);
 
   // 선택된 공지가 필터된 목록에 없으면 첫 번째 공지 선택
   useEffect(() => {
@@ -241,45 +237,32 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
               </div>
             </div>
             
-            {/* Notice List (5개 고정 높이) */}
-            <div className="flex-1 flex flex-col min-h-0">
-              {/* 5개 공지사항 리스트 - 고정 높이 */}
-              <div className="h-[330px]">
-                {filteredNotices.map((notice) => (
-                  <button
-                    key={notice.id}
-                    onClick={() => setSelectedNotice(notice)}
-                    className={`w-full text-left px-3 py-2.5 border-b border-border/50 transition-colors ${
-                      selectedNotice.id === notice.id 
-                        ? 'bg-muted border-l-2 border-l-primary' 
-                        : 'hover:bg-muted/50 border-l-2 border-l-transparent'
-                    }`}
-                  >
-                    <div className="flex items-center gap-1 text-[10px] mb-1">
-                      <span className={cn("font-medium", getTagStyle(notice.tag))}>
-                        [{notice.tag}]
-                      </span>
-                      <span className="text-muted-foreground">{notice.date}</span>
-                    </div>
-                    <div className="flex items-start gap-1">
-                      <span className="text-xs text-foreground line-clamp-1 flex-1">{notice.title}</span>
-                    </div>
-                    <div className="text-[10px] text-muted-foreground truncate mt-0.5">
-                      {notice.department}
-                    </div>
-                  </button>
-                ))}
-              </div>
-              {/* 전체보기 버튼 - 고정 하단 영역 */}
-              <div className="h-10 flex items-center justify-end px-3 border-t border-border/30">
+            {/* Notice List (6개 고정 높이) */}
+            <div className="flex-1">
+              {filteredNotices.map((notice) => (
                 <button
-                  onClick={handleViewAll}
-                  className="flex items-center gap-0.5 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+                  key={notice.id}
+                  onClick={() => setSelectedNotice(notice)}
+                  className={`w-full text-left px-3 py-2.5 border-b border-border/50 transition-colors ${
+                    selectedNotice.id === notice.id 
+                      ? 'bg-muted border-l-2 border-l-primary' 
+                      : 'hover:bg-muted/50 border-l-2 border-l-transparent'
+                  }`}
                 >
-                  전체보기
-                  <ChevronRight className="w-3 h-3" />
+                  <div className="flex items-center gap-1 text-[10px] mb-1">
+                    <span className={cn("font-medium", getTagStyle(notice.tag))}>
+                      [{notice.tag}]
+                    </span>
+                    <span className="text-muted-foreground">{notice.date}</span>
+                  </div>
+                  <div className="flex items-start gap-1">
+                    <span className="text-xs text-foreground line-clamp-1 flex-1">{notice.title}</span>
+                  </div>
+                  <div className="text-[10px] text-muted-foreground truncate mt-0.5">
+                    {notice.department}
+                  </div>
                 </button>
-              </div>
+              ))}
             </div>
           </div>
 
