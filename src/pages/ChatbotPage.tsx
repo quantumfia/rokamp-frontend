@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { Send, RotateCcw, ChevronDown, X, Bot, Sparkles } from "lucide-react";
+import { Send, RotateCcw, ChevronDown, X, Bot, Sparkles, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ChatbotSkeleton } from "@/components/skeletons";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import rokaLogo from "@/assets/roka-logo.svg";
 import { DEFAULT_STARTER_QUESTIONS, ICON_MAP } from "@/data/starterQuestions";
+import { DocumentViewerPanel } from "@/components/chatbot/DocumentViewerPanel";
 
 // 사용 가능한 AI 모델
 const AI_MODELS = [
@@ -54,10 +55,21 @@ export default function ChatbotPage() {
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [selectedSources, setSelectedSources] = useState<string[]>(["all"]);
   const [selectedModel, setSelectedModel] = useState("llama-3.3-70b");
+  const [isDocumentPanelOpen, setIsDocumentPanelOpen] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<{ title: string; source: string; url?: string } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const hasConversation = messages.length > 0;
+
+  const handleDocumentClick = (ref: { title: string; source: string; url?: string }) => {
+    setSelectedDocument(ref);
+    setIsDocumentPanelOpen(true);
+  };
+
+  const handleCloseDocumentPanel = () => {
+    setIsDocumentPanelOpen(false);
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => setIsPageLoading(false), 800);
@@ -536,13 +548,14 @@ export default function ChatbotPage() {
                         <div className="mt-4 pt-3 border-t border-border/50 space-y-1.5">
                           <p className="text-xs font-medium text-muted-foreground">참고 자료</p>
                           {message.references.map((ref, index) => (
-                            <a
+                            <button
                               key={index}
-                              href={ref.url}
-                              className="block text-xs text-primary/80 hover:text-primary transition-colors"
+                              onClick={() => handleDocumentClick(ref)}
+                              className="flex items-center gap-2 text-xs text-primary/80 hover:text-primary transition-colors text-left w-full group"
                             >
-                              {ref.title} · {ref.source}
-                            </a>
+                              <FileText className="w-3.5 h-3.5 flex-shrink-0 group-hover:scale-110 transition-transform" />
+                              <span className="truncate">{ref.title} · {ref.source}</span>
+                            </button>
                           ))}
                         </div>
                       )}
@@ -666,6 +679,13 @@ export default function ChatbotPage() {
           </div>
         )}
       </div>
+
+      {/* Document Viewer Panel */}
+      <DocumentViewerPanel
+        isOpen={isDocumentPanelOpen}
+        onClose={handleCloseDocumentPanel}
+        document={selectedDocument}
+      />
     </div>
   );
 }
