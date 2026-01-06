@@ -10,13 +10,13 @@ const accidentData = [
   { type: '대 상관', count: 4 },
 ];
 
-// 예측 위험 요인 데이터 (도넛 차트)
+// 예측 위험 요인 데이터 (도넛 차트) - 차분한 색상 팔레트
 const riskFactorData = [
-  { name: '훈련 강도', value: 32, color: '#ef4444' },  // red
-  { name: '근무 피로', value: 28, color: '#f97316' },  // orange
-  { name: '대인 갈등', value: 20, color: '#eab308' },  // yellow
-  { name: '환경 요인', value: 12, color: '#22c55e' },  // green
-  { name: '기타', value: 8, color: '#6366f1' },        // indigo
+  { name: '훈련 강도', value: 32, color: '#dc2626' },  // 진한 빨강
+  { name: '근무 피로', value: 28, color: '#b91c1c' },  // 어두운 빨강
+  { name: '대인 갈등', value: 20, color: '#991b1b' },  // 더 어두운 빨강
+  { name: '환경 요인', value: 12, color: '#7f1d1d' },  // 매우 어두운 빨강
+  { name: '기타', value: 8, color: '#450a0a' },        // 거의 검정에 가까운 빨강
 ];
 
 const chartTooltipStyle = {
@@ -159,10 +159,10 @@ export function TrendAnalysisPanel() {
                 <YAxis 
                   type="category" 
                   dataKey="type" 
-                  tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }} 
+                  tick={{ fontSize: 11, fill: 'hsl(var(--foreground))' }} 
                   axisLine={false} 
                   tickLine={false}
-                  width={70}
+                  width={80}
                 />
                 <Tooltip 
                   contentStyle={chartTooltipStyle}
