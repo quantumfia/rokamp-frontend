@@ -241,42 +241,44 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
               </div>
             </div>
             
-            {/* Notice List (5개) */}
-            <div className="flex-1 overflow-y-auto">
-              {filteredNotices.map((notice) => (
+            {/* Notice List (5개) + 전체보기 */}
+            <div className="flex-1 flex flex-col">
+              <div>
+                {filteredNotices.map((notice) => (
+                  <button
+                    key={notice.id}
+                    onClick={() => setSelectedNotice(notice)}
+                    className={`w-full text-left px-3 py-2.5 border-b border-border/50 transition-colors ${
+                      selectedNotice.id === notice.id 
+                        ? 'bg-muted border-l-2 border-l-primary' 
+                        : 'hover:bg-muted/50 border-l-2 border-l-transparent'
+                    }`}
+                  >
+                    <div className="flex items-center gap-1 text-[10px] mb-1">
+                      <span className={cn("font-medium", getTagStyle(notice.tag))}>
+                        [{notice.tag}]
+                      </span>
+                      <span className="text-muted-foreground">{notice.date}</span>
+                    </div>
+                    <div className="flex items-start gap-1">
+                      <span className="text-xs text-foreground line-clamp-1 flex-1">{notice.title}</span>
+                    </div>
+                    <div className="text-[10px] text-muted-foreground truncate mt-0.5">
+                      {notice.department}
+                    </div>
+                  </button>
+                ))}
+              </div>
+              {/* 하단 남는 영역 - 전체보기 버튼 */}
+              <div className="flex-1 grid items-end justify-items-end px-3 pb-3">
                 <button
-                  key={notice.id}
-                  onClick={() => setSelectedNotice(notice)}
-                  className={`w-full text-left px-3 py-2.5 border-b border-border/50 transition-colors ${
-                    selectedNotice.id === notice.id 
-                      ? 'bg-muted border-l-2 border-l-primary' 
-                      : 'hover:bg-muted/50 border-l-2 border-l-transparent'
-                  }`}
+                  onClick={handleViewAll}
+                  className="flex items-center gap-0.5 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <div className="flex items-center gap-1 text-[10px] mb-1">
-                    <span className={cn("font-medium", getTagStyle(notice.tag))}>
-                      [{notice.tag}]
-                    </span>
-                    <span className="text-muted-foreground">{notice.date}</span>
-                  </div>
-                  <div className="flex items-start gap-1">
-                    <span className="text-xs text-foreground line-clamp-1 flex-1">{notice.title}</span>
-                  </div>
-                  <div className="text-[10px] text-muted-foreground truncate mt-0.5">
-                    {notice.department}
-                  </div>
+                  전체보기
+                  <ChevronRight className="w-3 h-3" />
                 </button>
-              ))}
-            </div>
-            {/* 전체보기 버튼 - 고정 영역 */}
-            <div className="h-10 flex items-center justify-end px-3 border-t border-border/50 shrink-0">
-              <button
-                onClick={handleViewAll}
-                className="flex items-center gap-0.5 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
-              >
-                전체보기
-                <ChevronRight className="w-3 h-3" />
-              </button>
+              </div>
             </div>
           </div>
 
