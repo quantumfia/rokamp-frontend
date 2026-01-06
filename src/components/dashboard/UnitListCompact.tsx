@@ -133,7 +133,7 @@ export function UnitListCompact({
     <div className="h-full flex flex-col">
 
       {/* 테이블 헤더 */}
-      <div className="flex items-center justify-between px-4 py-3 text-sm font-medium text-muted-foreground">
+      <div className="flex items-center justify-between px-4 py-2 bg-muted/50 border-b border-border text-xs font-medium text-muted-foreground">
         <button
           className="flex items-center gap-1 hover:text-foreground transition-colors"
           onClick={() => handleSort('name')}
@@ -149,31 +149,30 @@ export function UnitListCompact({
       </div>
 
       {/* 리스트 */}
-      <div className="flex-1 overflow-y-auto px-4">
+      <div className="flex-1 overflow-y-auto">
         {sortedUnits.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-40 text-muted-foreground">
             <Info className="w-8 h-8 mb-2 opacity-50" />
             <span className="text-sm">검색 결과가 없습니다</span>
           </div>
         ) : (
-          sortedUnits.map((unit, index) => {
+          sortedUnits.map((unit) => {
             const riskStyle = getRiskStyle(unit.risk);
             return (
               <button
                 key={unit.id}
                 onClick={() => onUnitClick?.(unit.id)}
                 className={cn(
-                  'w-full flex items-center justify-between py-3 hover:bg-muted/50 transition-colors text-left rounded-lg px-2 -mx-2',
-                  selectedUnitId === unit.id && 'bg-primary/5 ring-1 ring-primary/20',
-                  index < sortedUnits.length - 1 && 'border-b border-border/30'
+                  'w-full flex items-center justify-between px-4 py-3 border-b border-border/50 hover:bg-muted/50 transition-colors text-left',
+                  selectedUnitId === unit.id && 'bg-primary/5 border-l-2 border-l-primary'
                 )}
               >
                 <div className="flex-1 min-w-0 pr-3">
-                  <div className="font-medium text-base text-foreground truncate">{unit.name}</div>
-                  <div className="text-xs text-muted-foreground truncate mt-0.5">{unit.fullPath}</div>
+                  <div className="font-medium text-sm text-foreground truncate">{unit.name}</div>
+                  <div className="text-[10px] text-muted-foreground truncate mt-0.5">{unit.fullPath}</div>
                 </div>
                 <div className={cn(
-                  'shrink-0 w-14 h-8 flex items-center justify-center rounded text-sm font-bold',
+                  'shrink-0 w-12 h-7 flex items-center justify-center rounded text-xs font-bold',
                   riskStyle.bg, riskStyle.text
                 )}>
                   {unit.risk}%
@@ -185,7 +184,7 @@ export function UnitListCompact({
       </div>
 
       {/* 푸터 */}
-      <div className="px-4 py-3 text-sm text-muted-foreground">
+      <div className="px-4 py-2 border-t border-border bg-muted/30 text-xs text-muted-foreground">
         총 <span className="font-medium text-foreground">{sortedUnits.length}</span>개 부대
       </div>
     </div>
