@@ -258,23 +258,21 @@ export function UnitDetailPanelHorizontal({ unitId, onClose, showBackButton = fa
                   key={factor.id} 
                   className="flex items-center gap-3 py-2"
                 >
-                  <div className={cn(
-                    "w-1 h-8 rounded-full shrink-0",
-                    factor.level === 'high' ? 'bg-status-error' :
-                    factor.level === 'medium' ? 'bg-status-warning' :
-                    'bg-status-success'
-                  )} />
-                  <div className="flex-1 min-w-0">
-                    <span className="text-sm text-foreground">{factor.description}</span>
-                  </div>
                   <span className={cn(
-                    "text-xs font-medium shrink-0",
+                    "shrink-0 w-10 text-xs font-medium text-center",
                     factor.level === 'high' ? 'text-status-error' :
                     factor.level === 'medium' ? 'text-status-warning' :
                     'text-status-success'
                   )}>
                     {getFactorLabel(factor.level)}
                   </span>
+                  <div className={cn(
+                    "w-1 h-6 rounded-full shrink-0",
+                    factor.level === 'high' ? 'bg-status-error' :
+                    factor.level === 'medium' ? 'bg-status-warning' :
+                    'bg-status-success'
+                  )} />
+                  <span className="text-sm text-foreground">{factor.description}</span>
                 </div>
               ))}
             </div>
@@ -283,35 +281,23 @@ export function UnitDetailPanelHorizontal({ unitId, onClose, showBackButton = fa
 
         {/* 예보/대비 섹션 */}
         <div>
-          <p className="text-sm font-medium text-muted-foreground mb-3">예보/대비</p>
-          <div className="space-y-2">
-            <div className="flex items-center gap-3 py-2">
-              <div className="w-1 h-8 rounded-full shrink-0 bg-blue-500" />
-              <div className="flex-1 min-w-0">
-                <span className="text-sm text-foreground">1/7~1/9 한파특보 예상, 야외훈련 축소 및 동상 예방조치 시행</span>
-              </div>
-              <span className="text-xs font-medium shrink-0 text-blue-500">기상</span>
+          <p className="text-sm font-semibold text-foreground mb-3">예보/대비</p>
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2.5 px-3 py-2.5 bg-muted/40 rounded-lg">
+              <span className="shrink-0 text-[11px] font-medium text-blue-500 w-14">기상</span>
+              <span className="text-sm text-foreground">1/7~1/9 한파특보 예상, 야외훈련 축소 및 동상 예방조치 시행</span>
             </div>
-            <div className="flex items-center gap-3 py-2">
-              <div className="w-1 h-8 rounded-full shrink-0 bg-status-error" />
-              <div className="flex-1 min-w-0">
-                <span className="text-sm text-foreground">GOP 철책 순찰 중 빙판 낙상사고 발생 (1군단, 1/5)</span>
-              </div>
-              <span className="text-xs font-medium shrink-0 text-status-error">유사사례</span>
+            <div className="flex items-center gap-2.5 px-3 py-2.5 bg-muted/40 rounded-lg">
+              <span className="shrink-0 text-[11px] font-medium text-status-error w-14">유사사례</span>
+              <span className="text-sm text-foreground">GOP 철책 순찰 중 빙판 낙상사고 발생 (1군단, 1/5)</span>
             </div>
-            <div className="flex items-center gap-3 py-2">
-              <div className="w-1 h-8 rounded-full shrink-0 bg-status-warning" />
-              <div className="flex-1 min-w-0">
-                <span className="text-sm text-foreground">K-9 자주포 실사격 예정 (1/8), 포반원 안전거리 준수 재교육 필요</span>
-              </div>
-              <span className="text-xs font-medium shrink-0 text-status-warning">훈련안전</span>
+            <div className="flex items-center gap-2.5 px-3 py-2.5 bg-muted/40 rounded-lg">
+              <span className="shrink-0 text-[11px] font-medium text-status-warning w-14">훈련안전</span>
+              <span className="text-sm text-foreground">K-9 자주포 실사격 예정 (1/8), 포반원 안전거리 준수 재교육 필요</span>
             </div>
-            <div className="flex items-center gap-3 py-2">
-              <div className="w-1 h-8 rounded-full shrink-0 bg-purple-500" />
-              <div className="flex-1 min-w-0">
-                <span className="text-sm text-foreground">정비창 차량 정비 중 중상해 사고 분석결과 공유 (정비사령부)</span>
-              </div>
-              <span className="text-xs font-medium shrink-0 text-purple-500">정비안전</span>
+            <div className="flex items-center gap-2.5 px-3 py-2.5 bg-muted/40 rounded-lg">
+              <span className="shrink-0 text-[11px] font-medium text-purple-500 w-14">정비안전</span>
+              <span className="text-sm text-foreground">정비창 차량 정비 중 중상해 사고 분석결과 공유 (정비사령부)</span>
             </div>
           </div>
         </div>
