@@ -238,16 +238,19 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
             </div>
             
             {/* Notice List (5개 고정 높이) */}
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 overflow-hidden flex flex-col">
               {filteredNotices.map((notice) => (
                 <button
                   key={notice.id}
                   onClick={() => setSelectedNotice(notice)}
-                  className={`w-full text-left px-3 py-2 border-b border-border/50 transition-colors ${
-                    selectedNotice.id === notice.id 
-                      ? 'bg-muted border-l-2 border-l-primary' 
-                      : 'hover:bg-muted/50 border-l-2 border-l-transparent'
-                  }`}
+                  className={cn(
+                    "w-full text-left px-3 py-2 border-b border-border/50 transition-colors",
+                    filteredNotices.length === 5 && "flex-1",
+                    filteredNotices.length === 5 && "flex flex-col justify-center",
+                    selectedNotice.id === notice.id
+                      ? "bg-muted border-l-2 border-l-primary"
+                      : "hover:bg-muted/50 border-l-2 border-l-transparent"
+                  )}
                 >
                   <div className="flex items-center gap-1 text-[10px] mb-0">
                     <span className={cn("font-medium", getTagStyle(notice.tag))}>
