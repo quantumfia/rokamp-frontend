@@ -116,52 +116,38 @@ export function UnitDetailPanelHorizontal({ unitId, onClose, showBackButton = fa
           </div>
         </div>
 
-        {/* 부대 정보 */}
-        <div>
-          <p className="text-sm font-medium text-muted-foreground mb-3">부대 정보</p>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-muted/30 rounded-lg p-4">
-              <p className="text-xs text-muted-foreground mb-1">부대 유형</p>
-              <p className="text-base font-semibold text-foreground">{unitType}</p>
+        {/* 부대 정보 + 기상 정보 (컴팩트하게 한 줄로) */}
+        <div className="flex gap-3">
+          {/* 부대 정보 */}
+          <div className="flex-1 bg-muted/30 rounded-lg px-3 py-2 flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-muted-foreground">유형</span>
+              <span className="text-xs font-medium text-foreground">{unitType}</span>
             </div>
-            <div className="bg-muted/30 rounded-lg p-4">
-              <p className="text-xs text-muted-foreground mb-1">지역</p>
-              <p className="text-base font-semibold text-foreground">{region}</p>
+            <div className="w-px h-4 bg-border" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-muted-foreground">지역</span>
+              <span className="text-xs font-medium text-foreground">{region}</span>
             </div>
           </div>
-        </div>
 
-        {/* 기상 정보 */}
-        <div>
-          <p className="text-sm font-medium text-muted-foreground mb-3">기상 정보</p>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="flex items-center gap-3 bg-muted/30 rounded-lg p-4">
-              <Thermometer className="w-5 h-5 text-status-error" />
-              <div>
-                <p className="text-xs text-muted-foreground">기온</p>
-                <p className="text-base font-semibold text-foreground">-5°C</p>
-              </div>
+          {/* 기상 정보 */}
+          <div className="flex-1 bg-muted/30 rounded-lg px-3 py-2 flex items-center gap-3">
+            <div className="flex items-center gap-1.5">
+              <Thermometer className="w-3.5 h-3.5 text-status-error" />
+              <span className="text-xs font-medium text-foreground">-5°C</span>
             </div>
-            <div className="flex items-center gap-3 bg-muted/30 rounded-lg p-4">
-              <Cloud className="w-5 h-5 text-muted-foreground" />
-              <div>
-                <p className="text-xs text-muted-foreground">날씨</p>
-                <p className="text-base font-semibold text-foreground">눈 예보</p>
-              </div>
+            <div className="flex items-center gap-1.5">
+              <Cloud className="w-3.5 h-3.5 text-muted-foreground" />
+              <span className="text-xs font-medium text-foreground">눈</span>
             </div>
-            <div className="flex items-center gap-3 bg-muted/30 rounded-lg p-4">
-              <Wind className="w-5 h-5 text-muted-foreground" />
-              <div>
-                <p className="text-xs text-muted-foreground">풍속</p>
-                <p className="text-base font-semibold text-foreground">12 m/s</p>
-              </div>
+            <div className="flex items-center gap-1.5">
+              <Wind className="w-3.5 h-3.5 text-muted-foreground" />
+              <span className="text-xs font-medium text-foreground">12m/s</span>
             </div>
-            <div className="flex items-center gap-3 bg-muted/30 rounded-lg p-4">
-              <Droplet className="w-5 h-5 text-primary" />
-              <div>
-                <p className="text-xs text-muted-foreground">습도</p>
-                <p className="text-base font-semibold text-foreground">65%</p>
-              </div>
+            <div className="flex items-center gap-1.5">
+              <Droplet className="w-3.5 h-3.5 text-primary" />
+              <span className="text-xs font-medium text-foreground">65%</span>
             </div>
           </div>
         </div>
