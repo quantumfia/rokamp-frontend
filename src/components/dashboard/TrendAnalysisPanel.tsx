@@ -1,5 +1,4 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { AlertTriangle, TrendingUp, Shield } from 'lucide-react';
 
 // 발생사고 현황 데이터
 const accidentData = [
@@ -58,9 +57,8 @@ export function TrendAnalysisPanel() {
         <div className="grid grid-cols-3 divide-x divide-border">
           {/* 위험부대 */}
           <div className="px-5 py-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-2 h-2 rounded-full bg-status-error animate-pulse" />
-              <span className="text-sm text-muted-foreground">위험부대</span>
+            <div className="mb-2">
+              <span className="text-sm font-bold text-foreground">위험부대</span>
             </div>
             <div className="flex items-baseline gap-2">
               <span className="text-4xl font-bold text-status-error tracking-tight">{dangerousUnitCount}</span>
@@ -70,9 +68,8 @@ export function TrendAnalysisPanel() {
           
           {/* 위험도 평균 */}
           <div className="px-5 py-4">
-            <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">위험도 평균</span>
+            <div className="mb-2">
+              <span className="text-sm font-bold text-foreground">위험도 평균</span>
             </div>
             <div className="flex items-baseline gap-2">
               <span className={`text-4xl font-bold tracking-tight ${getRiskScoreColor(averageRiskScore)}`}>{averageRiskScore}</span>
@@ -82,9 +79,8 @@ export function TrendAnalysisPanel() {
           
           {/* 발생사고 상위 */}
           <div className="px-5 py-4">
-            <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle className="w-4 h-4 text-status-warning" />
-              <span className="text-sm text-muted-foreground">발생사고 상위</span>
+            <div className="mb-2">
+              <span className="text-sm font-bold text-foreground">발생사고 상위</span>
             </div>
             <div className="flex items-baseline gap-2">
               <span className="text-4xl font-bold text-status-warning tracking-tight">{topAccident.type}</span>
