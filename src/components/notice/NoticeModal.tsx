@@ -287,7 +287,9 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
             {/* Detail Header */}
             <div className="px-5 py-3 border-b border-border shrink-0">
               <div className="flex items-center gap-3 mb-1">
-                <span className="text-[10px] text-primary font-medium">{selectedNotice.number}</span>
+                <span className={cn("text-[10px] font-medium", getTagStyle(selectedNotice.tag))}>
+                  [{selectedNotice.tag}]
+                </span>
                 <span className="text-[10px] text-muted-foreground">{selectedNotice.date}</span>
               </div>
               <div className="flex items-center justify-between gap-2">
@@ -306,7 +308,7 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
                 </button>
               </div>
               <div className="mt-1 text-[10px] text-muted-foreground">
-                발신: {selectedNotice.department}
+                {selectedNotice.department}
               </div>
             </div>
 
