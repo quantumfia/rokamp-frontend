@@ -111,9 +111,10 @@ export function DashboardNoticeList() {
     navigate(`/notice?id=${noticeId}`);
   };
 
-  const filteredNotices = activeFilter === '전체' 
+  const filteredNotices = (activeFilter === '전체' 
     ? MOCK_NOTICES 
-    : MOCK_NOTICES.filter(notice => notice.tag === activeFilter);
+    : MOCK_NOTICES.filter(notice => notice.tag === activeFilter)
+  ).slice(0, 8);
 
   return (
     <div className="h-full flex flex-col">
