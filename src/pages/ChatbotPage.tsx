@@ -31,6 +31,7 @@ interface Message {
     title: string;
     source: string;
     url?: string;
+    page?: number; // 문서 내 특정 페이지
   }>;
 }
 
@@ -54,13 +55,13 @@ export default function ChatbotPage() {
   const [selectedSources, setSelectedSources] = useState<string[]>(["all"]);
   const [selectedModel, setSelectedModel] = useState("llama-3.3-70b");
   const [isDocumentPanelOpen, setIsDocumentPanelOpen] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState<{ title: string; source: string; url?: string } | null>(null);
+  const [selectedDocument, setSelectedDocument] = useState<{ title: string; source: string; url?: string; page?: number } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const hasConversation = messages.length > 0;
 
-  const handleDocumentClick = (ref: { title: string; source: string; url?: string }) => {
+  const handleDocumentClick = (ref: { title: string; source: string; url?: string; page?: number }) => {
     setSelectedDocument(ref);
     setIsDocumentPanelOpen(true);
   };
@@ -152,7 +153,7 @@ export default function ChatbotPage() {
   const getAIResponse = (
     question: string,
     sources?: string[],
-  ): { content: string; references: Array<{ title: string; source: string; url?: string }> } => {
+  ): { content: string; references: Array<{ title: string; source: string; url?: string; page?: number }> } => {
     const sourceNote =
       sources && sources.length > 0
         ? `\n\n_검색 범위: ${sources.map((id) => DOCUMENT_SOURCES.find((s) => s.id === id)?.label).join(", ")}_`
@@ -178,8 +179,8 @@ export default function ChatbotPage() {
 • 필수: 삼각대, 손전등, 견인로프, 구급함
 • 동절기 추가: 스노우체인, 염화칼슘, 삽, 모래주머니${sourceNote}`,
         references: [
-          { title: "육군 차량 운행 안전관리 규정", source: "육군본부 2024.03", url: "#" },
-          { title: "동절기 교통사고 예방 대책", source: "국방부 안전정책과", url: "#" },
+          { title: "육군 차량 운행 안전관리 규정", source: "육군본부 2024.03", page: 5 },
+          { title: "동절기 교통사고 예방 대책", source: "국방부 안전정책과", page: 3 },
         ],
       };
     }
@@ -203,8 +204,8 @@ export default function ChatbotPage() {
 • 낙오자 발생 시 즉시 훈련 중지 및 수색
 • 부상자 발생 시 응급처치 후 즉시 후송${sourceNote}`,
         references: [
-          { title: "야간훈련 안전관리 지침", source: "육군훈련소 2024.06", url: "#" },
-          { title: "훈련장 안전사고 예방 매뉴얼", source: "육군본부", url: "#" },
+          { title: "야간훈련 안전관리 지침", source: "육군훈련소 2024.06", page: 2 },
+          { title: "훈련장 안전사고 예방 매뉴얼", source: "육군본부", page: 7 },
         ],
       };
     }
@@ -230,8 +231,8 @@ export default function ChatbotPage() {
 • 인화성 물질 5m 이내 화기작업 금지
 • 작업 종료 후 30분간 잔화 감시${sourceNote}`,
         references: [
-          { title: "군 시설물 화재예방 규정", source: "국방부 2024.01", url: "#" },
-          { title: "소방안전관리 업무편람", source: "육군 시설관리단", url: "#" },
+          { title: "군 시설물 화재예방 규정", source: "국방부 2024.01", page: 4 },
+          { title: "소방안전관리 업무편람", source: "육군 시설관리단", page: 1 },
         ],
       };
     }
@@ -256,8 +257,8 @@ export default function ChatbotPage() {
 • 땀 배출 가능한 기능성 내의 착용
 • 휴식 시 즉시 방풍·보온 조치${sourceNote}`,
         references: [
-          { title: "한랭질환 응급처치 매뉴얼", source: "국군의무사령부 2024.11", url: "#" },
-          { title: "동계 행군 안전관리 지침", source: "육군본부", url: "#" },
+          { title: "한랭질환 응급처치 매뉴얼", source: "국군의무사령부 2024.11", page: 6 },
+          { title: "동계 행군 안전관리 지침", source: "육군본부", page: 2 },
         ],
       };
     }
@@ -278,7 +279,7 @@ export default function ChatbotPage() {
 • 무리한 일정 강행 금지, 충분한 휴식 보장
 
 더 구체적인 질문이 있으시면 말씀해 주세요.${sourceNote}`,
-      references: [{ title: "육군 안전관리 규정", source: "육군본부", url: "#" }],
+      references: [{ title: "육군 안전관리 규정", source: "육군본부", page: 1 }],
     };
   };
 
