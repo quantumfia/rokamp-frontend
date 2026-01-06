@@ -70,7 +70,7 @@ export function UnitPopoverSelect({
             'border-border shadow-md'
           )}
         >
-          <div className="max-h-[320px] overflow-y-auto pr-1">
+          <div className="max-h-[420px] overflow-y-auto pr-1">
             <UnitTreeSelect
               value={value === 'all' ? '' : value}
               onChange={handleChange}
