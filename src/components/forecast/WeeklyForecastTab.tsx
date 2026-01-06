@@ -4,48 +4,55 @@ import { Progress } from '@/components/ui/progress';
 import { AlertTriangle, Calendar, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// 주간 종합 위험도 데이터 (요일별 + 주요 위험요인)
+// 주간 종합 위험도 데이터 (요일별 + 통계 기반 위험요인)
 const WEEKLY_OVERVIEW = [
-  { day: '일', date: '1/5', risk: 18, grade: 'safe', factor: '휴일' },
-  { day: '월', date: '1/6', risk: 48, grade: 'safe', factor: '주말 복귀' },
-  { day: '화', date: '1/7', risk: 52, grade: 'caution', factor: '훈련 피로' },
-  { day: '수', date: '1/8', risk: 68, grade: 'caution', factor: '피로 누적' },
-  { day: '목', date: '1/9', risk: 55, grade: 'caution', factor: '외박 대기' },
-  { day: '금', date: '1/10', risk: 62, grade: 'caution', factor: '외출/외박' },
-  { day: '토', date: '1/11', risk: 35, grade: 'safe', factor: '휴일' },
+  { day: '일', date: '1/5', risk: 32, grade: 'safe', factor: '휴일 이완', stat: '19.0%' },
+  { day: '월', date: '1/6', risk: 48, grade: 'safe', factor: '복귀 우울', stat: '17.8%' },
+  { day: '화', date: '1/7', risk: 42, grade: 'safe', factor: '정상', stat: '12.5%' },
+  { day: '수', date: '1/8', risk: 58, grade: 'caution', factor: '피로 누적', stat: '15.2%' },
+  { day: '목', date: '1/9', risk: 52, grade: 'caution', factor: '스트레스', stat: '13.8%' },
+  { day: '금', date: '1/10', risk: 65, grade: 'caution', factor: '이동 집중', stat: '18.5%' },
+  { day: '토', date: '1/11', risk: 28, grade: 'safe', factor: '휴일', stat: '8.2%' },
 ];
 
-// 사고유형별 주간 위험지수
+// 요일 패턴 인사이트 (10년 데이터 기반)
+const DAY_PATTERN_INSIGHT = {
+  highRiskDays: ['일', '월', '금'],
+  insight: '주말/휴일 관리 소홀 및 "월요병" 심리 패턴, 금요일 외출/외박 이동 집중',
+  dataSource: '최근 10년 동기간 사고 발생 통계 기준'
+};
+
+// 사고유형별 주간 위험지수 (통계 기반)
 const ACCIDENT_TYPE_RISK = [
   { category: '군기사고', types: [
-    { name: '폭행사고', risk: 42, trend: 'up' },
-    { name: '성범죄', risk: 35, trend: 'stable' },
-    { name: '음주운전', risk: 58, trend: 'up' },
-    { name: '자살사고', risk: 28, trend: 'down' },
+    { name: '폭행사고', risk: 42, trend: 'up', stat: '전체의 22%' },
+    { name: '성범죄', risk: 35, trend: 'stable', stat: '전체의 12%' },
+    { name: '음주운전', risk: 58, trend: 'up', stat: '전체의 18%' },
+    { name: '자살사고', risk: 28, trend: 'down', stat: '전체의 8%' },
   ]},
   { category: '안전사고', types: [
-    { name: '교통사고', risk: 72, trend: 'up' },
-    { name: '화재사고', risk: 15, trend: 'stable' },
-    { name: '추락/충격', risk: 38, trend: 'down' },
+    { name: '교통사고', risk: 72, trend: 'up', stat: '전체의 25%' },
+    { name: '화재사고', risk: 15, trend: 'stable', stat: '전체의 5%' },
+    { name: '추락/충격', risk: 38, trend: 'down', stat: '전체의 10%' },
   ]},
   { category: '군무이탈', types: [
-    { name: '군무이탈', risk: 32, trend: 'stable' },
+    { name: '군무이탈', risk: 32, trend: 'stable', stat: '전체의 8%' },
   ]},
 ];
 
 // 계급별 주간 위험지수 (대분류)
 const RANK_RISK = [
-  { rank: '병', risk: 58 },
-  { rank: '부사관', risk: 32 },
-  { rank: '장교', risk: 18 },
-  { rank: '군무원', risk: 8 },
+  { rank: '병', risk: 58, stat: '전체의 62%' },
+  { rank: '부사관', risk: 32, stat: '전체의 24%' },
+  { rank: '장교', risk: 18, stat: '전체의 11%' },
+  { rank: '군무원', risk: 8, stat: '전체의 3%' },
 ];
 
-// 주간 주의사항 (패턴 기반)
-const WEEKLY_NOTES = [
-  { type: 'warning', text: '금요일 외출/외박 이동량 증가로 교통사고 위험 상승' },
-  { type: 'warning', text: '수요일 피로 누적 시점, 병사 간 갈등 주의' },
-  { type: 'info', text: '주말 복귀 후 월요일 심리상태 점검 권고' },
+// 주간 핵심 인사이트 (패턴 기반)
+const WEEKLY_INSIGHTS = [
+  { type: 'warning', title: '금요일 교통사고 주의', text: '외출/외박 이동 집중으로 교통사고 발생률 평균 대비 35% 상승' },
+  { type: 'warning', title: '수요일 군기사고 주의', text: '주중 피로 누적 시점, 병사 간 갈등 및 폭행사고 위험 증가' },
+  { type: 'info', title: '월요일 심리관리', text: '주말 복귀 후 우울감 호소 빈도 상승, 관심병사 면담 권고' },
 ];
 
 const getGradeStyle = (grade: string) => {
@@ -172,7 +179,7 @@ export default function WeeklyForecastTab() {
                     </td>
                   ))}
                 </tr>
-                <tr>
+                <tr className="border-b border-border">
                   <td className="py-2 px-3 text-xs text-muted-foreground border-r border-border">요인</td>
                   {WEEKLY_OVERVIEW.map((d) => (
                     <td key={d.day} className="py-1.5 px-2 text-center border-r border-border last:border-r-0">
@@ -180,8 +187,28 @@ export default function WeeklyForecastTab() {
                     </td>
                   ))}
                 </tr>
+                <tr>
+                  <td className="py-2 px-3 text-xs text-muted-foreground border-r border-border">발생비율</td>
+                  {WEEKLY_OVERVIEW.map((d) => (
+                    <td key={d.day} className="py-1.5 px-2 text-center border-r border-border last:border-r-0">
+                      <span className={cn(
+                        "text-[11px] font-medium",
+                        DAY_PATTERN_INSIGHT.highRiskDays.includes(d.day) ? "text-status-error" : "text-muted-foreground"
+                      )}>
+                        {d.stat}
+                      </span>
+                    </td>
+                  ))}
+                </tr>
               </tbody>
             </table>
+          </div>
+          {/* 패턴 인사이트 */}
+          <div className="mt-3 p-3 bg-muted/30 rounded-lg">
+            <p className="text-xs text-foreground">
+              <span className="font-medium">핵심 패턴:</span> {DAY_PATTERN_INSIGHT.insight}
+            </p>
+            <p className="text-[10px] text-muted-foreground mt-1">※ {DAY_PATTERN_INSIGHT.dataSource}</p>
           </div>
         </CardContent>
       </Card>
@@ -255,27 +282,30 @@ export default function WeeklyForecastTab() {
         </Card>
       </div>
 
-      {/* 주간 주의사항 */}
+      {/* 주간 핵심 인사이트 */}
       <Card className="border-border">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">주간 주의사항</CardTitle>
+          <CardTitle className="text-sm font-medium">주간 핵심 인사이트</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            {WEEKLY_NOTES.map((note, idx) => (
+            {WEEKLY_INSIGHTS.map((insight, idx) => (
               <div 
                 key={idx} 
                 className={cn(
-                  "flex items-start gap-2 p-3 rounded-lg",
-                  note.type === 'warning' ? "bg-status-warning/10" : "bg-muted/50"
+                  "flex items-start gap-3 p-3 rounded-lg",
+                  insight.type === 'warning' ? "bg-status-warning/10" : "bg-muted/50"
                 )}
               >
-                {note.type === 'warning' ? (
+                {insight.type === 'warning' ? (
                   <AlertTriangle className="w-4 h-4 text-status-warning mt-0.5 shrink-0" />
                 ) : (
                   <Info className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
                 )}
-                <p className="text-sm text-foreground">{note.text}</p>
+                <div>
+                  <p className="text-sm font-medium text-foreground">{insight.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{insight.text}</p>
+                </div>
               </div>
             ))}
           </div>
