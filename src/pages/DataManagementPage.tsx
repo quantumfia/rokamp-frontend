@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Settings2, FileText, Download } from 'lucide-react';
+import { Settings2, FileText, Download, Database, Upload, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { DataManagementSkeleton } from '@/components/skeletons';
 import { PageHeader, TabNavigation, ActionButton, AddModal, FileDropZone } from '@/components/common';
 import { usePageLoading } from '@/hooks/usePageLoading';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import {
   Table,
   TableBody,
@@ -316,9 +318,28 @@ function ChunkSettingsModal({
   );
 }
 
+// 예보 데이터 인터페이스
+interface ForecastData {
+  id: number;
+  name: string;
+  period: string;
+  recordCount: number;
+  uploadedAt: string;
+  status: 'completed' | 'processing' | 'failed';
+  fileName: string;
+  fileSize: string;
+}
+
+// 예보 데이터 목록
+const initialForecastData: ForecastData[] = [
+  { id: 1, name: '2014-2023년 사고 데이터', period: '2014~2023', recordCount: 15420, uploadedAt: '2024-11-01 09:00', status: 'completed', fileName: '사고데이터_2014_2023.xlsx', fileSize: '12.8MB' },
+  { id: 2, name: '2024년 상반기 사고 데이터', period: '2024.01~06', recordCount: 1856, uploadedAt: '2024-12-01 14:30', status: 'completed', fileName: '사고데이터_2024_상반기.xlsx', fileSize: '2.1MB' },
+];
+
 const DATA_TABS = [
   { id: 'documents', label: '문서 관리' },
   { id: 'news', label: '언론 기사 관리' },
+  { id: 'forecast', label: '예보 데이터' },
 ];
 
 export default function DataManagementPage() {
@@ -336,9 +357,12 @@ export default function DataManagementPage() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [documents, setDocuments] = useState<Document[]>(initialDocumentData);
   const [newsArticles, setNewsArticles] = useState<NewsArticle[]>(initialNewsData);
+  const [forecastDataList, setForecastDataList] = useState<ForecastData[]>(initialForecastData);
   const [jsonInput, setJsonInput] = useState('');
   const [documentName, setDocumentName] = useState('');
   const [newsTitle, setNewsTitle] = useState('');
+  const [forecastName, setForecastName] = useState('');
+  const [forecastPeriod, setForecastPeriod] = useState('');
   const [chunkSettings, setChunkSettings] = useState<ChunkSettings>({
     chunkSize: 1024,
     overlapPercent: 20,
@@ -482,13 +506,43 @@ export default function DataManagementPage() {
     setNewsTitle('');
   };
 
+  const handleForecastUpload = () => {
+    if (!forecastName.trim() || !forecastPeriod.trim()) {
+      toast({
+        title: '입력 오류',
+        description: '데이터명과 기간을 모두 입력해주세요.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    const newData: ForecastData = {
+      id: forecastDataList.length + 1,
+      name: forecastName,
+      period: forecastPeriod,
+      recordCount: 0,
+      uploadedAt: new Date().toLocaleString('ko-KR'),
+      status: 'processing',
+      fileName: '업로드된_파일.xlsx',
+      fileSize: '0MB',
+    };
+    setForecastDataList([...forecastDataList, newData]);
+    toast({
+      title: '업로드 완료',
+      description: `"${forecastName}" 데이터가 업로드되었습니다. 모델 학습이 시작됩니다.`,
+    });
+    setShowAddModal(false);
+    setForecastName('');
+    setForecastPeriod('');
+  };
+
   if (isLoading) {
     return <DataManagementSkeleton />;
   }
 
   // 탭별 모달 설정
-  const modalConfig = activeTab === 'documents' 
-    ? {
+  const getModalConfig = () => {
+    if (activeTab === 'documents') {
+      return {
         title: '문서 추가',
         description: '학습용 문서를 업로드합니다',
         inputTypes: [
@@ -499,8 +553,9 @@ export default function DataManagementPage() {
           },
         ],
         onSubmit: handleDocumentUpload,
-      }
-    : {
+      };
+    } else if (activeTab === 'news') {
+      return {
         title: '기사 추가',
         description: '언론 기사를 업로드하거나 직접 입력합니다',
         inputTypes: [
@@ -509,25 +564,76 @@ export default function DataManagementPage() {
         ],
         onSubmit: handleNewsUpload,
       };
+    } else {
+      return {
+        title: '예보 데이터 추가',
+        description: '예보 모델 학습용 사고 데이터를 업로드합니다',
+        inputTypes: [
+          { 
+            id: 'file', 
+            label: '파일 업로드', 
+            content: (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs text-muted-foreground mb-1.5">데이터명 *</label>
+                  <input
+                    type="text"
+                    value={forecastName}
+                    onChange={(e) => setForecastName(e.target.value)}
+                    placeholder="예: 2024년 하반기 사고 데이터"
+                    className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-muted-foreground mb-1.5">데이터 기간 *</label>
+                  <input
+                    type="text"
+                    value={forecastPeriod}
+                    onChange={(e) => setForecastPeriod(e.target.value)}
+                    placeholder="예: 2024.07~12"
+                    className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+                  />
+                </div>
+                <FileDropZone
+                  accept=".xlsx,.xls,.csv"
+                  hint="사고 데이터 파일을 드래그하거나 클릭하여 업로드"
+                  maxSize="100MB"
+                />
+                <div className="text-[11px] text-muted-foreground space-y-0.5">
+                  <p>• Excel(.xlsx, .xls) 또는 CSV 형식 지원</p>
+                  <p>• 업로드 후 자동으로 모델 학습이 진행됩니다</p>
+                </div>
+              </div>
+            )
+          },
+        ],
+        onSubmit: handleForecastUpload,
+      };
+    }
+  };
+
+  const modalConfig = getModalConfig();
 
   return (
     <div className="p-6 space-y-6 animate-page-enter">
       <PageHeader 
         title="데이터 관리" 
-        description="문서 및 언론 기사 학습 데이터 관리"
+        description="문서, 언론 기사, 예보 모델 학습 데이터 관리"
         actions={
           <div className="flex items-center gap-2">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setShowChunkSettings(true)}
-              className="gap-1.5"
-            >
-              <Settings2 className="w-4 h-4" />
-              청크 설정
-            </Button>
+            {activeTab !== 'forecast' && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setShowChunkSettings(true)}
+                className="gap-1.5"
+              >
+                <Settings2 className="w-4 h-4" />
+                청크 설정
+              </Button>
+            )}
             <ActionButton 
-              label={activeTab === 'documents' ? '문서 추가' : '기사 추가'} 
+              label={activeTab === 'documents' ? '문서 추가' : activeTab === 'news' ? '기사 추가' : '데이터 추가'} 
               onClick={() => setShowAddModal(true)} 
             />
           </div>
@@ -620,7 +726,104 @@ export default function DataManagementPage() {
         </div>
       )}
 
-      {/* 추가 모달 */}
+      {/* 예보 데이터 탭 */}
+      {activeTab === 'forecast' && (
+        <div className="space-y-6">
+          {/* 모델 상태 요약 */}
+          <div className="grid grid-cols-3 gap-4">
+            <div className="p-4 bg-muted/30 border border-border rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <Database className="w-4 h-4 text-primary" />
+                <span className="text-xs text-muted-foreground">학습 데이터</span>
+              </div>
+              <p className="text-xl font-semibold">
+                {forecastDataList.filter(d => d.status === 'completed').reduce((sum, d) => sum + d.recordCount, 0).toLocaleString()}건
+              </p>
+            </div>
+            <div className="p-4 bg-muted/30 border border-border rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <CheckCircle className="w-4 h-4 text-status-success" />
+                <span className="text-xs text-muted-foreground">모델 상태</span>
+              </div>
+              <p className="text-xl font-semibold text-status-success">학습 완료</p>
+            </div>
+            <div className="p-4 bg-muted/30 border border-border rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <Clock className="w-4 h-4 text-muted-foreground" />
+                <span className="text-xs text-muted-foreground">마지막 학습</span>
+              </div>
+              <p className="text-xl font-semibold">2024-12-01</p>
+            </div>
+          </div>
+
+          {/* 데이터 목록 */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-medium text-foreground">업로드된 데이터</h2>
+              <span className="text-xs text-muted-foreground">
+                총 {forecastDataList.length}개 데이터셋
+              </span>
+            </div>
+
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="text-xs">데이터명</TableHead>
+                  <TableHead className="text-xs w-28">기간</TableHead>
+                  <TableHead className="text-xs w-24 text-right">건수</TableHead>
+                  <TableHead className="text-xs w-36">업로드 일시</TableHead>
+                  <TableHead className="text-xs w-20">상태</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {forecastDataList.map((data) => (
+                  <TableRow key={data.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-muted-foreground" />
+                        <div>
+                          <p className="text-sm font-medium">{data.name}</p>
+                          <p className="text-xs text-muted-foreground">{data.fileName} · {data.fileSize}</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{data.period}</TableCell>
+                    <TableCell className="text-sm text-right tabular-nums">
+                      {data.status === 'completed' ? data.recordCount.toLocaleString() : '-'}
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground tabular-nums">{data.uploadedAt}</TableCell>
+                    <TableCell>
+                      {data.status === 'completed' && (
+                        <Badge variant="outline" className="text-[10px] text-status-success border-status-success/30">완료</Badge>
+                      )}
+                      {data.status === 'processing' && (
+                        <Badge variant="outline" className="text-[10px] text-status-warning border-status-warning/30">처리중</Badge>
+                      )}
+                      {data.status === 'failed' && (
+                        <Badge variant="outline" className="text-[10px] text-status-error border-status-error/30">실패</Badge>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* 안내 */}
+          <div className="p-4 bg-muted/30 border border-border rounded-lg">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-4 h-4 text-muted-foreground mt-0.5" />
+              <div className="text-xs text-muted-foreground space-y-1">
+                <p>• 새 데이터 업로드 시 기존 모델에 추가 학습됩니다.</p>
+                <p>• 지원 형식: Excel(.xlsx, .xls), CSV</p>
+                <p>• 필수 컬럼: 발생일자, 사고유형, 부대코드, 계급 등</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+
       <AddModal
         isOpen={showAddModal}
         onClose={() => {
@@ -628,6 +831,8 @@ export default function DataManagementPage() {
           setJsonInput('');
           setDocumentName('');
           setNewsTitle('');
+          setForecastName('');
+          setForecastPeriod('');
         }}
         {...modalConfig}
       />
