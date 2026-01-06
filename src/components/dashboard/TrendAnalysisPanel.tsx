@@ -12,11 +12,11 @@ const accidentData = [
 
 // 예측 위험 요인 데이터 (도넛 차트)
 const riskFactorData = [
-  { name: '훈련 강도', value: 32, color: 'hsl(var(--chart-1))' },
-  { name: '근무 피로', value: 28, color: 'hsl(var(--chart-2))' },
-  { name: '대인 갈등', value: 20, color: 'hsl(var(--chart-3))' },
-  { name: '환경 요인', value: 12, color: 'hsl(var(--chart-4))' },
-  { name: '기타', value: 8, color: 'hsl(var(--chart-5))' },
+  { name: '훈련 강도', value: 32, color: '#ef4444' },  // red
+  { name: '근무 피로', value: 28, color: '#f97316' },  // orange
+  { name: '대인 갈등', value: 20, color: '#eab308' },  // yellow
+  { name: '환경 요인', value: 12, color: '#22c55e' },  // green
+  { name: '기타', value: 8, color: '#6366f1' },        // indigo
 ];
 
 const chartTooltipStyle = {
