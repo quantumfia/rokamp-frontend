@@ -1,5 +1,6 @@
 import { X, ArrowLeft, Cloud, Thermometer, Wind, Droplet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { getUnitById, getUnitFullName, LEVEL_LABELS, UNIT_TYPE_LABELS } from '@/data/armyUnits';
 
 interface Training {
@@ -195,14 +196,24 @@ export function UnitDetailPanelHorizontal({ unitId, onClose, showBackButton = fa
                   {dayTrainings.length > 0 ? (
                     <div className="space-y-1">
                       {dayTrainings.map((training) => (
-                        <div 
-                          key={training.id} 
-                          className="p-1.5 bg-primary/10 border border-primary/20 rounded text-[10px] leading-tight"
-                        >
-                          <p className="font-semibold text-foreground truncate">{training.name}</p>
-                          <p className="text-primary">{training.time}</p>
-                          <p className="text-muted-foreground truncate">{training.location}</p>
-                        </div>
+                        <TooltipProvider key={training.id} delayDuration={200}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div 
+                                className="p-1.5 bg-primary/10 border border-primary/20 rounded text-[10px] leading-tight cursor-pointer hover:bg-primary/20 transition-colors"
+                              >
+                                <p className="font-semibold text-foreground truncate">{training.name}</p>
+                                <p className="text-primary">{training.time}</p>
+                                <p className="text-muted-foreground truncate">{training.location}</p>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-[200px] z-50">
+                              <p className="font-semibold">{training.name}</p>
+                              <p className="text-xs text-primary">{training.time}</p>
+                              <p className="text-xs text-muted-foreground">{training.location}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       ))}
                     </div>
                   ) : (
