@@ -83,21 +83,11 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Main Content - 3단 구조 */}
+      {/* Main Content - 2단 구조 (테이블 + 트렌드) */}
       <div className="flex-1 flex overflow-hidden relative">
-        {/* Left Panel - 필터 (Desktop: always visible, Mobile: overlay) */}
-        <div
-          className={cn(
-            'shrink-0 border-r border-border bg-card overflow-hidden transition-all duration-300',
-            'hidden lg:block lg:w-64',
-          )}
-        >
-          {isLoading ? <RiskSummarySkeleton /> : <UnitFilterPanel onFilterChange={setFilters} />}
-        </div>
-
-        {/* Mobile Left Panel Overlay */}
+        {/* Left Panel - 필터 (항상 오버레이로만 표시) */}
         {showLeftPanel && (
-          <div className="lg:hidden absolute inset-0 z-30 flex">
+          <div className="absolute inset-0 z-30 flex">
             <div className="w-64 max-w-[85vw] bg-card border-r border-border overflow-hidden animate-slide-in-left">
               <div className="flex items-center justify-between px-3 py-2 border-b border-border">
                 <span className="text-xs font-medium text-foreground">필터</span>
@@ -106,7 +96,7 @@ export default function DashboardPage() {
                 </Button>
               </div>
               <div className="h-[calc(100%-41px)] overflow-hidden">
-                <UnitFilterPanel onFilterChange={setFilters} />
+                {isLoading ? <RiskSummarySkeleton /> : <UnitFilterPanel onFilterChange={setFilters} />}
               </div>
             </div>
             <div className="flex-1 bg-black/50" onClick={() => setShowLeftPanel(false)} />
@@ -115,8 +105,8 @@ export default function DashboardPage() {
 
         {/* Center - 부대 목록 테이블 */}
         <div className="flex-1 flex flex-col bg-background overflow-hidden">
-          {/* 모바일 툴바 */}
-          <div className="lg:hidden flex items-center gap-2 p-2 border-b border-border bg-card/50">
+          {/* 필터 버튼 툴바 */}
+          <div className="flex items-center gap-2 p-2 border-b border-border bg-card/50">
             <Button
               variant="outline"
               size="sm"
@@ -125,15 +115,6 @@ export default function DashboardPage() {
             >
               <Filter className="w-4 h-4 mr-1.5" />
               필터
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 xl:hidden"
-              onClick={() => setShowRightPanel(true)}
-            >
-              <BarChart3 className="w-4 h-4 mr-1.5" />
-              트렌드
             </Button>
           </div>
 
@@ -155,11 +136,11 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Right Panel - 트렌드 차트 또는 부대 상세 (Desktop) */}
+        {/* Right Panel - 트렌드 차트 또는 부대 상세 (항상 표시) */}
         <div
           className={cn(
             'shrink-0 border-l border-border bg-card overflow-hidden transition-all duration-300',
-            'hidden xl:block xl:w-[480px]',
+            'hidden md:block md:w-80 xl:w-[480px]',
           )}
         >
           {isLoading ? (
@@ -175,9 +156,9 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Mobile/Tablet Right Panel Overlay - 부대 상세 */}
+        {/* Mobile Right Panel Overlay - 부대 상세 */}
         {selectedUnitId && (
-          <div className="xl:hidden absolute inset-0 z-30 flex justify-end">
+          <div className="md:hidden absolute inset-0 z-30 flex justify-end">
             <div className="flex-1 bg-black/50" onClick={handleCloseDetail} />
             <div className="w-80 max-w-[90vw] bg-card border-l border-border overflow-hidden animate-slide-in-right">
               <UnitDetailPanel 
@@ -185,24 +166,6 @@ export default function DashboardPage() {
                 onClose={handleCloseDetail}
                 showBackButton
               />
-            </div>
-          </div>
-        )}
-
-        {/* Mobile/Tablet Right Panel Overlay - 트렌드 차트 */}
-        {showRightPanel && !selectedUnitId && (
-          <div className="xl:hidden absolute inset-0 z-30 flex justify-end">
-            <div className="flex-1 bg-black/50" onClick={() => setShowRightPanel(false)} />
-            <div className="w-80 max-w-[90vw] bg-card border-l border-border overflow-hidden animate-slide-in-right">
-              <div className="flex items-center justify-between px-3 py-2 border-b border-border">
-                <span className="text-xs font-medium text-foreground">트렌드 분석</span>
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowRightPanel(false)}>
-                  <X className="w-4 h-4" />
-                </Button>
-              </div>
-              <div className="h-[calc(100%-41px)] overflow-hidden">
-                <TrendChartsVertical />
-              </div>
             </div>
           </div>
         )}
