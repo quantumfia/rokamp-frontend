@@ -1,5 +1,4 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { AlertTriangle, TrendingUp, Shield } from 'lucide-react';
 
 // 발생사고 현황 데이터
 const accidentData = [
@@ -10,13 +9,13 @@ const accidentData = [
   { type: '대 상관', count: 4 },
 ];
 
-// 예측 위험 요인 데이터 (도넛 차트)
+// 예측 위험 요인 데이터 (도넛 차트) - 중간 채도 파랑 계열 그라데이션
 const riskFactorData = [
-  { name: '훈련 강도', value: 32, color: '#ef4444' },  // red
-  { name: '근무 피로', value: 28, color: '#f97316' },  // orange
-  { name: '대인 갈등', value: 20, color: '#eab308' },  // yellow
-  { name: '환경 요인', value: 12, color: '#22c55e' },  // green
-  { name: '기타', value: 8, color: '#6366f1' },        // indigo
+  { name: '훈련 강도', value: 32, color: '#6b8cae' },  // 밝은 스틸 블루
+  { name: '근무 피로', value: 28, color: '#527394' },  // 스틸 블루
+  { name: '대인 갈등', value: 20, color: '#3d5a7a' },  // 진한 스틸 블루
+  { name: '환경 요인', value: 12, color: '#2a4260' },  // 어두운 스틸 블루
+  { name: '기타', value: 8, color: '#1a2c45' },        // 매우 어두운 스틸 블루
 ];
 
 const chartTooltipStyle = {
@@ -49,18 +48,17 @@ export function TrendAnalysisPanel() {
   return (
     <div className="h-full flex flex-col overflow-hidden bg-card">
       {/* Header */}
-      <div className="shrink-0 px-5 py-3 border-b border-border">
+      <div className="shrink-0 px-5 py-3">
         <h3 className="text-base font-bold text-foreground">오늘의 안전사고 예보</h3>
       </div>
 
       {/* 상단 요약 바 - 3개 핵심 지표 */}
-      <div className="shrink-0 border-b border-border">
-        <div className="grid grid-cols-3 divide-x divide-border">
+      <div className="shrink-0 px-5 pb-4">
+        <div className="grid grid-cols-3 gap-4">
           {/* 위험부대 */}
-          <div className="px-5 py-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-2 h-2 rounded-full bg-status-error animate-pulse" />
-              <span className="text-sm text-muted-foreground">위험부대</span>
+          <div className="p-4 rounded-lg bg-muted/50">
+            <div className="mb-2">
+              <span className="text-sm font-bold text-foreground">위험부대</span>
             </div>
             <div className="flex items-baseline gap-2">
               <span className="text-4xl font-bold text-status-error tracking-tight">{dangerousUnitCount}</span>
@@ -69,10 +67,9 @@ export function TrendAnalysisPanel() {
           </div>
           
           {/* 위험도 평균 */}
-          <div className="px-5 py-4">
-            <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">위험도 평균</span>
+          <div className="p-4 rounded-lg bg-muted/50">
+            <div className="mb-2">
+              <span className="text-sm font-bold text-foreground">위험도 평균</span>
             </div>
             <div className="flex items-baseline gap-2">
               <span className={`text-4xl font-bold tracking-tight ${getRiskScoreColor(averageRiskScore)}`}>{averageRiskScore}</span>
@@ -81,10 +78,9 @@ export function TrendAnalysisPanel() {
           </div>
           
           {/* 발생사고 상위 */}
-          <div className="px-5 py-4">
-            <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle className="w-4 h-4 text-status-warning" />
-              <span className="text-sm text-muted-foreground">발생사고 상위</span>
+          <div className="p-4 rounded-lg bg-muted/50">
+            <div className="mb-2">
+              <span className="text-sm font-bold text-foreground">발생사고 상위</span>
             </div>
             <div className="flex items-baseline gap-2">
               <span className="text-4xl font-bold text-status-warning tracking-tight">{topAccident.type}</span>
@@ -95,9 +91,9 @@ export function TrendAnalysisPanel() {
       </div>
 
       {/* 하단 2컬럼 */}
-      <div className="flex-1 overflow-hidden flex divide-x divide-border">
+      <div className="flex-1 overflow-hidden flex gap-4 px-5 pb-5">
         {/* 좌측 - 예측 위험 요인 도넛 차트 */}
-        <div className="w-1/2 p-5 flex flex-col min-h-0">
+        <div className="w-1/2 flex flex-col min-h-0">
           <h4 className="text-sm font-semibold text-foreground mb-4">예측 위험 요인</h4>
           <div className="flex-1 min-h-0 flex items-center">
             {/* 도넛 차트 */}
@@ -144,7 +140,7 @@ export function TrendAnalysisPanel() {
         </div>
 
         {/* 우측 - 발생사고 현황 바 차트 */}
-        <div className="w-1/2 p-5 flex flex-col min-h-0">
+        <div className="w-1/2 flex flex-col min-h-0">
           <h4 className="text-sm font-semibold text-foreground mb-4">발생사고 현황</h4>
           <div className="flex-1 min-h-0">
             <ResponsiveContainer width="100%" height="100%">
@@ -159,10 +155,10 @@ export function TrendAnalysisPanel() {
                 <YAxis 
                   type="category" 
                   dataKey="type" 
-                  tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }} 
+                  tick={{ fontSize: 11, fill: 'hsl(var(--foreground))' }} 
                   axisLine={false} 
                   tickLine={false}
-                  width={70}
+                  width={80}
                 />
                 <Tooltip 
                   contentStyle={chartTooltipStyle}
