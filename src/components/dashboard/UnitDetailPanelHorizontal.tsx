@@ -1,22 +1,15 @@
-import { useState } from 'react';
-import { X, ArrowLeft, Cloud, Thermometer, Wind, Droplet } from 'lucide-react';
+import { X, ArrowLeft, Cloud, Thermometer, Wind, Droplet, Calendar, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { getUnitById, getUnitFullName, LEVEL_LABELS, UNIT_TYPE_LABELS } from '@/data/armyUnits';
 import { cn } from '@/lib/utils';
 
-interface Training {
+interface ScheduleItem {
   id: string;
-  name: string;
-  time: string;
-  location: string;
-  dayIndex: number;
-}
-
-interface RiskFactor {
-  id: string;
-  description: string;
-  level: 'high' | 'medium' | 'low';
+  type: 'training' | 'risk';
+  title: string;
+  subtitle?: string;
+  level?: 'high' | 'medium' | 'low';
+  date: string;
 }
 
 interface UnitDetailPanelHorizontalProps {
@@ -25,28 +18,20 @@ interface UnitDetailPanelHorizontalProps {
   showBackButton?: boolean;
 }
 
-const WEEK_DAYS = ['일', '월', '화', '수', '목', '금', '토'];
-
-const MOCK_TRAININGS: Training[] = [
-  { id: '1', name: 'K-2 소총 영점사격', time: '09:00 - 12:00', location: '종합사격장', dayIndex: 1 },
-  { id: '2', name: '기초체력단련', time: '06:00 - 08:00', location: '연병장', dayIndex: 2 },
-  { id: '3', name: '동절기 차량정비 점검', time: '14:00 - 17:00', location: '정비창', dayIndex: 3 },
-  { id: '4', name: '야간 기동훈련', time: '20:00 - 24:00', location: '훈련장 A구역', dayIndex: 3 },
-  { id: '5', name: '안전교육 (동절기 안전수칙)', time: '10:00 - 12:00', location: '대강당', dayIndex: 4 },
-  { id: '6', name: '전술훈련 (소대공격)', time: '08:00 - 18:00', location: '전술훈련장', dayIndex: 5 },
-  { id: '7', name: '장비정비 교육', time: '09:00 - 11:00', location: '정비교육장', dayIndex: 5 },
+// 훈련 일정 + 예측 위험 통합 리스트
+const MOCK_SCHEDULE_ITEMS: ScheduleItem[] = [
+  { id: '1', type: 'training', title: 'K-2 소총 영점사격', subtitle: '09:00 - 12:00 · 종합사격장', date: '1/6 (월)' },
+  { id: '2', type: 'risk', title: '폭설 예보로 인한 차량 전복 위험', level: 'high', date: '1/6 (월)' },
+  { id: '3', type: 'training', title: '기초체력단련', subtitle: '06:00 - 08:00 · 연병장', date: '1/7 (화)' },
+  { id: '4', type: 'training', title: '동절기 차량정비 점검', subtitle: '14:00 - 17:00 · 정비창', date: '1/8 (수)' },
+  { id: '5', type: 'risk', title: '야간 행군 중 저체온증 주의', level: 'medium', date: '1/8 (수)' },
+  { id: '6', type: 'training', title: '야간 기동훈련', subtitle: '20:00 - 24:00 · 훈련장 A구역', date: '1/8 (수)' },
+  { id: '7', type: 'risk', title: '사격장 결빙으로 인한 미끄러짐', level: 'medium', date: '1/9 (목)' },
+  { id: '8', type: 'training', title: '안전교육 (동절기 안전수칙)', subtitle: '10:00 - 12:00 · 대강당', date: '1/9 (목)' },
+  { id: '9', type: 'training', title: '전술훈련 (소대공격)', subtitle: '08:00 - 18:00 · 전술훈련장', date: '1/10 (금)' },
 ];
-
-const MOCK_RISK_FACTORS: RiskFactor[] = [
-  { id: '1', description: '폭우 예보로 인한 차량 전복 위험 증가', level: 'high' },
-  { id: '2', description: '야간 행군 중 저체온증 주의 필요', level: 'medium' },
-  { id: '3', description: '사격장 결빙으로 인한 미끄러짐 주의', level: 'medium' },
-];
-
-type TabType = 'training' | 'risk';
 
 export function UnitDetailPanelHorizontal({ unitId, onClose, showBackButton = false }: UnitDetailPanelHorizontalProps) {
-  const [activeTab, setActiveTab] = useState<TabType>('training');
   
   const unit = getUnitById(unitId);
   const unitName = unit?.name || '알 수 없는 부대';
@@ -74,19 +59,6 @@ export function UnitDetailPanelHorizontal({ unitId, onClose, showBackButton = fa
     if (risk >= 25) return '관심';
     return '안전';
   };
-
-  const getFactorColor = (level: 'high' | 'medium' | 'low') => {
-    if (level === 'high') return 'bg-status-error/10 border-status-error/30 text-status-error';
-    if (level === 'medium') return 'bg-status-warning/10 border-status-warning/30 text-status-warning';
-    return 'bg-status-success/10 border-status-success/30 text-status-success';
-  };
-
-  const getFactorLabel = (level: 'high' | 'medium' | 'low') => {
-    if (level === 'high') return '위험';
-    if (level === 'medium') return '주의';
-    return '관심';
-  };
-
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
@@ -158,125 +130,63 @@ export function UnitDetailPanelHorizontal({ unitId, onClose, showBackButton = fa
           </div>
         </div>
 
-        {/* 탭 영역 - 훈련 일정 / 예측 위험 */}
+        {/* 훈련 일정 + 예측 위험 통합 리스트 */}
         <div>
-          <div className="flex border-b border-border mb-4">
-            <button
-              onClick={() => setActiveTab('training')}
-              className={cn(
-                "px-4 py-2 text-sm font-medium transition-colors relative",
-                activeTab === 'training'
-                  ? "text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              훈련 일정
-              {activeTab === 'training' && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab('risk')}
-              className={cn(
-                "px-4 py-2 text-sm font-medium transition-colors relative",
-                activeTab === 'risk'
-                  ? "text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              예측 위험
-              {activeTab === 'risk' && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
-              )}
-            </button>
-          </div>
-
-          {/* 훈련 일정 탭 */}
-          {activeTab === 'training' && (
-            <div className="grid grid-cols-7 gap-1">
-              {WEEK_DAYS.map((day, idx) => (
-                <div 
-                  key={day} 
-                  className={`text-center text-xs font-semibold py-1.5 rounded-t-md ${
-                    idx === 0 ? 'text-status-error bg-status-error/10' : 
-                    idx === 6 ? 'text-primary bg-primary/10' : 
-                    'text-foreground bg-muted/50'
-                  }`}
-                >
-                  {day}
+          <p className="text-sm font-semibold text-foreground mb-3">훈련/위험 일정</p>
+          <div className="space-y-2 max-h-[240px] overflow-y-auto pr-1">
+            {MOCK_SCHEDULE_ITEMS.map((item) => (
+              <div 
+                key={item.id}
+                className={cn(
+                  "flex items-start gap-3 px-3 py-2.5 rounded-lg border transition-colors",
+                  item.type === 'risk' 
+                    ? item.level === 'high' 
+                      ? 'bg-status-error/5 border-status-error/20' 
+                      : 'bg-status-warning/5 border-status-warning/20'
+                    : 'bg-muted/40 border-border'
+                )}
+              >
+                {/* 아이콘 */}
+                <div className={cn(
+                  "shrink-0 w-7 h-7 rounded-full flex items-center justify-center",
+                  item.type === 'risk'
+                    ? item.level === 'high' 
+                      ? 'bg-status-error/10 text-status-error' 
+                      : 'bg-status-warning/10 text-status-warning'
+                    : 'bg-primary/10 text-primary'
+                )}>
+                  {item.type === 'training' ? (
+                    <Calendar className="w-3.5 h-3.5" />
+                  ) : (
+                    <AlertTriangle className="w-3.5 h-3.5" />
+                  )}
                 </div>
-              ))}
-              {WEEK_DAYS.map((_, dayIdx) => {
-                const dayTrainings = MOCK_TRAININGS.filter(t => t.dayIndex === dayIdx);
-                return (
-                  <div 
-                    key={dayIdx} 
-                    className={`min-h-[90px] p-1.5 rounded-b-md border ${
-                      dayIdx === 0 || dayIdx === 6 ? 'bg-muted/20 border-border/50' : 'bg-muted/30 border-border'
-                    }`}
-                  >
-                    {dayTrainings.length > 0 ? (
-                      <div className="space-y-1">
-                        {dayTrainings.map((training) => (
-                          <TooltipProvider key={training.id} delayDuration={200}>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <div 
-                                  className="p-1.5 bg-primary/10 border border-primary/20 rounded text-[10px] leading-tight cursor-pointer hover:bg-primary/20 transition-colors"
-                                >
-                                  <p className="font-semibold text-foreground truncate">{training.name}</p>
-                                  <p className="text-primary">{training.time}</p>
-                                </div>
-                              </TooltipTrigger>
-                              <TooltipContent side="top" className="max-w-[200px] z-50">
-                                <p className="font-semibold">{training.name}</p>
-                                <p className="text-xs text-primary">{training.time}</p>
-                                <p className="text-xs text-muted-foreground">{training.location}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="h-full flex items-center justify-center">
-                        <span className="text-[10px] text-muted-foreground/50">
-                          {dayIdx === 0 || dayIdx === 6 ? '휴무' : '-'}
-                        </span>
-                      </div>
+
+                {/* 내용 */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-foreground truncate">{item.title}</span>
+                    {item.type === 'risk' && item.level && (
+                      <span className={cn(
+                        "shrink-0 px-1.5 py-0.5 rounded text-[10px] font-semibold",
+                        item.level === 'high' 
+                          ? 'bg-status-error/10 text-status-error' 
+                          : 'bg-status-warning/10 text-status-warning'
+                      )}>
+                        {item.level === 'high' ? '위험' : '주의'}
+                      </span>
                     )}
                   </div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* 예측 위험 탭 */}
-          {activeTab === 'risk' && (
-            <div className="space-y-2">
-              {MOCK_RISK_FACTORS.map((factor) => (
-                <div 
-                  key={factor.id} 
-                  className="flex items-center gap-3 py-2"
-                >
-                  <span className={cn(
-                    "shrink-0 w-10 text-xs font-medium text-center",
-                    factor.level === 'high' ? 'text-status-error' :
-                    factor.level === 'medium' ? 'text-status-warning' :
-                    'text-status-success'
-                  )}>
-                    {getFactorLabel(factor.level)}
-                  </span>
-                  <div className={cn(
-                    "w-1 h-6 rounded-full shrink-0",
-                    factor.level === 'high' ? 'bg-status-error' :
-                    factor.level === 'medium' ? 'bg-status-warning' :
-                    'bg-status-success'
-                  )} />
-                  <span className="text-sm text-foreground">{factor.description}</span>
+                  {item.subtitle && (
+                    <p className="text-xs text-muted-foreground mt-0.5">{item.subtitle}</p>
+                  )}
                 </div>
-              ))}
-            </div>
-          )}
+
+                {/* 날짜 */}
+                <span className="shrink-0 text-xs text-muted-foreground">{item.date}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* 예보/대비 섹션 */}
