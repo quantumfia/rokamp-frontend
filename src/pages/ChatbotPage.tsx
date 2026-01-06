@@ -17,9 +17,9 @@ import rokaLogo from "@/assets/roka-logo.svg";
 
 // 사용 가능한 AI 모델
 const AI_MODELS = [
-  { id: "llama-3.3-70b", label: "Llama 3.3 70B", description: "고성능 대형 모델" },
-  { id: "qwen2.5-7b", label: "Qwen2.5-7B", description: "균형잡힌 중형 모델" },
-  { id: "llama-3.1-8b", label: "Llama-3.1-8B", description: "빠른 경량 모델" },
+  { id: "llama-3.3-70b", label: "Llama 3.3 70B" },
+  { id: "qwen2.5-7b", label: "Qwen2.5-7B" },
+  { id: "llama-3.1-8b", label: "Llama-3.1-8B" },
 ];
 
 interface Message {
@@ -314,10 +314,7 @@ export default function ChatbotPage() {
                     <DropdownMenuRadioGroup value={selectedModel} onValueChange={setSelectedModel}>
                       {AI_MODELS.map((model) => (
                         <DropdownMenuRadioItem key={model.id} value={model.id} className="cursor-pointer">
-                          <div>
-                            <p className="font-medium text-sm">{model.label}</p>
-                            <p className="text-xs text-muted-foreground">{model.description}</p>
-                          </div>
+                          {model.label}
                         </DropdownMenuRadioItem>
                       ))}
                     </DropdownMenuRadioGroup>
@@ -460,10 +457,7 @@ export default function ChatbotPage() {
                         <DropdownMenuRadioGroup value={selectedModel} onValueChange={setSelectedModel}>
                           {AI_MODELS.map((model) => (
                             <DropdownMenuRadioItem key={model.id} value={model.id} className="cursor-pointer">
-                              <div>
-                                <p className="font-medium text-sm">{model.label}</p>
-                                <p className="text-xs text-muted-foreground">{model.description}</p>
-                              </div>
+                              {model.label}
                             </DropdownMenuRadioItem>
                           ))}
                         </DropdownMenuRadioGroup>
