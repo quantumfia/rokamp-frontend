@@ -19,8 +19,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { UnitTreeSelect } from '@/components/unit/UnitTreeSelect';
-import { getUnitById, getChildUnits, ArmyUnit } from '@/data/armyUnits';
+import { getUnitById, getChildUnits, getAllDescendants, ArmyUnit } from '@/data/armyUnits';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
+import { getAccessibleUnits } from '@/lib/rbac';
 
 type FilterMode = 'popover' | 'cascade';
 
@@ -43,6 +45,8 @@ interface UnitFilterSelectProps {
   popoverWidth?: string;
   /** 컨테이너 너비 클래스 */
   containerWidth?: string;
+  /** 역할 기반 부대 필터 사용 여부 */
+  useRoleFilter?: boolean;
 }
 
 export function UnitFilterSelect({
@@ -56,6 +60,7 @@ export function UnitFilterSelect({
   showSubLevels = true,
   popoverWidth = 'w-[360px]',
   containerWidth,
+  useRoleFilter = true,
 }: UnitFilterSelectProps) {
   const [open, setOpen] = useState(false);
 
@@ -128,6 +133,7 @@ export function UnitFilterSelect({
       placeholder={placeholder}
       inline={inline}
       showSubLevels={showSubLevels}
+      useRoleFilter={useRoleFilter}
     />
   );
 }
@@ -141,6 +147,7 @@ interface CascadeFilterProps {
   placeholder?: string;
   inline?: boolean;
   showSubLevels?: boolean;
+  useRoleFilter?: boolean;
 }
 
 function CascadeFilter({
@@ -151,7 +158,23 @@ function CascadeFilter({
   placeholder = '전체',
   inline = true,
   showSubLevels = true,
+  useRoleFilter = true,
 }: CascadeFilterProps) {
+  const { user } = useAuth();
+  
+  // 역할 기반 접근 가능한 부대 ID 목록
+  const accessibleIds = useMemo(() => {
+    if (!useRoleFilter || !user) return null;
+    const rootUnits = getAccessibleUnits(user.role, user.unitId);
+    const allAccessible = new Set<string>();
+    rootUnits.forEach(unit => {
+      allAccessible.add(unit.id);
+      const descendants = getAllDescendants(unit.id);
+      descendants.forEach(d => allAccessible.add(d.id));
+    });
+    return allAccessible;
+  }, [user, useRoleFilter]);
+
   const [selections, setSelections] = useState<string[]>(() => {
     if (value && value !== 'all') {
       const path = getUnitPathIds(value);
@@ -186,18 +209,29 @@ function CascadeFilter({
   };
 
   const getLevelOptions = (level: number): ArmyUnit[] => {
+    let units: ArmyUnit[];
     if (level === 0) {
-      return getChildUnits(null);
+      units = getChildUnits(null);
+    } else {
+      const parentId = selections[level - 1];
+      if (!parentId) return [];
+      units = getChildUnits(parentId);
     }
-    const parentId = selections[level - 1];
-    if (!parentId) return [];
-    return getChildUnits(parentId);
+    // 역할 기반 필터 적용
+    if (accessibleIds) {
+      units = units.filter(u => accessibleIds.has(u.id));
+    }
+    return units;
   };
 
   const getVisibleLevels = (): number => {
     if (selections.length === 0) return 1;
     const lastSelected = selections[selections.length - 1];
-    const hasMoreChildren = getChildUnits(lastSelected).length > 0;
+    let children = getChildUnits(lastSelected);
+    if (accessibleIds) {
+      children = children.filter(u => accessibleIds.has(u.id));
+    }
+    const hasMoreChildren = children.length > 0;
     return selections.length + (hasMoreChildren ? 1 : 0);
   };
 
