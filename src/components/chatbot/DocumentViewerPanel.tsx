@@ -1,6 +1,6 @@
-import { X, ExternalLink, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Download, FileText } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 interface DocumentReference {
@@ -8,6 +8,7 @@ interface DocumentReference {
   source: string;
   url?: string;
   pdfUrl?: string;
+  page?: number; // 특정 페이지로 이동
 }
 
 interface DocumentViewerPanelProps {
@@ -85,13 +86,24 @@ export function DocumentViewerPanel({ isOpen, onClose, document }: DocumentViewe
   const [currentPage, setCurrentPage] = useState(1);
   const [zoom, setZoom] = useState(100);
 
-  if (!document) return null;
+  const mockData = document 
+    ? MOCK_PDF_CONTENT[document.title as keyof typeof MOCK_PDF_CONTENT] || {
+        totalPages: 1,
+        currentHighlight: "",
+        content: "문서를 불러올 수 없습니다.",
+      }
+    : { totalPages: 1, currentHighlight: "", content: "" };
 
-  const mockData = MOCK_PDF_CONTENT[document.title as keyof typeof MOCK_PDF_CONTENT] || {
-    totalPages: 1,
-    currentHighlight: "",
-    content: "문서를 불러올 수 없습니다.",
-  };
+  // 문서 변경 시 해당 페이지로 이동
+  useEffect(() => {
+    if (document?.page) {
+      setCurrentPage(Math.min(document.page, mockData.totalPages));
+    } else {
+      setCurrentPage(1);
+    }
+  }, [document, mockData.totalPages]);
+
+  if (!document) return null;
 
   const handlePrevPage = () => setCurrentPage((p) => Math.max(1, p - 1));
   const handleNextPage = () => setCurrentPage((p) => Math.min(mockData.totalPages, p + 1));
@@ -144,13 +156,6 @@ export function DocumentViewerPanel({ isOpen, onClose, document }: DocumentViewe
               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleZoomIn} disabled={zoom >= 200}>
                 <ZoomIn className="w-4 h-4" />
               </Button>
-              <div className="w-px h-4 bg-border mx-1" />
-              <Button variant="ghost" size="icon" className="h-7 w-7">
-                <Download className="w-4 h-4" />
-              </Button>
-              <Button variant="ghost" size="icon" className="h-7 w-7">
-                <ExternalLink className="w-4 h-4" />
-              </Button>
             </div>
           </div>
 
@@ -175,12 +180,6 @@ export function DocumentViewerPanel({ isOpen, onClose, document }: DocumentViewe
             </div>
           </div>
 
-          {/* Footer */}
-          <div className="px-4 py-2 border-t border-border bg-muted/20">
-            <p className="text-[10px] text-muted-foreground text-center">
-              이 문서는 미리보기입니다. 전체 원문은 다운로드하여 확인하세요.
-            </p>
-          </div>
         </>
       )}
     </div>
