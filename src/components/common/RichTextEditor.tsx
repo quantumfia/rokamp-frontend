@@ -16,7 +16,6 @@ const modules = {
     [{ header: [2, 3, false] }],
     ['bold', 'italic', 'underline'],
     [{ list: 'ordered' }, { list: 'bullet' }],
-    ['link'],
     ['clean'],
   ],
 };
@@ -28,7 +27,6 @@ const formats = [
   'underline',
   'list',
   'bullet',
-  'link',
 ];
 
 export function RichTextEditor({
