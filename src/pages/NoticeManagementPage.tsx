@@ -19,13 +19,18 @@ import { cn } from '@/lib/utils';
 type ActiveTab = 'notices' | 'incidents';
 
 // 공지사항 Mock 데이터
+interface VideoLink {
+  id: string;
+  url: string;
+}
+
 interface Notice {
   id: number;
   title: string;
   content: string;
   target: string;
   targetLabel: string;
-  videoUrl: string;
+  videoUrls: VideoLink[];
   hasVideo: boolean;
   hasAttachment: boolean;
   createdAt: string;
@@ -40,7 +45,7 @@ const NOTICES: Notice[] = [
     content: '동절기 안전수칙을 강화하오니 각 부대에서는 철저히 준수하시기 바랍니다.\n\n1. 난방기구 사용 시 화재 예방\n2. 결빙 구역 미끄럼 주의\n3. 저체온증 예방 조치',
     target: 'all', 
     targetLabel: '전체',
-    videoUrl: 'https://youtu.be/example1',
+    videoUrls: [{ id: '1', url: 'https://youtu.be/example1' }],
     hasVideo: true,
     hasAttachment: true,
     createdAt: '2024-12-13', 
@@ -53,7 +58,7 @@ const NOTICES: Notice[] = [
     content: '시스템 정기점검이 예정되어 있습니다.\n\n점검일시: 2024년 12월 20일 02:00 ~ 06:00\n점검내용: 서버 업데이트 및 보안 패치',
     target: 'all', 
     targetLabel: '전체',
-    videoUrl: '',
+    videoUrls: [],
     hasVideo: false,
     hasAttachment: false,
     createdAt: '2024-12-10', 
@@ -66,7 +71,7 @@ const NOTICES: Notice[] = [
     content: '야외훈련 시 안전사고 예방을 위한 1분 안전학습 자료입니다.\n\n첨부된 영상과 문서를 참고하여 훈련 전 교육을 실시하시기 바랍니다.',
     target: 'division', 
     targetLabel: '제32보병사단',
-    videoUrl: 'https://youtu.be/example2',
+    videoUrls: [{ id: '2', url: 'https://youtu.be/example2' }],
     hasVideo: true,
     hasAttachment: true,
     createdAt: '2024-12-08', 
@@ -79,7 +84,7 @@ const NOTICES: Notice[] = [
     content: '12월 안전사고 예방 캠페인을 실시합니다.\n\n기간: 2024년 12월 1일 ~ 31일\n주제: 겨울철 안전사고 ZERO 달성',
     target: 'all', 
     targetLabel: '전체',
-    videoUrl: '',
+    videoUrls: [],
     hasVideo: false,
     hasAttachment: true,
     createdAt: '2024-12-05', 
@@ -92,7 +97,7 @@ const NOTICES: Notice[] = [
     content: '신규 도입 장비에 대한 운용 교육을 실시합니다.\n\n교육일시: 2024년 12월 18일 09:00\n장소: 본부 대강당',
     target: 'division', 
     targetLabel: '제1기갑여단',
-    videoUrl: 'https://youtu.be/example3',
+    videoUrls: [{ id: '3', url: 'https://youtu.be/example3' }],
     hasVideo: true,
     hasAttachment: true,
     createdAt: '2024-12-04', 
@@ -105,7 +110,7 @@ const NOTICES: Notice[] = [
     content: '연말 휴가 신청 마감일이 다가왔습니다.\n\n마감일: 2024년 12월 15일\n신청방법: 전자결재 시스템 이용',
     target: 'all', 
     targetLabel: '전체',
-    videoUrl: '',
+    videoUrls: [],
     hasVideo: false,
     hasAttachment: false,
     createdAt: '2024-12-03', 
@@ -322,7 +327,7 @@ export default function NoticeManagementPage() {
 
   const getSeverityColor = (severity: 'low' | 'medium' | 'high') => {
     switch (severity) {
-      case 'low': return 'text-green-600';
+      case 'low': return 'text-muted-foreground';
       case 'medium': return 'text-yellow-600';
       case 'high': return 'text-red-600';
     }

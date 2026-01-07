@@ -85,6 +85,12 @@ export interface UpdateUserDto {
 // 공지사항 관련 타입
 // ============================================
 
+/** 비디오 링크 */
+export interface VideoLink {
+  id: string;
+  url: string;
+}
+
 /** 첨부 링크 */
 export interface AttachmentLink {
   id: string;
@@ -98,7 +104,7 @@ export interface Notice extends BaseEntity {
   content: string;
   target: string;           // 'all' | 특정 부대 ID
   targetLabel: string;      // 표시용 대상 라벨
-  videoUrl?: string;
+  videoUrls?: VideoLink[];
   hasVideo: boolean;
   hasAttachment: boolean;
   attachments?: AttachmentLink[];
@@ -114,7 +120,7 @@ export interface CreateNoticeDto {
   title: string;
   content: string;
   target: string;
-  videoUrl?: string;
+  videoUrls?: VideoLink[];
   attachments?: Omit<AttachmentLink, 'id'>[];
 }
 
