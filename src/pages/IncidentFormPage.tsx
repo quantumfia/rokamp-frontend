@@ -206,6 +206,38 @@ export default function IncidentFormPage() {
 
       {/* 폼 */}
       <div className="bg-card border border-border rounded-lg p-6 space-y-6">
+        {/* 일일 사고사례 표시 형식 안내 */}
+        <div className="px-3 py-2 bg-muted/50 rounded-md border border-border">
+          <p className="text-xs text-muted-foreground">
+            <strong>일일 사고사례 표시:</strong> 심각도, (분류), 제목
+          </p>
+        </div>
+
+        <FormField 
+          label="심각도" 
+          required
+          error={getFieldError('severity', errors, touched)}
+        >
+          <div className="flex gap-2">
+            {(['low', 'medium', 'high'] as const).map((sev) => (
+              <button
+                key={sev}
+                type="button"
+                onClick={() => handleChange('severity', sev)}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-2 h-10 px-3 text-sm border rounded-md transition-colors",
+                  values.severity === sev
+                    ? getSeverityColor(sev)
+                    : "border-border bg-background hover:bg-muted"
+                )}
+              >
+                <AlertTriangle className="w-4 h-4" />
+                {sev === 'low' ? '경미' : sev === 'medium' ? '보통' : '심각'}
+              </button>
+            ))}
+          </div>
+        </FormField>
+
         <FormField 
           label="제목" 
           required 
@@ -286,31 +318,6 @@ export default function IncidentFormPage() {
               전체 발송은 본부 관리자만 가능합니다.
             </p>
           )}
-        </FormField>
-
-        <FormField 
-          label="심각도" 
-          required
-          error={getFieldError('severity', errors, touched)}
-        >
-          <div className="flex gap-2">
-            {(['low', 'medium', 'high'] as const).map((sev) => (
-              <button
-                key={sev}
-                type="button"
-                onClick={() => handleChange('severity', sev)}
-                className={cn(
-                  "flex-1 flex items-center justify-center gap-2 h-10 px-3 text-sm border rounded-md transition-colors",
-                  values.severity === sev
-                    ? getSeverityColor(sev)
-                    : "border-border bg-background hover:bg-muted"
-                )}
-              >
-                <AlertTriangle className="w-4 h-4" />
-                {sev === 'low' ? '경미' : sev === 'medium' ? '보통' : '심각'}
-              </button>
-            ))}
-          </div>
         </FormField>
 
         <FormField 
