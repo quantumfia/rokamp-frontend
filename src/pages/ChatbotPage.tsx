@@ -535,7 +535,7 @@ export default function ChatbotPage() {
                     )}
                   >
                     <div className={cn(
-                      "flex gap-3",
+                      "flex gap-3 w-full",
                       message.role === "user" ? "justify-end" : "justify-start"
                     )}>
                       {message.role === "assistant" && (
