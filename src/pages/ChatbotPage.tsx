@@ -28,6 +28,7 @@ interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
+  timestamp: Date;
   sources?: string[];
   references?: Array<{
     title: string;
@@ -36,6 +37,10 @@ interface Message {
     page?: number; // 문서 내 특정 페이지
   }>;
 }
+
+const formatTime = (date: Date) => {
+  return date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: true });
+};
 
 const DOCUMENT_SOURCES = [
   { id: "all", label: "전체", description: "모든 문서에서 검색" },
@@ -136,6 +141,7 @@ export default function ChatbotPage() {
       id: Date.now().toString(),
       role: "user",
       content: messageText,
+      timestamp: new Date(),
       sources: selectedSources.includes("all") ? undefined : [...selectedSources],
     };
 
@@ -149,6 +155,7 @@ export default function ChatbotPage() {
         id: (Date.now() + 1).toString(),
         role: "assistant",
         content: response.content,
+        timestamp: new Date(),
         references: response.references,
       };
       setMessages((prev) => [...prev, assistantMessage]);
@@ -523,78 +530,89 @@ export default function ChatbotPage() {
                   <div
                     key={message.id}
                     className={cn(
-                      "flex gap-3",
-                      message.role === "user" ? "justify-end" : "justify-start"
+                      "flex flex-col gap-1",
+                      message.role === "user" ? "items-end" : "items-start"
                     )}
                   >
-                    {message.role === "assistant" && (
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center flex-shrink-0 ring-1 ring-primary/10">
-                        <img src={rokaLogo} alt="AI" className="w-5 h-5" />
-                      </div>
-                    )}
-                    <div
-                      className={cn(
-                        "text-sm",
-                        message.role === "user"
-                          ? "max-w-[80%] bg-muted-foreground/20 text-foreground px-4 py-3 rounded-2xl rounded-br-sm"
-                          : "flex-1 bg-muted/40 border border-border/50 px-4 py-3.5 rounded-2xl rounded-bl-sm",
-                      )}
-                    >
-                      {message.role === "user" && message.sources && message.sources.length > 0 && (
-                        <div className="text-[10px] text-muted-foreground mb-1.5 pb-1.5 border-b border-border/50">
-                          검색:{" "}
-                          {message.sources.map((id) => DOCUMENT_SOURCES.find((s) => s.id === id)?.label).join(", ")}
+                    <div className={cn(
+                      "flex gap-3",
+                      message.role === "user" ? "justify-end" : "justify-start"
+                    )}>
+                      {message.role === "assistant" && (
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center flex-shrink-0 ring-1 ring-primary/10">
+                          <img src={rokaLogo} alt="AI" className="w-5 h-5" />
                         </div>
                       )}
-                      <div className={cn(
-                        "whitespace-pre-wrap leading-relaxed",
-                        message.role === "assistant" && "text-foreground"
-                      )}>
-                        {message.content.split("\n").map((line, i) => {
-                          if (line.startsWith("**") && line.endsWith("**")) {
-                            return (
-                              <p key={i} className={cn(
-                                "font-semibold mt-4 mb-2 first:mt-0",
-                                message.role === "assistant" && "text-foreground"
-                              )}>
-                                {line.replace(/\*\*/g, "")}
-                              </p>
-                            );
-                          }
-                          if (line.startsWith("_") && line.endsWith("_")) {
-                            return (
-                              <p key={i} className="text-xs text-muted-foreground mt-3 italic">
-                                {line.replace(/_/g, "")}
-                              </p>
-                            );
-                          }
-                          return (
-                            <span key={i}>
-                              {line}
-                              {"\n"}
-                            </span>
-                          );
-                        })}
-                      </div>
-                      {message.references && message.references.length > 0 && (
-                        <div className="mt-4 pt-3 border-t border-border/30 space-y-2">
-                          <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">참고 자료</p>
-                          <div className="space-y-1">
-                            {message.references.map((ref, index) => (
-                              <button
-                                key={index}
-                                onClick={() => handleDocumentClick(ref)}
-                                className="flex items-center gap-2 text-xs text-primary hover:text-primary/80 transition-colors text-left w-full py-1 px-2 -mx-2 rounded-md hover:bg-primary/5 group"
-                              >
-                                <FileText className="w-3.5 h-3.5 flex-shrink-0" />
-                                <span className="truncate">{ref.title}</span>
-                                <span className="text-muted-foreground text-[10px] ml-auto flex-shrink-0">{ref.source}</span>
-                              </button>
-                            ))}
+                      <div
+                        className={cn(
+                          "text-sm",
+                          message.role === "user"
+                            ? "max-w-[80%] bg-muted-foreground/20 text-foreground px-4 py-3 rounded-2xl rounded-br-sm"
+                            : "flex-1 bg-muted/40 border border-border/50 px-4 py-3.5 rounded-2xl rounded-bl-sm",
+                        )}
+                      >
+                        {message.role === "user" && message.sources && message.sources.length > 0 && (
+                          <div className="text-[10px] text-muted-foreground mb-1.5 pb-1.5 border-b border-border/50">
+                            검색:{" "}
+                            {message.sources.map((id) => DOCUMENT_SOURCES.find((s) => s.id === id)?.label).join(", ")}
                           </div>
+                        )}
+                        <div className={cn(
+                          "whitespace-pre-wrap leading-relaxed",
+                          message.role === "assistant" && "text-foreground"
+                        )}>
+                          {message.content.split("\n").map((line, i) => {
+                            if (line.startsWith("**") && line.endsWith("**")) {
+                              return (
+                                <p key={i} className={cn(
+                                  "font-semibold mt-4 mb-2 first:mt-0",
+                                  message.role === "assistant" && "text-foreground"
+                                )}>
+                                  {line.replace(/\*\*/g, "")}
+                                </p>
+                              );
+                            }
+                            if (line.startsWith("_") && line.endsWith("_")) {
+                              return (
+                                <p key={i} className="text-xs text-muted-foreground mt-3 italic">
+                                  {line.replace(/_/g, "")}
+                                </p>
+                              );
+                            }
+                            return (
+                              <span key={i}>
+                                {line}
+                                {"\n"}
+                              </span>
+                            );
+                          })}
                         </div>
-                      )}
+                        {message.references && message.references.length > 0 && (
+                          <div className="mt-4 pt-3 border-t border-border/30 space-y-2">
+                            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">참고 자료</p>
+                            <div className="space-y-1">
+                              {message.references.map((ref, index) => (
+                                <button
+                                  key={index}
+                                  onClick={() => handleDocumentClick(ref)}
+                                  className="flex items-center gap-2 text-xs text-primary hover:text-primary/80 transition-colors text-left w-full py-1 px-2 -mx-2 rounded-md hover:bg-primary/5 group"
+                                >
+                                  <FileText className="w-3.5 h-3.5 flex-shrink-0" />
+                                  <span className="truncate">{ref.title}</span>
+                                  <span className="text-muted-foreground text-[10px] ml-auto flex-shrink-0">{ref.source}</span>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
+                    <span className={cn(
+                      "text-[10px] text-muted-foreground",
+                      message.role === "user" ? "pr-1" : "pl-12"
+                    )}>
+                      {formatTime(message.timestamp)}
+                    </span>
                   </div>
                 ))}
 
