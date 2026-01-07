@@ -186,9 +186,9 @@ export function TrendAnalysisPanel() {
                       className="w-3 h-3 rounded-sm" 
                       style={{ backgroundColor: item.color }}
                     />
-                    <span className="text-sm" style={{ color: item.color }}>{item.name}</span>
+                    <span className="text-sm text-foreground">{item.name}</span>
                   </div>
-                  <span className="text-sm font-semibold tabular-nums" style={{ color: item.color }}>{item.value}%</span>
+                  <span className="text-sm font-semibold tabular-nums text-foreground">{item.value}%</span>
                 </div>
               ))}
             </div>
