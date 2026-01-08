@@ -23,8 +23,8 @@ import rokaLogo from '@/assets/roka-logo.svg';
 import { ReportFormData } from '@/components/reports/ReportGeneratorForm';
 import { useAuth } from '@/contexts/AuthContext';
 import { canEditContent, canDeleteContent, getAccessibleUnits } from '@/lib/rbac';
-import type { IncidentSeverity } from '@/types/entities';
-import { INCIDENT_SEVERITY_LABELS } from '@/types/entities';
+import type { IncidentSeverity, ReportStatus } from '@/types/entities';
+import { INCIDENT_SEVERITY_LABELS, REPORT_STATUS_LABELS } from '@/types/entities';
 
 // 사고 보고서 타입
 interface AccidentReport {
@@ -35,7 +35,7 @@ interface AccidentReport {
   category: string;
   categoryDetail: string;
   location: string;
-  status: 'completed' | 'pending' | 'reviewing';
+  status: ReportStatus;
   severity: IncidentSeverity;
   reporter: string;
   reporterRank: string;
@@ -62,7 +62,7 @@ const MOCK_ACCIDENT_REPORTS: AccidentReport[] = [
     category: '안전사고',
     categoryDetail: '차량사고',
     location: '강원도 인제군 훈련장',
-    status: 'completed',
+    status: 'APPROVED',
     severity: 'CRITICAL',
     reporter: '김철수',
     reporterRank: '대위',
@@ -109,7 +109,7 @@ const MOCK_ACCIDENT_REPORTS: AccidentReport[] = [
     category: '군기사고',
     categoryDetail: '폭행사고',
     location: '경기도 포천시 부대 내무반',
-    status: 'reviewing',
+    status: 'REVIEWING',
     severity: 'SERIOUS',
     reporter: '박지훈',
     reporterRank: '중위',
@@ -143,7 +143,7 @@ const MOCK_ACCIDENT_REPORTS: AccidentReport[] = [
     category: '기타',
     categoryDetail: '장비고장',
     location: '충청남도 계룡시 탄약고',
-    status: 'completed',
+    status: 'APPROVED',
     severity: 'MINOR',
     reporter: '이상민',
     reporterRank: '소령',
@@ -176,7 +176,7 @@ const MOCK_ACCIDENT_REPORTS: AccidentReport[] = [
     category: '안전사고',
     categoryDetail: '훈련사고',
     location: '경기도 양주시 사격장',
-    status: 'completed',
+    status: 'APPROVED',
     severity: 'CRITICAL',
     reporter: '정우성',
     reporterRank: '대위',
@@ -209,7 +209,7 @@ const MOCK_ACCIDENT_REPORTS: AccidentReport[] = [
     category: '안전사고',
     categoryDetail: '차량사고',
     location: '서울특별시 강남구 교차로',
-    status: 'pending',
+    status: 'REQUESTED',
     severity: 'SERIOUS',
     reporter: '한승우',
     reporterRank: '중위',
@@ -317,22 +317,23 @@ export function AccidentReportList({ onCreateNew, onEdit }: AccidentReportListPr
   }, [user?.role, accessibleUnits, searchTerm]);
 
   // 상태 라벨
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'completed': return '처리완료';
-      case 'pending': return '처리중';
-      case 'reviewing': return '검토중';
-      default: return status;
-    }
-  };
+  const getStatusLabel = (status: ReportStatus) => REPORT_STATUS_LABELS[status];
 
   // 상태 스타일
-  const getStatusStyle = (status: string) => {
+  const getStatusStyle = (status: ReportStatus) => {
     switch (status) {
-      case 'completed': return 'bg-green-500/20 text-green-400';
-      case 'pending': return 'bg-yellow-500/20 text-yellow-400';
-      case 'reviewing': return 'bg-blue-500/20 text-blue-400';
-      default: return 'bg-muted text-muted-foreground';
+      case 'APPROVED':
+        return 'bg-green-500/20 text-green-400';
+      case 'REQUESTED':
+        return 'bg-yellow-500/20 text-yellow-400';
+      case 'REVIEWING':
+        return 'bg-blue-500/20 text-blue-400';
+      case 'REJECTED':
+        return 'bg-red-500/20 text-red-400';
+      case 'DRAFT':
+        return 'bg-muted text-muted-foreground';
+      default:
+        return 'bg-muted text-muted-foreground';
     }
   };
 
