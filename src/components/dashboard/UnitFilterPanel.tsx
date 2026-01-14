@@ -9,10 +9,8 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { UnitTreeSelect } from '@/components/unit';
-import type { RiskGrade } from '@/types/entities';
-import { RISK_GRADE_LABELS } from '@/types/entities';
 interface FilterOption {
-  id: RiskGrade;
+  id: string;
   label: string;
   count?: number;
 }
@@ -23,15 +21,13 @@ interface UnitFilterPanelProps {
 
 export interface FilterState {
   selectedUnit: string;
-  riskLevels: RiskGrade[];
+  riskLevels: string[];
 }
 
 const RISK_LEVELS: FilterOption[] = [
-  { id: 'DANGER', label: `${RISK_GRADE_LABELS.DANGER} (80-100%)` },
-  { id: 'WARNING', label: `${RISK_GRADE_LABELS.WARNING} (60-79%)` },
-  { id: 'CAUTION', label: `${RISK_GRADE_LABELS.CAUTION} (40-59%)` },
-  { id: 'ATTENTION', label: `${RISK_GRADE_LABELS.ATTENTION} (20-39%)` },
-  { id: 'SAFE', label: `${RISK_GRADE_LABELS.SAFE} (0-19%)` },
+  { id: 'high', label: '고위험 (60% 이상)', count: 3 },
+  { id: 'medium', label: '중위험 (30-60%)', count: 12 },
+  { id: 'low', label: '저위험 (30% 미만)', count: 15 },
 ];
 
 export function UnitFilterPanel({ onFilterChange }: UnitFilterPanelProps) {
@@ -45,7 +41,7 @@ export function UnitFilterPanel({ onFilterChange }: UnitFilterPanelProps) {
     riskLevels: true,
   });
 
-  const handleRiskLevelChange = (id: RiskGrade) => {
+  const handleRiskLevelChange = (id: string) => {
     setFilters((prev) => {
       const current = prev.riskLevels;
       const updated = current.includes(id)

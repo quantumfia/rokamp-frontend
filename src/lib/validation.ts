@@ -113,8 +113,8 @@ export const updateUserSchema = z.object({
   name: optionalString(50),
   rank: optionalString(20),
   unitId: optionalString(),
-  role: z.enum(['ROLE_HQ', 'ROLE_DIV', 'ROLE_BN']).optional(),
-  status: z.enum(['ACTIVE', 'LOCKED', 'DORMANT', 'WITHDRAWN']).optional(),
+  role: z.enum(['ROLE_SUPER_ADMIN', 'ROLE_ADMIN', 'ROLE_USER']).optional(),
+  status: z.enum(['active', 'inactive']).optional(),
 });
 
 /** 공지사항 스키마 */
@@ -139,7 +139,7 @@ export const incidentSchema = z.object({
   incidentDate: dateSchema,
   location: requiredString('장소', 200),
   category: requiredString('분류'),
-  severity: z.enum(['MINOR', 'SERIOUS', 'CRITICAL', 'CATASTROPHIC']),
+  severity: z.enum(['low', 'medium', 'high']),
   target: requiredString('발송 대상'),
 });
 
@@ -152,7 +152,7 @@ export const trainingScheduleSchema = z.object({
   endTime: timeSchema.optional().or(z.literal('')),
   location: optionalString(200),
   type: z.enum(['사격', '기동', '전술', '체력', '교육', '점검']),
-  riskLevel: z.enum(['SAFE', 'ATTENTION', 'CAUTION', 'WARNING', 'DANGER']).optional(),
+  riskLevel: z.enum(['low', 'medium', 'high']).optional(),
   participants: nonNegativeIntSchema.optional(),
 });
 

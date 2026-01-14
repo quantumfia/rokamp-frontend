@@ -21,8 +21,6 @@ import { useFormValidation, getFieldError } from '@/hooks/useFormValidation';
 import { useAuth } from '@/contexts/AuthContext';
 import { incidentSchema } from '@/lib/validation';
 import { cn } from '@/lib/utils';
-import type { IncidentSeverity } from '@/types/entities';
-import { INCIDENT_SEVERITY_LABELS } from '@/types/entities';
 import { z } from 'zod';
 
 // 폼 데이터 타입
@@ -36,7 +34,7 @@ interface Incident {
   incidentDate: string;
   location: string;
   category: string;
-  severity: IncidentSeverity;
+  severity: 'low' | 'medium' | 'high';
   target: string;
   createdAt: string;
   author: string;
@@ -50,7 +48,7 @@ const INCIDENTS: Incident[] = [
     incidentDate: '2024-12-12',
     location: '제32보병사단 훈련장',
     category: '훈련',
-    severity: 'SERIOUS',
+    severity: 'medium',
     target: 'subordinate',
     createdAt: '2024-12-13',
     author: '김철수 대령',
@@ -62,7 +60,7 @@ const INCIDENTS: Incident[] = [
     incidentDate: '2024-12-11',
     location: '본부 주차장',
     category: '교통',
-    severity: 'MINOR',
+    severity: 'low',
     target: 'all',
     createdAt: '2024-12-12',
     author: '이영희 준장',
@@ -98,7 +96,7 @@ export default function IncidentFormPage() {
       incidentDate: '',
       location: '',
       category: '훈련',
-      severity: 'MINOR',
+      severity: 'low',
       target: 'subordinate',
     },
     schema: incidentSchema,
@@ -146,12 +144,11 @@ export default function IncidentFormPage() {
     navigate('/admin/notice?tab=incidents');
   };
 
-  const getSeverityColor = (sev: IncidentSeverity) => {
+  const getSeverityColor = (sev: 'low' | 'medium' | 'high') => {
     switch (sev) {
-      case 'MINOR': return 'border-muted-foreground bg-muted text-muted-foreground';
-      case 'SERIOUS': return 'border-yellow-500 bg-yellow-500/10 text-yellow-600';
-      case 'CRITICAL': return 'border-red-500 bg-red-500/10 text-red-600';
-      case 'CATASTROPHIC': return 'border-red-700 bg-red-700/10 text-red-700';
+      case 'low': return 'border-muted-foreground bg-muted text-muted-foreground';
+      case 'medium': return 'border-yellow-500 bg-yellow-500/10 text-yellow-600';
+      case 'high': return 'border-red-500 bg-red-500/10 text-red-600';
     }
   };
 
@@ -222,7 +219,7 @@ export default function IncidentFormPage() {
           error={getFieldError('severity', errors, touched)}
         >
           <div className="flex gap-2">
-            {(['MINOR', 'SERIOUS', 'CRITICAL', 'CATASTROPHIC'] as const).map((sev) => (
+            {(['low', 'medium', 'high'] as const).map((sev) => (
               <button
                 key={sev}
                 type="button"
@@ -235,7 +232,7 @@ export default function IncidentFormPage() {
                 )}
               >
                 <AlertTriangle className="w-4 h-4" />
-                {INCIDENT_SEVERITY_LABELS[sev]}
+                {sev === 'low' ? '경미' : sev === 'medium' ? '보통' : '심각'}
               </button>
             ))}
           </div>

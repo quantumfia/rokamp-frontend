@@ -187,6 +187,7 @@ export function StatisticsReportList({ showModal = false, onCloseModal }: Statis
   const [filterTarget, setFilterTarget] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedReport, setSelectedReport] = useState<StatReport | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
   
   // 보고서 생성 관련 상태
@@ -1375,11 +1376,11 @@ export function StatisticsReportList({ showModal = false, onCloseModal }: Statis
               </div>
               <div>
                 <button 
-                  onClick={(e) => { e.stopPropagation(); setSelectedReport(report); }}
+                  onClick={(e) => { e.stopPropagation(); handleDownloadHWP(report); }}
                   className="p-1.5 hover:bg-muted rounded transition-colors"
-                  title="상세보기"
+                  title="다운로드"
                 >
-                  <Eye className="w-4 h-4 text-muted-foreground" />
+                  <Download className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
             </div>

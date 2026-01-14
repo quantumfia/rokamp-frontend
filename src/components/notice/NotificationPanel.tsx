@@ -1,13 +1,13 @@
-import { X, Bell, AlertTriangle, Info, FileText, CheckCircle } from 'lucide-react';
+import { X, Bell, AlertTriangle, Info, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { NotificationType } from '@/types/entities';
 
 interface Notification {
   id: string;
-  type: NotificationType;
+  type: 'notice' | 'alert' | 'info';
+  title: string;
   message: string;
-  createdAt: string;
-  isRead: boolean;
+  timestamp: string;
+  read: boolean;
 }
 
 interface NotificationPanelProps {
@@ -18,79 +18,59 @@ interface NotificationPanelProps {
 const MOCK_NOTIFICATIONS: Notification[] = [
   {
     id: '1',
-    type: 'NOTICE',
+    type: 'notice',
+    title: '겨울철 안전사고 예방 강화 기간',
     message: '12월 1일부터 2월 28일까지 강화 기간 운영',
-    createdAt: '10분 전',
-    isRead: false,
+    timestamp: '10분 전',
+    read: false,
   },
   {
     id: '2',
-    type: 'RISK_ALERT',
+    type: 'alert',
+    title: '제7사단 위험도 경고',
     message: '위험 지수가 경고 수준(78%)에 도달했습니다',
-    createdAt: '1시간 전',
-    isRead: false,
+    timestamp: '1시간 전',
+    read: false,
   },
   {
     id: '3',
-    type: 'APPROVAL_RES',
+    type: 'info',
+    title: '주간 보고서 생성 완료',
     message: '12월 2주차 통계 보고서가 준비되었습니다',
-    createdAt: '3시간 전',
-    isRead: true,
+    timestamp: '3시간 전',
+    read: true,
   },
   {
     id: '4',
-    type: 'SYSTEM',
+    type: 'notice',
+    title: '시스템 정기 점검 안내',
     message: '매주 일요일 02:00-04:00 점검 진행',
-    createdAt: '1일 전',
-    isRead: true,
+    timestamp: '1일 전',
+    read: true,
   },
   {
     id: '5',
-    type: 'SECURITY',
+    type: 'alert',
+    title: '기상 특보 발령',
     message: '강원 영서 지역 대설주의보 발효',
-    createdAt: '2일 전',
-    isRead: true,
+    timestamp: '2일 전',
+    read: true,
   },
 ];
 
 export function NotificationPanel({ onClose, onShowNotice }: NotificationPanelProps) {
-  const unreadCount = MOCK_NOTIFICATIONS.filter(n => !n.isRead).length;
+  const unreadCount = MOCK_NOTIFICATIONS.filter(n => !n.read).length;
 
   const getIcon = (type: Notification['type']) => {
     switch (type) {
-      case 'NOTICE':
+      case 'notice':
         return <FileText className="w-4 h-4" />;
-      case 'RISK_ALERT':
-      case 'SECURITY':
+      case 'alert':
         return <AlertTriangle className="w-4 h-4" />;
-      case 'APPROVAL_RES':
-        return <CheckCircle className="w-4 h-4" />;
-      case 'APPROVAL_REQ':
-        return <FileText className="w-4 h-4" />;
-      case 'SYSTEM':
+      case 'info':
         return <Info className="w-4 h-4" />;
     }
   };
-
-  const getTitle = (type: Notification['type']) => {
-    switch (type) {
-      case 'NOTICE':
-        return '공지사항';
-      case 'RISK_ALERT':
-        return '위험 알림';
-      case 'APPROVAL_REQ':
-        return '결재 요청';
-      case 'APPROVAL_RES':
-        return '결재 결과';
-      case 'SECURITY':
-        return '보안 경고';
-      case 'SYSTEM':
-        return '시스템 알림';
-    }
-  };
-
-  const isAlertType = (type: Notification['type']) =>
-    type === 'RISK_ALERT' || type === 'SECURITY';
 
   return (
     <>
@@ -127,19 +107,19 @@ export function NotificationPanel({ onClose, onShowNotice }: NotificationPanelPr
             <button
               key={notification.id}
               onClick={() => {
-                if (notification.type === 'NOTICE') {
+                if (notification.type === 'notice') {
                   onShowNotice();
                 }
               }}
               className={cn(
                 'w-full px-4 py-3 text-left hover:bg-sidebar-accent transition-colors',
-                !notification.isRead && 'bg-sidebar-accent/50'
+                !notification.read && 'bg-sidebar-accent/50'
               )}
             >
               <div className="flex items-start gap-3">
                 <div className={cn(
                   'p-1.5 rounded',
-                  isAlertType(notification.type) ? 'bg-status-error/20 text-status-error' :
+                  notification.type === 'alert' ? 'bg-status-error/20 text-status-error' :
                   'bg-sidebar-accent text-sidebar-muted'
                 )}>
                   {getIcon(notification.type)}
@@ -148,11 +128,11 @@ export function NotificationPanel({ onClose, onShowNotice }: NotificationPanelPr
                   <div className="flex items-center gap-2">
                     <p className={cn(
                       'text-xs font-medium truncate',
-                      notification.isRead ? 'text-sidebar-muted' : 'text-sidebar-foreground'
+                      notification.read ? 'text-sidebar-muted' : 'text-sidebar-foreground'
                     )}>
-                      {getTitle(notification.type)}
+                      {notification.title}
                     </p>
-                    {!notification.isRead && (
+                    {!notification.read && (
                       <span className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0" />
                     )}
                   </div>
@@ -160,7 +140,7 @@ export function NotificationPanel({ onClose, onShowNotice }: NotificationPanelPr
                     {notification.message}
                   </p>
                   <p className="text-[10px] text-sidebar-muted/70 mt-1">
-                    {notification.createdAt}
+                    {notification.timestamp}
                   </p>
                 </div>
               </div>

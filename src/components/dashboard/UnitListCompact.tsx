@@ -12,7 +12,6 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { getAccessibleUnitIds } from '@/lib/rbac';
 import type { FilterState } from './UnitFilterPanel';
-import { getRiskGradeFromScore, RISK_GRADE_BG_COLORS, RISK_GRADE_COLORS } from '@/types/entities';
 
 interface UnitListCompactProps {
   onUnitClick?: (unitId: string) => void;
@@ -86,10 +85,13 @@ export function UnitListCompact({
 
       // 위험도 필터
       if (filters.riskLevels.length > 0) {
-        const grade = getRiskGradeFromScore(unit.risk);
-        if (!filters.riskLevels.includes(grade)) {
+        const riskMatch = filters.riskLevels.some((level) => {
+          if (level === 'high') return unit.risk >= 60;
+          if (level === 'medium') return unit.risk >= 30 && unit.risk < 60;
+          if (level === 'low') return unit.risk < 30;
           return false;
-        }
+        });
+        if (!riskMatch) return false;
       }
 
       return true;
@@ -140,8 +142,9 @@ export function UnitListCompact({
   };
 
   const getRiskStyle = (risk: number) => {
-    const grade = getRiskGradeFromScore(risk);
-    return { bg: RISK_GRADE_BG_COLORS[grade], text: RISK_GRADE_COLORS[grade] };
+    if (risk >= 60) return { bg: 'bg-status-error', text: 'text-white' };
+    if (risk >= 30) return { bg: 'bg-status-warning', text: 'text-black' };
+    return { bg: 'bg-status-success', text: 'text-white' };
   };
 
   return (

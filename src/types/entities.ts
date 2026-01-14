@@ -32,23 +32,11 @@ export type ReportType = 'INCIDENT' | 'PREVENTION' | 'STATISTICS' | 'PERIODIC' |
 /** 보고서 결재 상태 (report_status) */
 export type ReportStatus = 'DRAFT' | 'REQUESTED' | 'REVIEWING' | 'REJECTED' | 'APPROVED';
 
-/** 데이터 보안 등급 (security_level) */
-export type SecurityLevel = 'UNCLASSIFIED' | 'INTERNAL' | 'CONFIDENTIAL' | 'SECRET' | 'TOP_SECRET';
-
-/** 보안 알림 심각도 (alert_severity) */
-export type AlertSeverity = 'INFO' | 'NOTICE' | 'WARNING' | 'CRITICAL' | 'EMERGENCY';
-
-/** 보안 알림 상태 (alert_status) */
-export type AlertStatus = 'NEW' | 'INVESTIGATING' | 'RESOLVED' | 'FALSE_POSITIVE';
-
 /** 알림 유형 (notification_type) */
 export type NotificationType = 'SYSTEM' | 'RISK_ALERT' | 'APPROVAL_REQ' | 'APPROVAL_RES' | 'NOTICE' | 'SECURITY';
 
 /** 첨부파일 대상 유형 (file_target_type) */
 export type FileTargetType = 'NOTICE' | 'REPORT' | 'INCIDENT' | 'SCHEDULE' | 'DOCUMENT';
-
-/** 배치 작업 상태 (job_status) */
-export type JobStatus = 'PENDING' | 'RUNNING' | 'SUCCESS' | 'FAILED' | 'CANCELLED';
 
 // ============================================
 // 공통 타입
@@ -207,7 +195,7 @@ export interface CreateIncidentDto {
   unitId: string;
   typeLarge: string;
   typeMedium: string;
-  rankCode: string;
+  rankCode?: string;
   severity: IncidentSeverity;
   locationType: LocationType;
   description?: string;
@@ -382,97 +370,25 @@ export interface ChunkSettings {
 
 /** 허용 IP (allowed_ips) */
 export interface AllowedIP extends BaseEntity {
-  ipAddress: string;
+  ip: string;
+  unit: string;
   unitId?: string;
-  unitName?: string;
   description?: string;
 }
 
 /** 감사 로그 (audit_logs) */
 export interface AuditLog extends BaseEntity {
   userId?: string;
-  accountId?: string;
-  militaryId?: string;
-  userName?: string;
-  rank?: string;
-  ipAddress?: string;
+  accountId: string;
+  militaryId: string;
+  userName: string;
+  rank: string;
+  ip: string;
   action: string;
-  target?: string;
-  details?: Record<string, unknown>;
-  timestamp?: string;
-  status?: 'success' | 'failed';
-}
-
-/** 로그인 로그 (login_logs) */
-export interface LoginLog extends BaseEntity {
-  userId: string;
-  ipAddress: string;
-  isSuccess: boolean;
-}
-
-/** 보안 알림 (security_alerts) */
-export interface SecurityAlert extends BaseEntity {
-  type: string;
-  severity: AlertSeverity;
-  message: string;
-  status: AlertStatus;
-}
-
-/** 활성 세션 (active_sessions) */
-export interface ActiveSession extends BaseEntity {
-  userId: string;
-  token: string;
-  expiresAt: string;
-}
-
-/** 접근 제어 매트릭스 (access_control_matrix) */
-export interface AccessControlMatrix extends BaseEntity {
-  role: UserRole;
-  resource: string;
-  permission: 'READ' | 'WRITE';
-}
-
-/** 데이터 보존 정책 (data_retention_policies) */
-export interface DataRetentionPolicy extends BaseEntity {
-  tableName: string;
-  days: number;
-}
-
-/** 아카이브 데이터 (archived_data) */
-export interface ArchivedData extends BaseEntity {
-  originTable: string;
-  data: Record<string, unknown>;
-  archivedAt: string;
-}
-
-/** 데이터 보안 분류 (data_classifications) */
-export interface DataClassification extends BaseEntity {
-  tableName: string;
-  securityLevel: SecurityLevel;
-  accessRoles: UserRole[];
-}
-
-/** 시스템 설정 (system_settings) */
-export interface SystemSetting {
-  key: string;
-  value: Record<string, unknown>;
-  description?: string;
-  updatedAt: string;
-}
-
-/** 비밀번호 변경 이력 (password_histories) */
-export interface PasswordHistory extends BaseEntity {
-  userId: string;
-  passwordHash: string;
-}
-
-/** 시스템 작업 로그 (sys_job_logs) */
-export interface SysJobLog extends BaseEntity {
-  jobName: string;
-  status: JobStatus;
-  startedAt: string;
-  finishedAt?: string;
-  errorMessage?: string;
+  target: string;
+  details?: string;           // 변경 내용 JSON
+  timestamp: string;
+  status: 'success' | 'failed';
 }
 
 // ============================================
@@ -491,7 +407,7 @@ export interface ChatConversation extends BaseEntity {
 export interface ChatMessage {
   id: string;
   conversationId?: string;
-  role: 'USER' | 'ASSISTANT';
+  role: 'user' | 'assistant';
   content: string;
   sourceRefs?: DocumentReference[];  // 참조 문서 정보
   modelName?: string;

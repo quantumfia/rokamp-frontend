@@ -23,8 +23,6 @@ import rokaLogo from '@/assets/roka-logo.svg';
 import { ReportFormData } from '@/components/reports/ReportGeneratorForm';
 import { useAuth } from '@/contexts/AuthContext';
 import { canEditContent, canDeleteContent, getAccessibleUnits } from '@/lib/rbac';
-import type { IncidentSeverity, ReportStatus } from '@/types/entities';
-import { INCIDENT_SEVERITY_LABELS, REPORT_STATUS_LABELS } from '@/types/entities';
 
 // 사고 보고서 타입
 interface AccidentReport {
@@ -35,8 +33,8 @@ interface AccidentReport {
   category: string;
   categoryDetail: string;
   location: string;
-  status: ReportStatus;
-  severity: IncidentSeverity;
+  status: 'completed' | 'pending' | 'reviewing';
+  severity: 'high' | 'medium' | 'low';
   reporter: string;
   reporterRank: string;
   createdAt: string;
@@ -62,8 +60,8 @@ const MOCK_ACCIDENT_REPORTS: AccidentReport[] = [
     category: '안전사고',
     categoryDetail: '차량사고',
     location: '강원도 인제군 훈련장',
-    status: 'APPROVED',
-    severity: 'CRITICAL',
+    status: 'completed',
+    severity: 'high',
     reporter: '김철수',
     reporterRank: '대위',
     createdAt: '2024-12-10 14:30',
@@ -109,8 +107,8 @@ const MOCK_ACCIDENT_REPORTS: AccidentReport[] = [
     category: '군기사고',
     categoryDetail: '폭행사고',
     location: '경기도 포천시 부대 내무반',
-    status: 'REVIEWING',
-    severity: 'SERIOUS',
+    status: 'reviewing',
+    severity: 'medium',
     reporter: '박지훈',
     reporterRank: '중위',
     createdAt: '2024-12-08 22:15',
@@ -143,8 +141,8 @@ const MOCK_ACCIDENT_REPORTS: AccidentReport[] = [
     category: '기타',
     categoryDetail: '장비고장',
     location: '충청남도 계룡시 탄약고',
-    status: 'APPROVED',
-    severity: 'MINOR',
+    status: 'completed',
+    severity: 'low',
     reporter: '이상민',
     reporterRank: '소령',
     createdAt: '2024-12-07 16:45',
@@ -176,8 +174,8 @@ const MOCK_ACCIDENT_REPORTS: AccidentReport[] = [
     category: '안전사고',
     categoryDetail: '훈련사고',
     location: '경기도 양주시 사격장',
-    status: 'APPROVED',
-    severity: 'CRITICAL',
+    status: 'completed',
+    severity: 'high',
     reporter: '정우성',
     reporterRank: '대위',
     createdAt: '2024-12-05 11:20',
@@ -209,8 +207,8 @@ const MOCK_ACCIDENT_REPORTS: AccidentReport[] = [
     category: '안전사고',
     categoryDetail: '차량사고',
     location: '서울특별시 강남구 교차로',
-    status: 'REQUESTED',
-    severity: 'SERIOUS',
+    status: 'pending',
+    severity: 'medium',
     reporter: '한승우',
     reporterRank: '중위',
     createdAt: '2024-12-03 19:30',
@@ -317,46 +315,43 @@ export function AccidentReportList({ onCreateNew, onEdit }: AccidentReportListPr
   }, [user?.role, accessibleUnits, searchTerm]);
 
   // 상태 라벨
-  const getStatusLabel = (status: ReportStatus) => REPORT_STATUS_LABELS[status];
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'completed': return '처리완료';
+      case 'pending': return '처리중';
+      case 'reviewing': return '검토중';
+      default: return status;
+    }
+  };
 
   // 상태 스타일
-  const getStatusStyle = (status: ReportStatus) => {
+  const getStatusStyle = (status: string) => {
     switch (status) {
-      case 'APPROVED':
-        return 'bg-green-500/20 text-green-400';
-      case 'REQUESTED':
-        return 'bg-yellow-500/20 text-yellow-400';
-      case 'REVIEWING':
-        return 'bg-blue-500/20 text-blue-400';
-      case 'REJECTED':
-        return 'bg-red-500/20 text-red-400';
-      case 'DRAFT':
-        return 'bg-muted text-muted-foreground';
-      default:
-        return 'bg-muted text-muted-foreground';
+      case 'completed': return 'bg-green-500/20 text-green-400';
+      case 'pending': return 'bg-yellow-500/20 text-yellow-400';
+      case 'reviewing': return 'bg-blue-500/20 text-blue-400';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
-
-  const getStatusBadgeClass = (status: ReportStatus) =>
-    `inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${getStatusStyle(status)}`;
 
   // 심각도 스타일
-  const getSeverityStyle = (severity: IncidentSeverity) => {
+  const getSeverityStyle = (severity: string) => {
     switch (severity) {
-      case 'MINOR':
-        return 'bg-green-500/20 text-green-500';
-      case 'SERIOUS':
-        return 'bg-yellow-500/20 text-yellow-500';
-      case 'CRITICAL':
-        return 'bg-red-500/20 text-red-500';
-      case 'CATASTROPHIC':
-        return 'bg-red-700/20 text-red-700';
-      default:
-        return 'bg-muted text-muted-foreground';
+      case 'high': return 'bg-red-500/20 text-red-400';
+      case 'medium': return 'bg-yellow-500/20 text-yellow-400';
+      case 'low': return 'bg-green-500/20 text-green-400';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
 
-  const getSeverityLabel = (severity: IncidentSeverity) => INCIDENT_SEVERITY_LABELS[severity];
+  const getSeverityLabel = (severity: string) => {
+    switch (severity) {
+      case 'high': return '긴급';
+      case 'medium': return '보통';
+      case 'low': return '경미';
+      default: return severity;
+    }
+  };
 
   // PDF 다운로드
   const handleDownloadPDF = async (report: AccidentReport) => {
@@ -739,9 +734,7 @@ export function AccidentReportList({ onCreateNew, onEdit }: AccidentReportListPr
               {/* 처리 상태 */}
               <div className="border-t border-border pt-4 mt-4">
                 <h3 className="text-xs font-medium text-foreground mb-3">처리 상태</h3>
-                <span className={getStatusBadgeClass(selectedReport.status)}>
-                  {getStatusLabel(selectedReport.status)}
-                </span>
+                <div className={inputClass}>{getStatusLabel(selectedReport.status)}</div>
               </div>
             </div>
           </div>
@@ -923,9 +916,7 @@ export function AccidentReportList({ onCreateNew, onEdit }: AccidentReportListPr
                 {report.date}
               </div>
               <div className="text-sm text-muted-foreground">
-                <span className={getStatusBadgeClass(report.status)}>
-                  {getStatusLabel(report.status)}
-                </span>
+                {getStatusLabel(report.status)}
               </div>
               <div>
                 <button 
