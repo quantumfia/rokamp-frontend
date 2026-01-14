@@ -1,6 +1,7 @@
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { cn } from '@/lib/utils';
+import { sanitizeHtml } from '@/lib/sanitize';
 
 interface RichTextEditorProps {
   value: string;
@@ -54,6 +55,12 @@ export function RichTextEditor({
   className,
   error,
 }: RichTextEditorProps) {
+  // Sanitize content before passing to parent to prevent XSS
+  const handleChange = (content: string) => {
+    const sanitizedContent = sanitizeHtml(content);
+    onChange(sanitizedContent);
+  };
+
   return (
     <div
       className={cn(
@@ -65,7 +72,7 @@ export function RichTextEditor({
       <ReactQuill
         theme="snow"
         value={value}
-        onChange={onChange}
+        onChange={handleChange}
         onBlur={onBlur}
         placeholder={placeholder}
         modules={modules}
