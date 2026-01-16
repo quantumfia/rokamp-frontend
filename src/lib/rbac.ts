@@ -12,6 +12,7 @@ export const PAGE_ACCESS: Record<string, UserRole[]> = {
   '/data': ['ROLE_HQ'],
   '/admin/users': ['ROLE_HQ', 'ROLE_DIV'],
   '/admin/settings': ['ROLE_HQ'],
+  '/admin/fonts': ['ROLE_HQ'],
   '/admin/chatbot-starter': ['ROLE_HQ'],
 };
 
@@ -26,6 +27,7 @@ export const MENU_ACCESS: Record<string, UserRole[]> = {
   data: ['ROLE_HQ'],
   users: ['ROLE_HQ', 'ROLE_DIV'],
   settings: ['ROLE_HQ'],
+  fonts: ['ROLE_HQ'],
 };
 
 // 페이지 접근 권한 확인

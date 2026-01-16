@@ -20,6 +20,7 @@ import NoticeFormPage from "./pages/NoticeFormPage";
 import IncidentFormPage from "./pages/IncidentFormPage";
 import UserManagementPage from "./pages/UserManagementPage";
 import SystemSettingsPage from "./pages/SystemSettingsPage";
+import FontPreviewPage from "./pages/FontPreviewPage";
 import NotFound from "./pages/NotFound";
 import { MainLayout } from "./components/layout/MainLayout";
 import { ScrollToTop } from "./components/layout/ScrollToTop";
@@ -51,6 +52,7 @@ function AppRoutes() {
         <Route path="/admin/incident/:id" element={<IncidentFormPage />} />
         <Route path="/admin/users" element={<UserManagementPage />} />
         <Route path="/admin/settings" element={<SystemSettingsPage />} />
+        <Route path="/admin/fonts" element={<FontPreviewPage />} />
       </Route>
       <Route path="*" element={<NotFound />} />
     </Routes>
