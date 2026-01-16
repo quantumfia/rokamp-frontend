@@ -10,6 +10,7 @@ import {
   Sun,
   Moon,
   CalendarDays,
+  Type,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
@@ -37,6 +38,7 @@ const ADMIN_MENU_ITEMS: MenuItem[] = [
   { id: 'data', label: '데이터 관리', icon: Database, path: '/admin/data' },
   { id: 'users', label: '사용자 관리', icon: Users, path: '/admin/users' },
   { id: 'settings', label: '보안/감사', icon: Settings, path: '/admin/settings' },
+  { id: 'fonts', label: '폰트 확인', icon: Type, path: '/admin/fonts' },
 ];
 
 interface LNBProps {
