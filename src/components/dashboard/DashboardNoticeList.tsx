@@ -114,7 +114,7 @@ export function DashboardNoticeList() {
   const filteredNotices = (activeFilter === '전체' 
     ? MOCK_NOTICES 
     : MOCK_NOTICES.filter(notice => notice.tag === activeFilter)
-  ).slice(0, 5);
+  ).slice(0, 8);
 
   return (
     <div className="h-full flex flex-col">
