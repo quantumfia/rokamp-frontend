@@ -87,60 +87,25 @@ export default function FontPreviewPage() {
         description="시스템에서 사용 가능한 폰트를 비교합니다"
       />
 
-      <div className="grid gap-6">
+      {/* 3-column side-by-side comparison */}
+      <div className="grid grid-cols-3 gap-6">
         <FontSample
           fontFamily="'Noto Sans KR', sans-serif"
           fontName="Noto Sans KR"
-          description="Google Fonts에서 제공하는 한글 산세리프 폰트"
+          description="Google Fonts 한글 산세리프"
         />
 
         <FontSample
           fontFamily="'Pretendard', sans-serif"
           fontName="Pretendard"
-          description="Apple SF Pro, Inter를 참고하여 제작된 한글 폰트"
+          description="SF Pro, Inter 기반 한글 폰트"
         />
 
         <FontSample
           fontFamily="'Asta Sans', sans-serif"
           fontName="Asta Sans"
-          description="현재 시스템에 적용된 기본 폰트"
+          description="현재 시스템 기본 폰트"
         />
-      </div>
-
-      {/* Side-by-side comparison */}
-      <div className="bg-card border border-border rounded-lg p-6 space-y-4">
-        <h3 className="text-lg font-semibold text-foreground border-b border-border pb-3">
-          나란히 비교
-        </h3>
-        <div className="grid md:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Noto Sans KR</p>
-            <p style={{ fontFamily: "'Noto Sans KR', sans-serif" }} className="text-lg text-foreground">
-              대한민국 육군
-            </p>
-            <p style={{ fontFamily: "'Noto Sans KR', sans-serif" }} className="text-sm text-foreground">
-              안전사고 예방 시스템
-            </p>
-          </div>
-          <div className="space-y-2">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Pretendard</p>
-            <p style={{ fontFamily: "'Pretendard', sans-serif" }} className="text-lg text-foreground">
-              대한민국 육군
-            </p>
-            <p style={{ fontFamily: "'Pretendard', sans-serif" }} className="text-sm text-foreground">
-              안전사고 예방 시스템
-            </p>
-          </div>
-          <div className="space-y-2">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Asta Sans</p>
-            <p style={{ fontFamily: "'Asta Sans', sans-serif" }} className="text-lg text-foreground">
-              대한민국 육군
-            </p>
-            <p style={{ fontFamily: "'Asta Sans', sans-serif" }} className="text-sm text-foreground">
-              안전사고 예방 시스템
-            </p>
-          </div>
-        </div>
       </div>
     </div>
   );
