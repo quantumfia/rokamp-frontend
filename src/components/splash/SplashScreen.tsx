@@ -77,7 +77,7 @@ export function SplashScreen({ onComplete, skipSplash = false, onClickToContinue
 
   return (
     <div 
-      className="fixed inset-0 bg-black flex flex-col items-center justify-center z-50 overflow-hidden cursor-pointer"
+      className="splash-screen fixed inset-0 bg-black flex flex-col items-center justify-center z-50 overflow-hidden cursor-pointer"
       onClick={handleClick}
     >
       {/* Hero image background */}
