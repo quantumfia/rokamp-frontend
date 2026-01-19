@@ -174,13 +174,7 @@
 
   /* Smooth theme transition */
   html {
-    font-size: 120%;
     transition: background-color 0.3s ease, color 0.3s ease;
-  }
-
-  /* Splash screen uses original font size */
-  .splash-screen {
-    font-size: 83.33%; /* Reset to original (100/120 = 83.33%) */
   }
 
   body {
