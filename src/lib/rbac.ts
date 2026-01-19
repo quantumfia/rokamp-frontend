@@ -5,6 +5,7 @@ import { ARMY_UNITS, ArmyUnit } from '@/data/armyUnits';
 export const PAGE_ACCESS: Record<string, UserRole[]> = {
   '/dashboard': ['ROLE_HQ', 'ROLE_DIV', 'ROLE_BN'],
   '/forecast': ['ROLE_HQ', 'ROLE_DIV', 'ROLE_BN'],
+  '/operation-risk': ['ROLE_HQ', 'ROLE_DIV', 'ROLE_BN'],
   '/chatbot': ['ROLE_HQ', 'ROLE_DIV', 'ROLE_BN'],
   '/reports': ['ROLE_HQ', 'ROLE_DIV', 'ROLE_BN'],
   '/admin/notice': ['ROLE_HQ', 'ROLE_DIV'],
@@ -20,6 +21,7 @@ export const PAGE_ACCESS: Record<string, UserRole[]> = {
 export const MENU_ACCESS: Record<string, UserRole[]> = {
   dashboard: ['ROLE_HQ', 'ROLE_DIV', 'ROLE_BN'],
   forecast: ['ROLE_HQ', 'ROLE_DIV', 'ROLE_BN'],
+  'operation-risk': ['ROLE_HQ', 'ROLE_DIV', 'ROLE_BN'],
   chatbot: ['ROLE_HQ', 'ROLE_DIV', 'ROLE_BN'],
   reports: ['ROLE_HQ', 'ROLE_DIV', 'ROLE_BN'],
   notice: ['ROLE_HQ', 'ROLE_DIV'],

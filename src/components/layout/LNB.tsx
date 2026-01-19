@@ -11,6 +11,7 @@ import {
   Moon,
   CalendarDays,
   Type,
+  AlertTriangle,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
@@ -28,6 +29,7 @@ interface MenuItem {
 const MAIN_MENU_ITEMS: MenuItem[] = [
   { id: 'dashboard', label: '대시보드', icon: LayoutDashboard, path: '/dashboard' },
   { id: 'forecast', label: '예보 분석', icon: TrendingUp, path: '/forecast' },
+  { id: 'operation-risk', label: '작전 위험도', icon: AlertTriangle, path: '/operation-risk' },
   { id: 'chatbot', label: '챗봇', icon: MessageSquare, path: '/chatbot' },
   { id: 'reports', label: '보고서', icon: FileText, path: '/reports' },
 ];
